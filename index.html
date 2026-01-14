@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Price Manager Pro Elite</title>
+    <title>Price Manager Pro Elite - Advanced Analytics</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -20,18 +21,10 @@
             --danger: #ef4444;
             --warning: #f59e0b;
             --bg-dark: #0f172a;
-            --bg-darker: #020617;
             --surface-dark: #1e293b;
-            --surface-darker: #0f172a;
             --border-dark: #334155;
             --text-light: #f1f5f9;
             --text-gray: #cbd5e1;
-            --text-dark: #94a3b8;
-            --bg-light: #f8fafc;
-            --surface-light: #ffffff;
-            --border-light: #e2e8f0;
-            --text-dark-mode: #1e293b;
-            --text-gray-light: #475569;
         }
 
         html {
@@ -42,118 +35,21 @@
             --text-secondary: var(--text-gray);
         }
 
-        html[data-theme="light"] {
-            --bg: var(--bg-light);
-            --surface: var(--surface-light);
-            --border: var(--border-light);
-            --text: var(--text-dark-mode);
-            --text-secondary: var(--text-gray-light);
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
-            transition: background 0.3s, color 0.3s;
             overflow: hidden;
         }
 
         .app {
             display: none;
+            height: 100vh;
+            flex-direction: column;
         }
 
         .app.active {
             display: flex;
-            height: 100vh;
-        }
-
-        .sidebar {
-            width: 280px;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
-            overflow-y: auto;
-        }
-
-        .sidebar-header {
-            padding: 24px 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .sidebar-menu {
-            flex: 1;
-            padding: 20px 0;
-        }
-
-        .menu-item {
-            padding: 14px 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-left: 3px solid transparent;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .menu-item:hover {
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--primary-light);
-            border-left-color: var(--primary);
-        }
-
-        .menu-item.active {
-            background: rgba(99, 102, 241, 0.15);
-            color: var(--primary);
-            border-left-color: var(--primary);
-        }
-
-        .sidebar-footer {
-            padding: 20px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .theme-toggle {
-            width: 100%;
-            padding: 10px 15px;
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid var(--primary);
-            border-radius: 8px;
-            color: var(--primary);
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .theme-toggle:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
         }
 
         .header {
@@ -163,28 +59,69 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .page-title {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
         }
 
         .header-right {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .rate-display {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid var(--primary);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rate-live {
+            width: 10px;
+            height: 10px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .user-profile {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .avatar {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
@@ -192,6 +129,7 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
+            font-size: 12px;
         }
 
         .logout-btn {
@@ -208,6 +146,47 @@
             background: #dc2626;
         }
 
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            border-left: 3px solid transparent;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-light);
+        }
+
+        .menu-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+
+        .content-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
         .content {
             flex: 1;
             overflow-y: auto;
@@ -222,88 +201,39 @@
             display: block;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
         .card-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
             border-bottom: 2px solid var(--border);
         }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: var(--text-secondary);
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            padding: 10px 12px;
-            background: var(--bg);
-            border: 1px solid var(--border);
+        .upload-zone {
+            border: 2px dashed var(--primary);
             border-radius: 8px;
-            color: var(--text);
-            font-size: 14px;
-            font-family: inherit;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(99, 102, 241, 0.05);
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        .upload-zone:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary-light);
+        }
+
+        .upload-zone input {
+            display: none;
         }
 
         .btn {
@@ -337,67 +267,121 @@
             background: #dc2626;
         }
 
-        .btn-full {
-            width: 100%;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
-        table {
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .matrix-table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 13px;
+            overflow-x: auto;
         }
 
-        th {
-            background: rgba(99, 102, 241, 0.1);
+        .matrix-table th, .matrix-table td {
             padding: 12px;
-            text-align: left;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .matrix-table th {
+            background: rgba(99, 102, 241, 0.15);
             font-weight: 600;
-            border-bottom: 2px solid var(--border);
+            color: var(--primary);
         }
 
-        td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border);
+        .matrix-table td {
+            position: relative;
         }
 
-        tr:hover {
-            background: rgba(99, 102, 241, 0.05);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
+        .price-cell {
+            padding: 10px;
             border-radius: 6px;
-            font-size: 11px;
             font-weight: 600;
+            animation: slideIn 0.3s ease-out;
         }
 
-        .badge-primary {
+        .price-cell.best {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .price-cell.average {
             background: rgba(99, 102, 241, 0.2);
             color: var(--primary);
         }
 
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--surface);
-            border-left: 4px solid var(--success);
-            border-radius: 8px;
-            padding: 16px 20px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-            z-index: 9999;
-            animation: slideIn 0.3s ease-in-out;
+        .price-cell.high {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
         }
 
         @keyframes slideIn {
             from {
-                transform: translateX(400px);
                 opacity: 0;
+                transform: translateY(-5px);
             }
             to {
-                transform: translateX(0);
                 opacity: 1;
+                transform: translateY(0);
             }
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .analysis-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .analysis-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-size: 13px;
+        }
+
+        .analysis-value {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .analysis-subtitle {
+            font-size: 11px;
+            color: var(--text-secondary);
         }
 
         .login-page {
@@ -428,196 +412,365 @@
 
         .login-box h1 {
             margin: 0 0 30px 0;
-            font-size: 28px;
             text-align: center;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--primary);
+            font-size: 24px;
         }
 
-        .error-msg {
-            color: var(--danger);
-            background: rgba(239, 68, 68, 0.1);
-            padding: 12px;
-            border-radius: 8px;
+        .form-group {
             margin-bottom: 15px;
-            display: none;
-            border-left: 4px solid var(--danger);
         }
 
-        .toggle-link {
-            text-align: center;
-            margin-top: 15px;
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
             font-size: 14px;
         }
 
-        .toggle-link a {
-            color: var(--primary);
-            cursor: pointer;
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--surface);
+            border-left: 4px solid var(--success);
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(99, 102, 241, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table th {
+            background: rgba(99, 102, 241, 0.1);
             font-weight: 600;
+        }
+
+        table tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                flex-direction: row;
+                overflow-x: auto;
+            }
+
+            .sidebar-menu {
+                display: flex;
+                gap: 0;
+                padding: 0;
+            }
+
+            .menu-item {
+                white-space: nowrap;
+                flex: 1;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+            }
+
+            .menu-item.active {
+                border-left: none;
+                border-bottom-color: var(--primary);
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .header {
+                padding: 12px 15px;
+                font-size: 13px;
+            }
+
+            .content {
+                padding: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- LOGIN PAGE -->
+    <!-- LOGIN -->
     <div id="loginApp" class="login-page active">
         <div class="login-box">
-            <div id="loginForm">
-                <h1>💎 Price Manager Pro</h1>
-                <div class="error-msg" id="loginError"></div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="loginEmail" placeholder="admin@example.com" value="admin@example.com">
-                </div>
-                <div class="form-group">
-                    <label>Пароль</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••" value="admin123">
-                </div>
-                <button class="btn btn-primary btn-full" onclick="handleLogin()" style="margin-top: 10px;">
-                    Вход
-                </button>
-                <div class="toggle-link">
-                    Нет аккаунта? <a onclick="toggleLoginRegister()">Создать</a>
-                </div>
+            <h1>💎 Price Manager Pro</h1>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" value="admin@example.com">
             </div>
-
-            <div id="registerForm" style="display: none;">
-                <h1>Регистрация</h1>
-                <div class="error-msg" id="registerError"></div>
-                <div class="form-group">
-                    <label>ФИ</label>
-                    <input type="text" id="regName" placeholder="Иван Иванов">
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="regEmail" placeholder="ivan@example.com">
-                </div>
-                <div class="form-group">
-                    <label>Пароль</label>
-                    <input type="password" id="regPassword" placeholder="••••••••">
-                </div>
-                <button class="btn btn-primary btn-full" onclick="handleRegister()" style="margin-top: 10px;">
-                    Зарегистрироваться
-                </button>
-                <div class="toggle-link">
-                    Уже есть аккаунт? <a onclick="toggleLoginRegister()">Войти</a>
-                </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" id="loginPassword" value="admin123">
             </div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">
+                Вход
+            </button>
         </div>
     </div>
 
     <!-- MAIN APP -->
     <div id="mainApp" class="app">
-        <div class="sidebar">
-            <div class="sidebar-header">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-left">
                 <div class="logo">⚙️ PMP Elite</div>
+                <div class="page-title" id="pageTitle">📊 Дашборд</div>
             </div>
-            <div class="sidebar-menu">
-                <div class="menu-item active" onclick="switchSection('dashboard')">
-                    📊 Дашборд
+            <div class="header-right">
+                <div class="rate-display">
+                    <span class="rate-live"></span>
+                    <span>USD/CNY: <strong id="rateValue">7.25</strong></span>
                 </div>
-                <div class="menu-item" onclick="switchSection('prices')">
-                    💰 Цены
+                <div class="user-profile">
+                    <div class="avatar" id="userAvatar">A</div>
+                    <div id="userName">Администратор</div>
                 </div>
-                <div class="menu-item" onclick="switchSection('comparison')">
-                    📈 Сравнение
-                </div>
-                <div class="menu-item" onclick="switchSection('companies')">
-                    🏢 Компании
-                </div>
-            </div>
-            <div class="sidebar-footer">
-                <button class="theme-toggle" onclick="toggleTheme()">🌙 Тема</button>
+                <button class="logout-btn" onclick="handleLogout()">Выход</button>
             </div>
         </div>
 
-        <div class="main-content">
-            <div class="header">
-                <h2 class="page-title" id="pageTitle">📊 Дашборд</h2>
-                <div class="header-right">
-                    <div class="user-profile">
-                        <div class="avatar" id="userAvatar">A</div>
-                        <div>
-                            <div style="font-weight: 600;" id="userName">Администратор</div>
-                        </div>
-                    </div>
-                    <button class="logout-btn" onclick="handleLogout()">Выход</button>
+        <!-- CONTENT -->
+        <div class="content-wrapper">
+            <!-- SIDEBAR -->
+            <div class="sidebar">
+                <div class="sidebar-menu">
+                    <div class="menu-item active" onclick="switchSection('dashboard')">📊 Дашборд</div>
+                    <div class="menu-item" onclick="switchSection('upload')">📤 Загрузка</div>
+                    <div class="menu-item" onclick="switchSection('matrix')">📊 Матрица</div>
+                    <div class="menu-item" onclick="switchSection('analytics')">📈 Аналитика</div>
+                    <div class="menu-item" onclick="switchSection('companies')">🏢 Компании</div>
                 </div>
             </div>
 
+            <!-- SECTIONS -->
             <div class="content">
+                <!-- DASHBOARD -->
                 <section id="dashboard" class="section active">
                     <div class="stats-grid" id="statsGrid"></div>
                     <div class="card">
-                        <div class="card-title">⭐ Последние цены</div>
-                        <table id="pricesTableDash">
-                            <thead><tr><th>Компания</th><th>Продукт</th><th>Цена CNY</th><th>Дата</th></tr></thead>
-                            <tbody></tbody>
+                        <div class="card-title">⭐ Топ 10 лучших цен</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Продукт</th>
+                                    <th>Компания</th>
+                                    <th>Цена CNY</th>
+                                    <th>Дата</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topPricesList"></tbody>
                         </table>
                     </div>
                 </section>
 
-                <section id="prices" class="section">
+                <!-- UPLOAD -->
+                <section id="upload" class="section">
                     <div class="card">
-                        <div class="card-title">➕ Добавить цену</div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Компания</label>
-                                <select id="priceCompanySelect"><option value="">-- Выберите --</option></select>
-                            </div>
-                            <div class="form-group">
-                                <label>Продукт</label>
-                                <input type="text" id="priceProduct" placeholder="Название">
-                            </div>
-                            <div class="form-group">
-                                <label>Цена USD</label>
-                                <input type="number" id="priceValue" placeholder="0.00" step="0.01">
-                            </div>
-                            <div class="form-group">
-                                <label>Объём</label>
-                                <input type="number" id="priceVolume" placeholder="0" step="1">
-                            </div>
+                        <div class="card-title">📥 Загрузить данные из Excel</div>
+                        <div class="upload-zone" onclick="document.getElementById('excelFile').click()">
+                            <p style="margin: 0; font-weight: 600; color: var(--primary); cursor: pointer;">
+                                📤 Нажмите для загрузки или перетащите файл
+                            </p>
+                            <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                                Поддерживаются форматы: XLSX, XLS, CSV
+                            </p>
+                            <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" onchange="handleExcelUpload(event)">
                         </div>
-                        <button class="btn btn-primary" onclick="addPrice()">✅ Добавить</button>
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(99, 102, 241, 0.05); border-radius: 8px; font-size: 12px;">
+                            <p><strong>ℹ️ Формат файла:</strong></p>
+                            <ul style="margin: 10px 0 0 20px; color: var(--text-secondary);">
+                                <li>Первая строка - наименования компаний</li>
+                                <li>Первая колонка - наименования продуктов</li>
+                                <li>Остальные ячейки - цены в CNY</li>
+                                <li>Используйте символ ¥ или просто числа</li>
+                            </ul>
+                        </div>
                     </div>
 
                     <div class="card">
-                        <div class="card-title">📋 Таблица цен</div>
-                        <input type="text" id="priceSearch" placeholder="🔍 Поиск..." onkeyup="filterPrices()" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); margin-bottom: 15px;">
-                        <table id="pricesTable">
-                            <thead><tr><th>Компания</th><th>Продукт</th><th>Цена CNY</th><th>Дата</th><th>Действие</th></tr></thead>
+                        <div class="card-title">🏢 Загрузить компании</div>
+                        <div class="upload-zone" onclick="document.getElementById('companiesFile').click()">
+                            <p style="margin: 0; font-weight: 600; color: var(--primary); cursor: pointer;">
+                                📤 Загрузить список компаний
+                            </p>
+                            <input type="file" id="companiesFile" accept=".xlsx,.xls,.csv" onchange="handleCompaniesUpload(event)">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">⚙️ Действия</div>
+                        <button class="btn btn-danger" onclick="clearAllData()">🗑️ Очистить все данные</button>
+                    </div>
+                </section>
+
+                <!-- MATRIX -->
+                <section id="matrix" class="section">
+                    <div class="card">
+                        <div class="card-title">📊 Матрица цен (CNY) с аналитикой</div>
+                        <div style="overflow-x: auto; position: relative;">
+                            <table class="matrix-table" id="matrixTable">
+                                <thead></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="analytics-grid">
+                        <div class="analysis-card">
+                            <div class="analysis-title">💰 Средняя цена</div>
+                            <div class="analysis-value" id="avgPrice">-</div>
+                            <div class="analysis-subtitle">по всем продуктам</div>
+                        </div>
+                        <div class="analysis-card">
+                            <div class="analysis-title">📉 Минимальная</div>
+                            <div class="analysis-value" id="minPrice">-</div>
+                            <div class="analysis-subtitle">самое выгодное предложение</div>
+                        </div>
+                        <div class="analysis-card">
+                            <div class="analysis-title">📈 Максимальная</div>
+                            <div class="analysis-value" id="maxPrice">-</div>
+                            <div class="analysis-subtitle">самое дорогое предложение</div>
+                        </div>
+                        <div class="analysis-card">
+                            <div class="analysis-title">🎯 Самая конкурентная</div>
+                            <div class="analysis-value" id="bestCompany">-</div>
+                            <div class="analysis-subtitle">по количеству лучших цен</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ANALYTICS -->
+                <section id="analytics" class="section">
+                    <div class="card">
+                        <div class="card-title">📈 Аналитика по компаниям</div>
+                        <table id="companiesAnalytics">
+                            <thead>
+                                <tr>
+                                    <th>Компания</th>
+                                    <th>Кол-во цен</th>
+                                    <th>Средняя цена</th>
+                                    <th>Мин. цена</th>
+                                    <th>Макс. цена</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">🏆 Лучшие предложения по продуктам</div>
+                        <table id="productAnalytics">
+                            <thead>
+                                <tr>
+                                    <th>Продукт</th>
+                                    <th>Лучшая цена</th>
+                                    <th>Компания</th>
+                                    <th>Среднее</th>
+                                    <th>Разброс</th>
+                                </tr>
+                            </thead>
                             <tbody></tbody>
                         </table>
                     </div>
                 </section>
 
-                <section id="comparison" class="section">
-                    <div class="card">
-                        <div class="card-title">📊 Матрица сравнения цен</div>
-                        <div id="comparisonTable"></div>
-                    </div>
-                </section>
-
+                <!-- COMPANIES -->
                 <section id="companies" class="section">
                     <div class="card">
-                        <div class="card-title">➕ Добавить компанию</div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Название</label>
-                                <input type="text" id="companyName" placeholder="ООО Компания">
-                            </div>
-                            <div class="form-group">
-                                <label>Сайт</label>
-                                <input type="url" id="companySite" placeholder="https://example.com">
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" onclick="addCompany()">✅ Добавить</button>
-                    </div>
-
-                    <div class="card">
                         <div class="card-title">🏢 Список компаний</div>
-                        <table id="companiesTable">
-                            <thead><tr><th>Название</th><th>Сайт</th><th>Цен</th><th>Действие</th></tr></thead>
+                        <table id="companiesList">
+                            <thead>
+                                <tr>
+                                    <th>Компания</th>
+                                    <th>Продуктов</th>
+                                    <th>Средняя цена</th>
+                                </tr>
+                            </thead>
                             <tbody></tbody>
                         </table>
                     </div>
@@ -627,18 +780,51 @@
     </div>
 
     <script>
-        console.log('🚀 App starting...');
-        const DB = { users: [], companies: [], prices: [] };
+        const DB = { 
+            companies: [], 
+            prices: {}  // { 'Product': { 'Company': price, ... } }
+        };
         let currentUser = null;
         let exchangeRate = 7.25;
+
+        // Загрузка данных при старте
+        window.addEventListener('load', () => {
+            safeLoadDB();
+            const theme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            
+            if (currentUser) {
+                showMainApp();
+            } else {
+                showLoginApp();
+            }
+            
+            // Загрузка курса каждые 5 минут
+            loadExchangeRate();
+            setInterval(loadExchangeRate, 5 * 60 * 1000);
+        });
+
+        // Реальный курс USD/CNY
+        function loadExchangeRate() {
+            // Используем публичный API (можно заменить на свой)
+            fetch('https://api.exchangerate-api.com/v4/latest/USD')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.rates && data.rates.CNY) {
+                        exchangeRate = data.rates.CNY;
+                        document.getElementById('rateValue').textContent = exchangeRate.toFixed(2);
+                        console.log('📊 Курс обновлён:', exchangeRate);
+                    }
+                })
+                .catch(() => {
+                    console.log('ℹ️ Не удалось загрузить курс, использую старый:', exchangeRate);
+                });
+        }
 
         function safeLoadDB() {
             try {
                 const stored = localStorage.getItem('priceManagerDB');
-                if (stored) {
-                    Object.assign(DB, JSON.parse(stored));
-                    console.log('✅ DB loaded');
-                }
+                if (stored) Object.assign(DB, JSON.parse(stored));
             } catch (err) {
                 console.error('❌ Load error:', err);
             }
@@ -650,11 +836,10 @@
                 console.error('❌ User load error:', err);
             }
 
-            if (!DB.users.length) {
-                DB.users = [{
-                    id: 1, name: 'Администратор', email: 'admin@example.com', password: 'admin123'
-                }];
-                safeSaveDB();
+            if (!DB.companies || DB.companies.length === 0) {
+                DB.companies = [
+                    { id: 1, name: 'Администратор', site: '' }
+                ];
             }
         }
 
@@ -665,69 +850,29 @@
                 console.log('✅ DB saved');
             } catch (err) {
                 console.error('❌ Save error:', err);
+                showToast('Ошибка сохранения', 'error');
             }
         }
 
-        function showToast(msg) {
+        function showToast(msg, type = 'success') {
             const toast = document.createElement('div');
-            toast.className = 'toast';
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
             toast.textContent = msg;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
-        }
-
-        function toggleLoginRegister() {
-            document.getElementById('loginForm').style.display = 
-                document.getElementById('loginForm').style.display === 'none' ? 'block' : 'none';
-            document.getElementById('registerForm').style.display = 
-                document.getElementById('registerForm').style.display === 'none' ? 'block' : 'none';
         }
 
         function handleLogin() {
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
 
-            const user = DB.users.find(u => u.email === email && u.password === password);
-            if (!user) {
-                document.getElementById('loginError').textContent = 'Неверный email или пароль';
-                document.getElementById('loginError').style.display = 'block';
-                return;
+            if (email === 'admin@example.com' && password === 'admin123') {
+                currentUser = { id: 1, name: 'Администратор', email: email };
+                safeSaveDB();
+                showMainApp();
+            } else {
+                showToast('❌ Неверные учётные данные', 'error');
             }
-
-            currentUser = user;
-            safeSaveDB();
-            document.getElementById('loginError').style.display = 'none';
-            document.getElementById('loginApp').classList.remove('active');
-            document.getElementById('mainApp').classList.add('active');
-            document.getElementById('userAvatar').textContent = user.name[0].toUpperCase();
-            document.getElementById('userName').textContent = user.name;
-            loadDashboard();
-        }
-
-        function handleRegister() {
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value;
-
-            if (!name || !email || !password) {
-                document.getElementById('registerError').textContent = 'Заполните все поля';
-                document.getElementById('registerError').style.display = 'block';
-                return;
-            }
-
-            if (DB.users.find(u => u.email === email)) {
-                document.getElementById('registerError').textContent = 'Email уже существует';
-                document.getElementById('registerError').style.display = 'block';
-                return;
-            }
-
-            const newUser = { id: DB.users.length + 1, name, email, password };
-            DB.users.push(newUser);
-            safeSaveDB();
-            currentUser = newUser;
-            document.getElementById('loginApp').classList.remove('active');
-            document.getElementById('mainApp').classList.add('active');
-            loadDashboard();
         }
 
         function handleLogout() {
@@ -738,186 +883,326 @@
             }
         }
 
+        function showLoginApp() {
+            document.getElementById('loginApp').classList.add('active');
+            document.getElementById('mainApp').classList.remove('active');
+        }
+
+        function showMainApp() {
+            document.getElementById('loginApp').classList.remove('active');
+            document.getElementById('mainApp').classList.add('active');
+            document.getElementById('userAvatar').textContent = currentUser.name[0].toUpperCase();
+            document.getElementById('userName').textContent = currentUser.name;
+            loadDashboard();
+        }
+
         function switchSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-            event.target.closest('.menu-item').classList.add('active');
+            event.target.closest('.menu-item')?.classList.add('active');
 
             const titles = {
                 dashboard: '📊 Дашборд',
-                prices: '💰 Цены',
-                comparison: '📈 Сравнение',
+                upload: '📤 Загрузка данных',
+                matrix: '📊 Матрица цен',
+                analytics: '📈 Аналитика',
                 companies: '🏢 Компании'
             };
-            document.getElementById('pageTitle').textContent = titles[id];
+            document.getElementById('pageTitle').textContent = titles[id] || 'Страница';
+
+            if (id === 'matrix') renderMatrix();
+            if (id === 'analytics') renderAnalytics();
+            if (id === 'companies') renderCompanies();
         }
 
-        function toggleTheme() {
-            const html = document.documentElement;
-            const theme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-            html.setAttribute('data-theme', theme);
-            localStorage.setItem('theme', theme);
+        // EXCEL ЗАГРУЗКА
+        function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                    if (json.length < 2) {
+                        showToast('❌ Неверный формат файла', 'error');
+                        return;
+                    }
+
+                    const headers = json[0];
+                    
+                    // Обновляем компании
+                    DB.companies = headers.slice(1).map((name, i) => ({
+                        id: i + 1,
+                        name: name,
+                        site: ''
+                    }));
+
+                    // Очищаем старые цены
+                    DB.prices = {};
+
+                    // Загружаем новые цены
+                    for (let i = 1; i < json.length; i++) {
+                        const row = json[i];
+                        const product = row[0];
+                        if (!product) continue;
+
+                        DB.prices[product] = {};
+                        for (let j = 1; j < headers.length; j++) {
+                            const company = headers[j];
+                            let price = row[j];
+                            
+                            // Парсим цену (убираем ¥ и запятые)
+                            if (price) {
+                                price = String(price).replace(/¥|,|,/g, '').trim();
+                                price = parseFloat(price);
+                                if (!isNaN(price)) {
+                                    DB.prices[product][company] = price;
+                                }
+                            }
+                        }
+                    }
+
+                    safeSaveDB();
+                    showToast(`✅ Загружено ${Object.keys(DB.prices).length} продуктов, ${DB.companies.length} компаний`);
+                    loadDashboard();
+                    event.target.value = '';
+                } catch (err) {
+                    console.error('❌ Parse error:', err);
+                    showToast('❌ Ошибка при загрузке файла', 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
         }
 
+        function handleCompaniesUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                    DB.companies = [];
+                    for (let i = 1; i < json.length; i++) {
+                        const row = json[i];
+                        if (row[0]) {
+                            DB.companies.push({
+                                id: i,
+                                name: row[0],
+                                site: row[1] || ''
+                            });
+                        }
+                    }
+
+                    safeSaveDB();
+                    showToast(`✅ Загружено ${DB.companies.length} компаний`);
+                    event.target.value = '';
+                } catch (err) {
+                    showToast('❌ Ошибка при загрузке', 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function clearAllData() {
+            if (confirm('Это удалит все данные! Продолжить?')) {
+                DB.prices = {};
+                DB.companies = [{ id: 1, name: 'Администратор', site: '' }];
+                safeSaveDB();
+                showToast('✅ Данные очищены');
+                loadDashboard();
+            }
+        }
+
+        // DASHBOARD
         function loadDashboard() {
-            const stats = [
-                { label: 'Компаний', value: DB.companies.length },
-                { label: 'Продуктов', value: new Set(DB.prices.map(p => p.product)).size },
-                { label: 'Цен', value: DB.prices.length }
-            ];
+            const productCount = Object.keys(DB.prices).length;
+            const totalPrices = Object.values(DB.prices).reduce((sum, prods) => sum + Object.keys(prods).length, 0);
 
-            document.getElementById('statsGrid').innerHTML = stats.map(s => `
+            document.getElementById('statsGrid').innerHTML = `
                 <div class="stat-card">
-                    <div class="stat-label">${s.label}</div>
-                    <div class="stat-value">${s.value}</div>
+                    <div class="stat-label">Компаний</div>
+                    <div class="stat-value">${DB.companies.length}</div>
                 </div>
-            `).join('');
+                <div class="stat-card">
+                    <div class="stat-label">Продуктов</div>
+                    <div class="stat-value">${productCount}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Записей цен</div>
+                    <div class="stat-value">${totalPrices}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Курс USD/CNY</div>
+                    <div class="stat-value">${exchangeRate.toFixed(2)}</div>
+                </div>
+            `;
 
-            const tbody = document.querySelector('#pricesTableDash tbody');
-            tbody.innerHTML = DB.prices.slice(-5).map(p => {
-                const c = DB.companies.find(x => x.id === p.companyId);
-                return `<tr><td>${c?.name || '—'}</td><td>${p.product}</td><td>¥${(p.value * exchangeRate).toFixed(2)}</td><td>${p.date}</td></tr>`;
-            }).join('');
+            // Топ 10 цен
+            const allPrices = [];
+            for (const [product, companies] of Object.entries(DB.prices)) {
+                for (const [company, price] of Object.entries(companies)) {
+                    allPrices.push({ product, company, price });
+                }
+            }
 
-            loadCompanies();
-            loadPrices();
+            const topPrices = allPrices.sort((a, b) => a.price - b.price).slice(0, 10);
+            const topList = document.getElementById('topPricesList');
+            topList.innerHTML = topPrices.map(p => `
+                <tr>
+                    <td><strong>${p.product}</strong></td>
+                    <td>${p.company}</td>
+                    <td><span class="badge badge-success">¥${p.price.toFixed(2)}</span></td>
+                    <td>${new Date().toLocaleDateString('ru-RU')}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="4">Нет данных</td></tr>';
         }
 
-        function addPrice() {
-            const companyId = parseInt(document.getElementById('priceCompanySelect').value);
-            const product = document.getElementById('priceProduct').value.trim();
-            const value = parseFloat(document.getElementById('priceValue').value);
-
-            if (!companyId || !product || !value) {
-                showToast('❌ Заполните все поля');
+        // MATRIX
+        function renderMatrix() {
+            if (Object.keys(DB.prices).length === 0) {
+                document.getElementById('matrixTable').innerHTML = '<thead></thead><tbody><tr><td>📤 Загрузите данные из Excel</td></tr></tbody>';
                 return;
             }
 
-            DB.prices.push({
-                id: DB.prices.length + 1, companyId, product, value,
-                date: new Date().toLocaleDateString('ru-RU')
-            });
-            safeSaveDB();
-            showToast('✅ Цена добавлена');
-            document.getElementById('priceProduct').value = '';
-            document.getElementById('priceValue').value = '';
-            loadPrices();
-            loadDashboard();
-        }
+            const products = Object.keys(DB.prices);
+            const companies = [...new Set(products.flatMap(p => Object.keys(DB.prices[p])))];
 
-        function loadPrices() {
-            const tbody = document.querySelector('#pricesTable tbody');
-            tbody.innerHTML = DB.prices.map(p => {
-                const c = DB.companies.find(x => x.id === p.companyId);
-                return `<tr>
-                    <td>${c?.name || '—'}</td>
-                    <td>${p.product}</td>
-                    <td><span class="badge badge-primary">¥${(p.value * exchangeRate).toFixed(2)}</span></td>
-                    <td>${p.date}</td>
-                    <td><button class="btn btn-danger" onclick="deletePrice(${p.id})">🗑️</button></td>
-                </tr>`;
-            }).join('') || '<tr><td colspan="5">Нет цен</td></tr>';
-
-            document.getElementById('priceCompanySelect').innerHTML = 
-                '<option value="">-- Выберите --</option>' + 
-                DB.companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-
-            loadComparison();
-        }
-
-        function filterPrices() {
-            const q = document.getElementById('priceSearch').value.toLowerCase();
-            document.querySelectorAll('#pricesTable tbody tr').forEach(tr => {
-                tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
-            });
-        }
-
-        function deletePrice(id) {
-            if (confirm('Удалить?')) {
-                DB.prices = DB.prices.filter(p => p.id !== id);
-                safeSaveDB();
-                loadPrices();
-            }
-        }
-
-        function loadComparison() {
-            const products = [...new Set(DB.prices.map(p => p.product))];
-            const companies = [...new Set(DB.prices.map(p => DB.companies.find(c => c.id === p.companyId)?.name))].filter(Boolean);
-
-            let html = '<table><tr style="background: rgba(99, 102, 241, 0.1);"><th>Продукт</th>';
+            let html = '<thead><tr><th>Продукт</th>';
             companies.forEach(c => html += `<th>${c}</th>`);
-            html += '</tr>';
+            html += '</tr></thead><tbody>';
 
             products.forEach(prod => {
-                html += `<tr><td style="font-weight: 600;">${prod}</td>`;
+                const prices = DB.prices[prod];
+                const pricesArray = companies.map(c => prices[c]).filter(p => p !== undefined);
+                const min = Math.min(...pricesArray);
+                const avg = pricesArray.reduce((a, b) => a + b, 0) / pricesArray.length;
+                const max = Math.max(...pricesArray);
+
+                html += `<tr><td><strong>${prod}</strong></td>`;
                 companies.forEach(comp => {
-                    const price = DB.prices.find(p => p.product === prod && DB.companies.find(c => c.id === p.companyId)?.name === comp);
-                    html += `<td>${price ? '¥' + (price.value * exchangeRate).toFixed(2) : '—'}</td>`;
+                    const price = prices[comp];
+                    let cls = 'average';
+                    if (price === min) cls = 'best';
+                    if (price === max) cls = 'high';
+                    
+                    html += `<td><div class="price-cell ${cls}">${price ? '¥' + price.toFixed(2) : '—'}</div></td>`;
                 });
                 html += '</tr>';
             });
-            html += '</table>';
-            document.getElementById('comparisonTable').innerHTML = html;
-        }
 
-        function addCompany() {
-            const name = document.getElementById('companyName').value.trim();
-            const site = document.getElementById('companySite').value.trim();
+            html += '</tbody>';
+            document.getElementById('matrixTable').innerHTML = html;
 
-            if (!name) {
-                showToast('❌ Введите название');
-                return;
+            // Обновляем аналитику
+            const allPrices = [];
+            for (const prods of Object.values(DB.prices)) {
+                allPrices.push(...Object.values(prods));
             }
 
-            DB.companies.push({ id: DB.companies.length + 1, name, site });
-            safeSaveDB();
-            showToast('✅ Компания добавлена');
-            document.getElementById('companyName').value = '';
-            document.getElementById('companySite').value = '';
-            loadCompanies();
-            loadPrices();
-        }
+            document.getElementById('avgPrice').textContent = '¥' + (allPrices.reduce((a, b) => a + b, 0) / allPrices.length).toFixed(2);
+            document.getElementById('minPrice').textContent = '¥' + Math.min(...allPrices).toFixed(2);
+            document.getElementById('maxPrice').textContent = '¥' + Math.max(...allPrices).toFixed(2);
 
-        function loadCompanies() {
-            const tbody = document.querySelector('#companiesTable tbody');
-            tbody.innerHTML = DB.companies.map(c => {
-                const count = DB.prices.filter(p => p.companyId === c.id).length;
-                return `<tr>
-                    <td><strong>${c.name}</strong></td>
-                    <td><a href="${c.site}" target="_blank" style="color: var(--primary);">${c.site || '—'}</a></td>
-                    <td>${count}</td>
-                    <td><button class="btn btn-danger" onclick="deleteCompany(${c.id})">🗑️</button></td>
-                </tr>`;
-            }).join('') || '<tr><td colspan="4">Нет компаний</td></tr>';
-        }
-
-        function deleteCompany(id) {
-            if (confirm('Удалить?')) {
-                DB.companies = DB.companies.filter(c => c.id !== id);
-                DB.prices = DB.prices.filter(p => p.companyId !== id);
-                safeSaveDB();
-                loadCompanies();
-                loadPrices();
+            // Лучшая компания
+            const companyCounts = {};
+            for (const [prod, prods] of Object.entries(DB.prices)) {
+                const prices = Object.entries(prods);
+                if (prices.length > 0) {
+                    const [bestComp] = prices.sort((a, b) => a[1] - b[1])[0];
+                    companyCounts[bestComp] = (companyCounts[bestComp] || 0) + 1;
+                }
             }
+
+            const best = Object.entries(companyCounts).sort((a, b) => b[1] - a[1])[0];
+            document.getElementById('bestCompany').textContent = best ? `${best[0]} (${best[1]})` : '—';
         }
 
-        window.addEventListener('load', () => {
-            console.log('✅ Page loaded');
-            safeLoadDB();
-            const theme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', theme);
-
-            if (currentUser) {
-                document.getElementById('loginApp').classList.remove('active');
-                document.getElementById('mainApp').classList.add('active');
-                document.getElementById('userAvatar').textContent = currentUser.name[0].toUpperCase();
-                document.getElementById('userName').textContent = currentUser.name;
-                loadDashboard();
-            } else {
-                document.getElementById('loginApp').classList.add('active');
+        // ANALYTICS
+        function renderAnalytics() {
+            // Аналитика по компаниям
+            const companyStats = {};
+            for (const [product, companies] of Object.entries(DB.prices)) {
+                for (const [company, price] of Object.entries(companies)) {
+                    if (!companyStats[company]) {
+                        companyStats[company] = { prices: [], count: 0 };
+                    }
+                    companyStats[company].prices.push(price);
+                    companyStats[company].count++;
+                }
             }
-        });
+
+            const compTable = document.getElementById('companiesAnalytics').querySelector('tbody');
+            compTable.innerHTML = Object.entries(companyStats).map(([comp, stats]) => {
+                const avg = (stats.prices.reduce((a, b) => a + b, 0) / stats.prices.length).toFixed(2);
+                const min = Math.min(...stats.prices).toFixed(2);
+                const max = Math.max(...stats.prices).toFixed(2);
+                return `
+                    <tr>
+                        <td><strong>${comp}</strong></td>
+                        <td>${stats.count}</td>
+                        <td>¥${avg}</td>
+                        <td>¥${min}</td>
+                        <td>¥${max}</td>
+                        <td><span class="badge badge-success">✅ Активна</span></td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Лучшие предложения по продуктам
+            const prodTable = document.getElementById('productAnalytics').querySelector('tbody');
+            prodTable.innerHTML = Object.entries(DB.prices).map(([prod, companies]) => {
+                const pricesArray = Object.entries(companies).sort((a, b) => a[1] - b[1]);
+                if (pricesArray.length === 0) return '';
+
+                const [bestComp, bestPrice] = pricesArray[0];
+                const prices = pricesArray.map(p => p[1]);
+                const avg = (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2);
+                const spread = (Math.max(...prices) - Math.min(...prices)).toFixed(2);
+
+                return `
+                    <tr>
+                        <td><strong>${prod}</strong></td>
+                        <td>¥${bestPrice.toFixed(2)}</td>
+                        <td>${bestComp}</td>
+                        <td>¥${avg}</td>
+                        <td>¥${spread}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // COMPANIES
+        function renderCompanies() {
+            const compTable = document.getElementById('companiesList').querySelector('tbody');
+            compTable.innerHTML = DB.companies.map(comp => {
+                const prices = [];
+                for (const prods of Object.values(DB.prices)) {
+                    if (prods[comp.name]) prices.push(prods[comp.name]);
+                }
+                const avg = prices.length > 0 ? (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2) : '—';
+
+                return `
+                    <tr>
+                        <td><strong>${comp.name}</strong></td>
+                        <td>${prices.length}</td>
+                        <td>${prices.length > 0 ? '¥' + avg : '—'}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        console.log('✅ App loaded');
     </script>
 </body>
 </html>
