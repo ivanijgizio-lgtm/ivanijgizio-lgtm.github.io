@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Price Manager Pro Elite</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
-    <script src="https://unpkg.com/chart.js@3.9.1/dist/chart.min.js"></script>
-    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -72,7 +67,6 @@
             height: 100vh;
         }
 
-        /* ===== SIDEBAR ===== */
         .sidebar {
             width: 280px;
             background: var(--surface);
@@ -81,7 +75,6 @@
             flex-direction: column;
             box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
             overflow-y: auto;
-            transition: all 0.3s ease;
         }
 
         .sidebar-header {
@@ -130,11 +123,6 @@
             border-left-color: var(--primary);
         }
 
-        .menu-item i {
-            width: 20px;
-            text-align: center;
-        }
-
         .sidebar-footer {
             padding: 20px;
             border-top: 1px solid var(--border);
@@ -161,7 +149,6 @@
             color: white;
         }
 
-        /* ===== MAIN CONTENT ===== */
         .main-content {
             flex: 1;
             display: flex;
@@ -176,13 +163,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
         }
 
         .page-title {
@@ -196,22 +176,10 @@
             gap: 20px;
         }
 
-        .exchange-rate {
-            font-size: 13px;
-            padding: 8px 12px;
-            background: rgba(99, 102, 241, 0.1);
-            border-radius: 6px;
-            color: var(--primary);
-            font-weight: 600;
-        }
-
         .user-profile {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 8px 12px;
-            background: rgba(99, 102, 241, 0.05);
-            border-radius: 8px;
         }
 
         .avatar {
@@ -224,7 +192,6 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 14px;
         }
 
         .logout-btn {
@@ -234,16 +201,13 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
             font-weight: 600;
-            transition: all 0.2s;
         }
 
         .logout-btn:hover {
             background: #dc2626;
         }
 
-        /* ===== CONTENT AREA ===== */
         .content {
             flex: 1;
             overflow-y: auto;
@@ -252,19 +216,12 @@
 
         .section {
             display: none;
-            animation: fadeIn 0.3s ease-in;
         }
 
         .section.active {
             display: block;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ===== STATS CARDS ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -278,34 +235,11 @@
             border-radius: 12px;
             padding: 24px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
-            border-radius: 50%;
-            transform: translate(30%, -30%);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-            border-color: var(--primary);
         }
 
         .stat-label {
             font-size: 13px;
             color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
             margin-bottom: 8px;
             font-weight: 600;
         }
@@ -316,24 +250,14 @@
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            position: relative;
-            z-index: 1;
         }
 
-        /* ===== CARDS ===== */
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 24px;
             margin-bottom: 24px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s;
-        }
-
-        .card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.15);
         }
 
         .card-title {
@@ -342,12 +266,8 @@
             margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 2px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
-        /* ===== FORMS ===== */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -377,18 +297,15 @@
             color: var(--text);
             font-size: 14px;
             font-family: inherit;
-            transition: all 0.2s;
         }
 
         .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
+        .form-group select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
-        /* ===== BUTTONS ===== */
         .btn {
             padding: 10px 20px;
             border: none;
@@ -399,30 +316,16 @@
             transition: all 0.2s;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
-            white-space: nowrap;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
-        }
-
-        .btn-secondary {
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--primary);
-            border: 1px solid var(--primary);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(99, 102, 241, 0.2);
         }
 
         .btn-danger {
@@ -434,23 +337,8 @@
             background: #dc2626;
         }
 
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-
-        .btn-warning:hover {
-            background: #d97706;
-        }
-
         .btn-full {
             width: 100%;
-        }
-
-        /* ===== TABLE ===== */
-        .table-wrapper {
-            overflow-x: auto;
-            border-radius: 12px;
         }
 
         table {
@@ -463,21 +351,12 @@
             padding: 12px;
             text-align: left;
             font-weight: 600;
-            font-size: 13px;
-            color: var(--primary);
             border-bottom: 2px solid var(--border);
-            cursor: pointer;
-            user-select: none;
-        }
-
-        th:hover {
-            background: rgba(99, 102, 241, 0.15);
         }
 
         td {
             padding: 12px;
             border-bottom: 1px solid var(--border);
-            font-size: 14px;
         }
 
         tr:hover {
@@ -497,17 +376,6 @@
             color: var(--primary);
         }
 
-        .badge-success {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--success);
-        }
-
-        .badge-danger {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-        }
-
-        /* ===== TOAST ===== */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -521,14 +389,6 @@
             animation: slideIn 0.3s ease-in-out;
         }
 
-        .toast.error {
-            border-left-color: var(--danger);
-        }
-
-        .toast.warning {
-            border-left-color: var(--warning);
-        }
-
         @keyframes slideIn {
             from {
                 transform: translateX(400px);
@@ -540,21 +400,12 @@
             }
         }
 
-        /* ===== CHART ===== */
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin-top: 20px;
-        }
-
-        /* ===== LOGIN PAGE ===== */
         .login-page {
             display: none;
             min-height: 100vh;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             align-items: center;
             justify-content: center;
-            padding: 20px;
             position: fixed;
             top: 0;
             left: 0;
@@ -571,7 +422,6 @@
             background: var(--surface);
             padding: 40px;
             border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
             max-width: 420px;
         }
@@ -592,7 +442,6 @@
             border-radius: 8px;
             margin-bottom: 15px;
             display: none;
-            font-size: 13px;
             border-left: 4px solid var(--danger);
         }
 
@@ -600,46 +449,12 @@
             text-align: center;
             margin-top: 15px;
             font-size: 14px;
-            color: var(--text-secondary);
         }
 
         .toggle-link a {
             color: var(--primary);
             cursor: pointer;
-            text-decoration: none;
             font-weight: 600;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                left: -280px;
-                top: 0;
-                height: 100vh;
-                z-index: 100;
-                transition: left 0.3s ease;
-            }
-
-            .sidebar.mobile-open {
-                left: 0;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .header {
-                padding: 12px 15px;
-            }
-
-            .content {
-                padding: 15px;
-            }
         }
     </style>
 </head>
@@ -648,20 +463,18 @@
     <div id="loginApp" class="login-page active">
         <div class="login-box">
             <div id="loginForm">
-                <h1>
-                <svg class="feather" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 10.26 23.77 11.35 17.88 17.14 19.54 25.88 12 21.77 4.46 25.88 6.12 17.14 0.23 11.35 8.91 10.26 12 2"></polygon></svg> Price Manager Pro Elite
-            </h1>
+                <h1>💎 Price Manager Pro</h1>
                 <div class="error-msg" id="loginError"></div>
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="loginEmail" placeholder="admin@example.com">
+                    <input type="email" id="loginEmail" placeholder="admin@example.com" value="admin@example.com">
                 </div>
                 <div class="form-group">
                     <label>Пароль</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••">
+                    <input type="password" id="loginPassword" placeholder="••••••••" value="admin123">
                 </div>
-                <button class="btn btn-primary btn-full" onclick="handleLogin()">
-                    <svg class="feather" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg> Вход
+                <button class="btn btn-primary btn-full" onclick="handleLogin()" style="margin-top: 10px;">
+                    Вход
                 </button>
                 <div class="toggle-link">
                     Нет аккаунта? <a onclick="toggleLoginRegister()">Создать</a>
@@ -680,22 +493,11 @@
                     <input type="email" id="regEmail" placeholder="ivan@example.com">
                 </div>
                 <div class="form-group">
-                    <label>Должность</label>
-                    <input type="text" id="regPosition" placeholder="Менеджер">
-                </div>
-                <div class="form-group">
-                    <label>Роль</label>
-                    <select id="regRole">
-                        <option value="viewer">Просмотр</option>
-                        <option value="admin">Администратор</option>
-                    </select>
-                </div>
-                <div class="form-group">
                     <label>Пароль</label>
                     <input type="password" id="regPassword" placeholder="••••••••">
                 </div>
-                <button class="btn btn-primary btn-full" onclick="handleRegister()">
-                    <svg class="feather" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle><line x1="12" y1="12" x2="12" y2="18"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg> Зарегистрироваться
+                <button class="btn btn-primary btn-full" onclick="handleRegister()" style="margin-top: 10px;">
+                    Зарегистрироваться
                 </button>
                 <div class="toggle-link">
                     Уже есть аккаунт? <a onclick="toggleLoginRegister()">Войти</a>
@@ -706,251 +508,99 @@
 
     <!-- MAIN APP -->
     <div id="mainApp" class="app">
-        <!-- SIDEBAR -->
-        <div class="sidebar" id="sidebar">
+        <div class="sidebar">
             <div class="sidebar-header">
-                <div class="logo">
-                    <svg class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> PMP Elite
-                </div>
+                <div class="logo">⚙️ PMP Elite</div>
             </div>
             <div class="sidebar-menu">
                 <div class="menu-item active" onclick="switchSection('dashboard')">
-                    <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg> <span>Дашборд</span>
+                    📊 Дашборд
                 </div>
                 <div class="menu-item" onclick="switchSection('prices')">
-                    <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> <span>Цены</span>
+                    💰 Цены
                 </div>
                 <div class="menu-item" onclick="switchSection('comparison')">
-                    <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"></path><path d="M9 7h2v10H9zM13 10h2v7h-2z"></path></svg> <span>Сравнение</span>
-                </div>
-                <div class="menu-item" onclick="switchSection('import')">
-                    <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> <span>Импорт/Экспорт</span>
+                    📈 Сравнение
                 </div>
                 <div class="menu-item" onclick="switchSection('companies')">
-                    <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> <span>Компании</span>
-                </div>
-                <div class="menu-item" id="usersMenu" onclick="switchSection('users')" style="display: none;">
-                    <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> <span>Пользователи</span>
+                    🏢 Компании
                 </div>
             </div>
             <div class="sidebar-footer">
-                <button class="theme-toggle" onclick="toggleTheme()">
-                    <svg class="feather" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> Тема
-                </button>
+                <button class="theme-toggle" onclick="toggleTheme()">🌙 Тема</button>
             </div>
         </div>
 
-        <!-- MAIN CONTENT -->
         <div class="main-content">
-            <!-- HEADER -->
             <div class="header">
-                <div class="header-left">
-                    <h2 class="page-title" id="pageTitle"><svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><line x1="12" y1="2" x2="12" y2="22"></line><polyline points="19 5 9 15 5 11"></polyline></svg> Дашборд</h2>
-                </div>
+                <h2 class="page-title" id="pageTitle">📊 Дашборд</h2>
                 <div class="header-right">
-                    <div class="exchange-rate" id="exchangeRate">USD/CNY: —</div>
                     <div class="user-profile">
-                        <div class="avatar" id="userAvatar">
-                        <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    </div>
+                        <div class="avatar" id="userAvatar">A</div>
                         <div>
-                            <div style="font-size: 13px; font-weight: 600;" id="userName">Пользователь</div>
-                            <div style="font-size: 11px; color: var(--text-secondary);" id="userRole">Роль</div>
+                            <div style="font-weight: 600;" id="userName">Администратор</div>
                         </div>
                     </div>
-                    <button class="logout-btn" onclick="handleLogout()">
-                        <svg class="feather" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Выход
-                    </button>
+                    <button class="logout-btn" onclick="handleLogout()">Выход</button>
                 </div>
             </div>
 
-            <!-- CONTENT -->
             <div class="content">
-                <!-- DASHBOARD SECTION -->
                 <section id="dashboard" class="section active">
                     <div class="stats-grid" id="statsGrid"></div>
-                    
                     <div class="card">
-                        <div class="card-title">
-                            <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6-6 6 6M6 13l6-6 6 6"></path></svg> Лучшие предложения
-                        </div>
-                        <div class="table-wrapper">
-                            <table id="bestOffersTable">
-                                <thead>
-                                    <tr>
-                                        <th>Продукт</th>
-                                        <th>Компания</th>
-                                        <th>Цена USD</th>
-                                        <th>Цена CNY</th>
-                                        <th>Объём</th>
-                                        <th>Экономия</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title">
-                            <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"></line><polyline points="4 7 10 13 14 9 20 15"></polyline></svg> Тренд цен
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="priceChart"></canvas>
-                        </div>
+                        <div class="card-title">⭐ Последние цены</div>
+                        <table id="pricesTableDash">
+                            <thead><tr><th>Компания</th><th>Продукт</th><th>Цена CNY</th><th>Дата</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </section>
 
-                <!-- PRICES SECTION -->
                 <section id="prices" class="section">
                     <div class="card">
-                        <div class="card-title">
-                            <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg> Добавить цену
-                        </div>
+                        <div class="card-title">➕ Добавить цену</div>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label>Компания</label>
-                                <select id="priceCompanySelect">
-                                    <option value="">-- Выберите --</option>
-                                </select>
+                                <select id="priceCompanySelect"><option value="">-- Выберите --</option></select>
                             </div>
                             <div class="form-group">
                                 <label>Продукт</label>
-                                <input type="text" id="priceProduct" placeholder="Название продукта">
+                                <input type="text" id="priceProduct" placeholder="Название">
                             </div>
                             <div class="form-group">
                                 <label>Цена USD</label>
                                 <input type="number" id="priceValue" placeholder="0.00" step="0.01">
                             </div>
                             <div class="form-group">
-                                <label>Объём закупок</label>
+                                <label>Объём</label>
                                 <input type="number" id="priceVolume" placeholder="0" step="1">
                             </div>
                         </div>
-                        <button class="btn btn-primary" onclick="addPrice()" id="addPriceBtn">
-                            <i class="fas fa-check"></i> Добавить цену
-                        </button>
+                        <button class="btn btn-primary" onclick="addPrice()">✅ Добавить</button>
                     </div>
 
                     <div class="card">
-                        <div class="card-title">
-                            <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21"></line><line x1="3" y1="15" x2="21"></line><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg> Таблица цен
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <input type="text" id="priceSearch" placeholder="🔍 Поиск..." onkeyup="filterPrices()" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text);">
-                        </div>
-                        <div class="table-wrapper">
-                            <table id="pricesTable">
-                                <thead>
-                                    <tr>
-                                        <th>Компания</th>
-                                        <th>Продукт</th>
-                                        <th>Цена CNY</th>
-                                        <th>Объём</th>
-                                        <th>Дата</th>
-                                        <th>Действие</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
+                        <div class="card-title">📋 Таблица цен</div>
+                        <input type="text" id="priceSearch" placeholder="🔍 Поиск..." onkeyup="filterPrices()" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); margin-bottom: 15px;">
+                        <table id="pricesTable">
+                            <thead><tr><th>Компания</th><th>Продукт</th><th>Цена CNY</th><th>Дата</th><th>Действие</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </section>
 
-                <!-- COMPARISON SECTION -->
                 <section id="comparison" class="section">
                     <div class="card">
-                        <div class="card-title">
-                            <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg> Фильтр продуктов
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <select id="comparisonProductSelect" style="flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text);">
-                                <option value="">-- Все продукты --</option>
-                            </select>
-                            <button class="btn btn-primary" onclick="loadComparison()">
-                                <i class="fas fa-search"></i> Анализировать
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title">
-                            <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21"></line><line x1="3" y1="15" x2="21"></line><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg> Матрица сравнения (CNY)
-                        </div>
-                        <div class="table-wrapper" id="comparisonTable"></div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title">
-                            <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg> Аналитика объёмов
-                        </div>
-                        <div class="table-wrapper">
-                            <table id="volumeTable">
-                                <thead>
-                                    <tr>
-                                        <th>Продукт</th>
-                                        <th>Объём</th>
-                                        <th>USD</th>
-                                        <th>CNY</th>
-                                        <th>Средняя цена</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
+                        <div class="card-title">📊 Матрица сравнения цен</div>
+                        <div id="comparisonTable"></div>
                     </div>
                 </section>
 
-                <!-- IMPORT/EXPORT SECTION -->
-                <section id="import" class="section">
-                    <div class="card">
-                        <div class="card-title">
-                            <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> Импорт из Excel
-                        </div>
-                        <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 13px;">
-                            Поддерживаются форматы: XLSX, XLS, CSV
-                        </p>
-                        <label class="btn btn-primary" style="cursor: pointer;">
-                            <svg class="feather" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path></svg> Выбрать файл
-                            <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" onchange="handleExcelImport()" style="display: none;">
-                        </label>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title">
-                            <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 9v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9"></path><polyline points="7 16 12 21 17 16"></polyline><line x1="12" y1="5" x2="12" y2="21"></line></svg> Экспорт данных
-                        </div>
-                        <div class="form-grid">
-                            <button class="btn btn-secondary" onclick="exportToExcel()">
-                                <svg class="feather" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg> Excel
-                            </button>
-                            <button class="btn btn-secondary" onclick="exportToCSV()">
-                                <svg class="feather" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> CSV
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title">
-                            <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> Управление данными
-                        </div>
-                        <div class="form-grid">
-                            <button class="btn btn-warning" onclick="clearPrices()">
-                                <svg class="feather" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg> Очистить цены
-                            </button>
-                            <button class="btn btn-danger" onclick="resetAllData()">
-                                <svg class="feather" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"></path></svg> Сбросить всё
-                            </button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- COMPANIES SECTION -->
                 <section id="companies" class="section">
                     <div class="card">
-                        <div class="card-title">
-                            <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg> Добавить компанию
-                        </div>
+                        <div class="card-title">➕ Добавить компанию</div>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label>Название</label>
@@ -960,143 +610,72 @@
                                 <label>Сайт</label>
                                 <input type="url" id="companySite" placeholder="https://example.com">
                             </div>
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label>Описание</label>
-                                <textarea id="companyDesc" placeholder="Описание" rows="2"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Телефон</label>
-                                <input type="tel" id="companyPhone" placeholder="+7 (999) 999-99-99">
-                            </div>
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="email" id="companyEmail" placeholder="contact@example.com">
-                            </div>
                         </div>
-                        <button class="btn btn-primary" onclick="addCompany()" id="addCompanyBtn">
-                            <i class="fas fa-check"></i> Добавить
-                        </button>
+                        <button class="btn btn-primary" onclick="addCompany()">✅ Добавить</button>
                     </div>
 
                     <div class="card">
-                        <div class="card-title">
-                            <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> Список компаний
-                        </div>
-                        <div id="companiesList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;"></div>
-                    </div>
-                </section>
-
-                <!-- USERS SECTION -->
-                <section id="users" class="section">
-                    <div class="card">
-                        <div class="card-title">
-                            <svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Все пользователи
-                        </div>
-                        <div class="table-wrapper">
-                            <table id="usersTable">
-                                <thead>
-                                    <tr>
-                                        <th>Имя</th>
-                                        <th>Email</th>
-                                        <th>Должность</th>
-                                        <th>Роль</th>
-                                        <th>Дата</th>
-                                        <th>Действие</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
+                        <div class="card-title">🏢 Список компаний</div>
+                        <table id="companiesTable">
+                            <thead><tr><th>Название</th><th>Сайт</th><th>Цен</th><th>Действие</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </section>
             </div>
         </div>
     </div>
 
-    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
-        // ===== STATE & CONFIG =====
-        const DB = { users: [], companies: [], prices: [], priceHistory: [] };
+        console.log('🚀 App starting...');
+        const DB = { users: [], companies: [], prices: [] };
         let currentUser = null;
         let exchangeRate = 7.25;
-        let priceChart = null;
 
-        // ===== INIT =====
-        window.addEventListener('load', () => {
-            loadDB();
-            fetchExchangeRate();
-            loadInitialPriceData().then(() => {
-                if (currentUser) {
-                    showMainApp();
-                } else {
-                    showLoginApp();
+        function safeLoadDB() {
+            try {
+                const stored = localStorage.getItem('priceManagerDB');
+                if (stored) {
+                    Object.assign(DB, JSON.parse(stored));
+                    console.log('✅ DB loaded');
                 }
-            });
-        });
+            } catch (err) {
+                console.error('❌ Load error:', err);
+            }
+            
+            try {
+                const user = localStorage.getItem('currentUserPM');
+                if (user) currentUser = JSON.parse(user);
+            } catch (err) {
+                console.error('❌ User load error:', err);
+            }
 
-        // ===== STORAGE =====
-        function loadDB() {
-            const stored = localStorage.getItem('priceManagerEliteDB');
-            if (stored) Object.assign(DB, JSON.parse(stored));
-            else initializeDB();
-            const user = localStorage.getItem('currentUserElite');
-            currentUser = user ? JSON.parse(user) : null;
+            if (!DB.users.length) {
+                DB.users = [{
+                    id: 1, name: 'Администратор', email: 'admin@example.com', password: 'admin123'
+                }];
+                safeSaveDB();
+            }
         }
 
-        function initializeDB() {
-            DB.users = [{
-                id: 1, name: 'Администратор', email: 'admin@example.com', password: 'admin123',
-                position: 'Главный менеджер', role: 'admin', created: new Date().toLocaleDateString('ru-RU'),
-            }];
-            saveDB();
+        function safeSaveDB() {
+            try {
+                localStorage.setItem('priceManagerDB', JSON.stringify(DB));
+                if (currentUser) localStorage.setItem('currentUserPM', JSON.stringify(currentUser));
+                console.log('✅ DB saved');
+            } catch (err) {
+                console.error('❌ Save error:', err);
+            }
         }
 
-        function saveDB() {
-            localStorage.setItem('priceManagerEliteDB', JSON.stringify(DB));
-        }
-
-        function saveCurrentUser(user) {
-            currentUser = user;
-            localStorage.setItem('currentUserElite', JSON.stringify(user));
-        }
-
-        // ===== EXCHANGE RATE =====
-        function fetchExchangeRate() {
-            fetch('https://api.exchangerate-api.com/v4/latest/USD')
-                .then(r => r.json())
-                .then(data => {
-                    exchangeRate = data.rates.CNY || 7.25;
-                    document.getElementById('exchangeRate').textContent = `USD/CNY: ${exchangeRate.toFixed(2)}`;
-                })
-                .catch(() => {
-                    document.getElementById('exchangeRate').textContent = `USD/CNY: ${exchangeRate.toFixed(2)} (офлайн)`;
-                });
-        }
-
-        // ===== THEME =====
-        function toggleTheme() {
-            const html = document.documentElement;
-            const current = html.getAttribute('data-theme');
-            const newTheme = current === 'light' ? 'dark' : 'light';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            showToast(`Тема изменена на ${newTheme === 'light' ? 'светлую' : 'тёмную'}`, 'success');
-        }
-
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-
-        // ===== TOAST NOTIFICATIONS =====
-        function showToast(msg, type = 'success') {
+        function showToast(msg) {
             const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+            toast.className = 'toast';
             toast.textContent = msg;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // ===== AUTH =====
         function toggleLoginRegister() {
             document.getElementById('loginForm').style.display = 
                 document.getElementById('loginForm').style.display === 'none' ? 'block' : 'none';
@@ -1108,12 +687,6 @@
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
 
-            if (!email || !password) {
-                document.getElementById('loginError').textContent = 'Заполните все поля';
-                document.getElementById('loginError').style.display = 'block';
-                return;
-            }
-
             const user = DB.users.find(u => u.email === email && u.password === password);
             if (!user) {
                 document.getElementById('loginError').textContent = 'Неверный email или пароль';
@@ -1121,21 +694,22 @@
                 return;
             }
 
-            saveCurrentUser(user);
+            currentUser = user;
+            safeSaveDB();
             document.getElementById('loginError').style.display = 'none';
-            document.getElementById('loginEmail').value = '';
-            document.getElementById('loginPassword').value = '';
-            showMainApp();
+            document.getElementById('loginApp').classList.remove('active');
+            document.getElementById('mainApp').classList.add('active');
+            document.getElementById('userAvatar').textContent = user.name[0].toUpperCase();
+            document.getElementById('userName').textContent = user.name;
+            loadDashboard();
         }
 
         function handleRegister() {
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPassword').value;
-            const position = document.getElementById('regPosition').value.trim();
-            const role = document.getElementById('regRole').value;
 
-            if (!name || !email || !password || !position) {
+            if (!name || !email || !password) {
                 document.getElementById('registerError').textContent = 'Заполните все поля';
                 document.getElementById('registerError').style.display = 'block';
                 return;
@@ -1147,204 +721,87 @@
                 return;
             }
 
-            const newUser = {
-                id: DB.users.length + 1, name, email, password, position, role,
-                created: new Date().toLocaleDateString('ru-RU'),
-            };
-
+            const newUser = { id: DB.users.length + 1, name, email, password };
             DB.users.push(newUser);
-            saveDB();
-            saveCurrentUser(newUser);
-            showMainApp();
+            safeSaveDB();
+            currentUser = newUser;
+            document.getElementById('loginApp').classList.remove('active');
+            document.getElementById('mainApp').classList.add('active');
+            loadDashboard();
         }
 
         function handleLogout() {
-            if (confirm('Вы уверены?')) {
+            if (confirm('Выход?')) {
                 currentUser = null;
-                localStorage.removeItem('currentUserElite');
+                localStorage.removeItem('currentUserPM');
                 location.reload();
             }
-        }
-
-        // ===== UI =====
-        function showLoginApp() {
-            document.getElementById('loginApp').classList.remove('active');
-            document.getElementById('mainApp').classList.remove('active');
-        }
-
-        function showMainApp() {
-            document.getElementById('loginApp').classList.add('active');
-            setTimeout(() => {
-                document.getElementById('loginApp').classList.remove('active');
-                document.getElementById('mainApp').classList.add('active');
-            }, 100);
-            document.getElementById('userName').textContent = currentUser.name;
-            document.getElementById('userRole').textContent = currentUser.role === 'admin' ? '👑 Администратор' : '👁️ Просмотр';
-            document.getElementById('userAvatar').textContent = currentUser.name[0].toUpperCase();
-            
-            if (currentUser.role === 'admin') {
-                document.getElementById('usersMenu').style.display = 'flex';
-                document.getElementById('addCompanyBtn').style.display = 'inline-flex';
-                document.getElementById('addPriceBtn').style.display = 'inline-flex';
-            }
-            
-            switchSection('dashboard');
-            loadDashboard();
         }
 
         function switchSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-            event?.target?.closest('.menu-item')?.classList.add('active');
+            event.target.closest('.menu-item').classList.add('active');
 
             const titles = {
                 dashboard: '📊 Дашборд',
-                prices: '💰 Управление ценами',
-                comparison: '📊 Сравнение цен',
-                import: '📁 Импорт/Экспорт',
-                companies: '🏢 Компании',
-                users: '👥 Пользователи'
+                prices: '💰 Цены',
+                comparison: '📈 Сравнение',
+                companies: '🏢 Компании'
             };
-            document.getElementById('pageTitle').textContent = titles[id] || 'Страница';
-
-            if (id === 'prices') loadPrices();
-            if (id === 'comparison') loadComparison();
-            if (id === 'companies') loadCompanies();
-            if (id === 'users') loadUsers();
+            document.getElementById('pageTitle').textContent = titles[id];
         }
 
-        // ===== DASHBOARD =====
-        function loadDashboard() {
-            const uniqueProducts = new Set(DB.prices.map(p => p.product));
-            const totalVolume = DB.prices.reduce((sum, p) => sum + (p.volume || 0), 0);
+        function toggleTheme() {
+            const html = document.documentElement;
+            const theme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        }
 
+        function loadDashboard() {
             const stats = [
-                { label: 'Компаний', value: DB.companies.length, icon: 'building' },
-                { label: 'Продуктов', value: uniqueProducts.size, icon: 'box' },
-                { label: 'Записей цен', value: DB.prices.length, icon: 'coins' },
-                { label: 'Объём закупок', value: totalVolume, icon: 'trending' }
+                { label: 'Компаний', value: DB.companies.length },
+                { label: 'Продуктов', value: new Set(DB.prices.map(p => p.product)).size },
+                { label: 'Цен', value: DB.prices.length }
             ];
 
-            document.getElementById('statsGrid').innerHTML = stats.map((s, i) => {
-                const icons = [
-                    '<svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>',
-                    '<svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>',
-                    '<svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><path d="M12 1v6m0 6v6"></path><path d="M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24"></path><path d="M1 12h6m6 0h6"></path><path d="M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"></path></svg>',
-                    '<svg class="feather" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"></line><polyline points="19 5 9 15 5 11"></polyline></svg>'
-                ];
-                return `
+            document.getElementById('statsGrid').innerHTML = stats.map(s => `
                 <div class="stat-card">
-                    <div class="stat-label">${icons[i]} ${s.label}</div>
-                    <div class="stat-value">${s.value.toLocaleString()}</div>
+                    <div class="stat-label">${s.label}</div>
+                    <div class="stat-value">${s.value}</div>
                 </div>
-            `;
+            `).join('');
+
+            const tbody = document.querySelector('#pricesTableDash tbody');
+            tbody.innerHTML = DB.prices.slice(-5).map(p => {
+                const c = DB.companies.find(x => x.id === p.companyId);
+                return `<tr><td>${c?.name || '—'}</td><td>${p.product}</td><td>¥${(p.value * exchangeRate).toFixed(2)}</td><td>${p.date}</td></tr>`;
             }).join('');
 
-            // Best offers
-            const bestOffers = {};
-            DB.prices.forEach(p => {
-                const key = p.product;
-                if (!bestOffers[key] || p.value < bestOffers[key].value) {
-                    bestOffers[key] = p;
-                }
-            });
-
-            const tbody = document.querySelector('#bestOffersTable tbody');
-            tbody.innerHTML = Object.values(bestOffers).map(p => {
-                const company = DB.companies.find(c => c.id === p.companyId);
-                const allPrices = DB.prices.filter(pr => pr.product === p.product);
-                const avgPrice = allPrices.reduce((sum, pr) => sum + pr.value, 0) / allPrices.length;
-                const savings = ((avgPrice - p.value) / avgPrice * 100).toFixed(1);
-                return `<tr>
-                    <td>${p.product}</td>
-                    <td><strong>${company?.name || '—'}</strong></td>
-                    <td>$${p.value.toFixed(2)}</td>
-                    <td><span class="badge badge-primary">¥${(p.value * exchangeRate).toFixed(0)}</span></td>
-                    <td>${p.volume || 0}</td>
-                    <td><span class="badge badge-success">📉 ${savings}%</span></td>
-                </tr>`;
-            }).join('') || '<tr><td colspan="6" style="text-align: center; padding: 20px;">Нет данных</td></tr>';
-
-            // Render price chart
-            renderPriceChart();
+            loadCompanies();
+            loadPrices();
         }
 
-        function renderPriceChart() {
-            const ctx = document.getElementById('priceChart')?.getContext('2d');
-            if (!ctx) return;
-
-            const products = [...new Set(DB.prices.map(p => p.product))].slice(0, 5);
-            const datasets = [];
-
-            DB.companies.forEach(company => {
-                const prices = products.map(product => {
-                    const price = DB.prices.find(p => p.product === product && p.companyId === company.id);
-                    return price ? (price.value * exchangeRate).toFixed(0) : 0;
-                });
-
-                datasets.push({
-                    label: company.name,
-                    data: prices,
-                    borderColor: `hsl(${Math.random() * 360}, 70%, 50%)`,
-                    backgroundColor: `hsla(${Math.random() * 360}, 70%, 50%, 0.1)`,
-                    tension: 0.4,
-                });
-            });
-
-            if (priceChart) priceChart.destroy();
-            priceChart = new Chart(ctx, {
-                type: 'line',
-                data: { labels: products, datasets },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { color: 'var(--text-secondary)' } },
-                        x: { ticks: { color: 'var(--text-secondary)' } }
-                    }
-                }
-            });
-        }
-
-        // ===== PRICES =====
         function addPrice() {
             const companyId = parseInt(document.getElementById('priceCompanySelect').value);
             const product = document.getElementById('priceProduct').value.trim();
             const value = parseFloat(document.getElementById('priceValue').value);
-            const volume = parseInt(document.getElementById('priceVolume').value) || 0;
 
             if (!companyId || !product || !value) {
-                showToast('Заполните обязательные поля', 'error');
+                showToast('❌ Заполните все поля');
                 return;
             }
 
-            const company = DB.companies.find(c => c.id === companyId);
-            const existing = DB.prices.find(p => p.companyId === companyId && p.product === product);
-
-            if (existing) {
-                const change = ((value - existing.value) / existing.value) * 100;
-                DB.priceHistory.push({
-                    company: company.name, product, oldPrice: existing.value, newPrice: value, change,
-                    date: new Date().toLocaleDateString('ru-RU'), user: currentUser.name,
-                });
-                existing.value = value;
-                existing.volume = volume;
-                existing.date = new Date().toLocaleDateString('ru-RU');
-            } else {
-                DB.prices.push({
-                    id: DB.prices.length + 1, companyId, product, value, volume,
-                    date: new Date().toLocaleDateString('ru-RU'),
-                });
-            }
-
-            saveDB();
-            showToast('✅ Цена добавлена успешно', 'success');
-            document.getElementById('priceCompanySelect').value = '';
+            DB.prices.push({
+                id: DB.prices.length + 1, companyId, product, value,
+                date: new Date().toLocaleDateString('ru-RU')
+            });
+            safeSaveDB();
+            showToast('✅ Цена добавлена');
             document.getElementById('priceProduct').value = '';
             document.getElementById('priceValue').value = '';
-            document.getElementById('priceVolume').value = '';
             loadPrices();
             loadDashboard();
         }
@@ -1352,25 +809,21 @@
         function loadPrices() {
             const tbody = document.querySelector('#pricesTable tbody');
             tbody.innerHTML = DB.prices.map(p => {
-                const company = DB.companies.find(c => c.id === p.companyId);
+                const c = DB.companies.find(x => x.id === p.companyId);
                 return `<tr>
-                    <td>${company?.name || '—'}</td>
+                    <td>${c?.name || '—'}</td>
                     <td>${p.product}</td>
                     <td><span class="badge badge-primary">¥${(p.value * exchangeRate).toFixed(2)}</span></td>
-                    <td>${p.volume || 0}</td>
                     <td>${p.date}</td>
-                    <td>${currentUser?.role === 'admin' ? `<button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="deletePrice(${p.id})"><svg class="feather" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>` : '—'}</td>
+                    <td><button class="btn btn-danger" onclick="deletePrice(${p.id})">🗑️</button></td>
                 </tr>`;
-            }).join('') || '<tr><td colspan="6" style="text-align: center; padding: 20px;">Нет цен</td></tr>';
+            }).join('') || '<tr><td colspan="5">Нет цен</td></tr>';
 
-            const select = document.getElementById('priceCompanySelect');
-            select.innerHTML = '<option value="">-- Выберите --</option>' + 
+            document.getElementById('priceCompanySelect').innerHTML = 
+                '<option value="">-- Выберите --</option>' + 
                 DB.companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 
-            const prodSelect = document.getElementById('comparisonProductSelect');
-            const products = [...new Set(DB.prices.map(p => p.product))];
-            prodSelect.innerHTML = '<option value="">-- Все продукты --</option>' + 
-                products.map(p => `<option value="${p}">${p}</option>`).join('');
+            loadComparison();
         }
 
         function filterPrices() {
@@ -1381,424 +834,90 @@
         }
 
         function deletePrice(id) {
-            if (confirm('Удалить цену?')) {
+            if (confirm('Удалить?')) {
                 DB.prices = DB.prices.filter(p => p.id !== id);
-                saveDB();
+                safeSaveDB();
                 loadPrices();
-                loadDashboard();
-                showToast('✅ Цена удалена', 'success');
             }
         }
 
-        // ===== COMPARISON =====
         function loadComparison() {
-            const productFilter = document.getElementById('comparisonProductSelect').value;
-            let prices = DB.prices;
-            if (productFilter) prices = prices.filter(p => p.product === productFilter);
+            const products = [...new Set(DB.prices.map(p => p.product))];
+            const companies = [...new Set(DB.prices.map(p => DB.companies.find(c => c.id === p.companyId)?.name))].filter(Boolean);
 
-            const products = [...new Set(prices.map(p => p.product))];
-            const companies = [...new Set(prices.map(p => DB.companies.find(c => c.id === p.companyId)?.name))].filter(Boolean);
-
-            let html = '<table style="border-collapse: collapse; width: 100%;"><tr style="background: rgba(99, 102, 241, 0.1);"><th style="padding: 12px; text-align: left; border: 1px solid var(--border);">Продукт</th>';
-            companies.forEach(c => {
-                html += `<th style="padding: 12px; text-align: center; border: 1px solid var(--border);">${c}</th>`;
-            });
+            let html = '<table><tr style="background: rgba(99, 102, 241, 0.1);"><th>Продукт</th>';
+            companies.forEach(c => html += `<th>${c}</th>`);
             html += '</tr>';
 
             products.forEach(prod => {
-                html += `<tr><td style="padding: 12px; border: 1px solid var(--border); font-weight: 600;">${prod}</td>`;
+                html += `<tr><td style="font-weight: 600;">${prod}</td>`;
                 companies.forEach(comp => {
-                    const price = prices.find(p => p.product === prod && DB.companies.find(c => c.id === p.companyId)?.name === comp);
-                    if (price) {
-                        const priceCNY = price.value * exchangeRate;
-                        html += `<td style="padding: 12px; text-align: center; border: 1px solid var(--border); background: rgba(16, 185, 129, 0.1); font-weight: 600;">¥${priceCNY.toFixed(2)}</td>`;
-                    } else {
-                        html += '<td style="padding: 12px; text-align: center; border: 1px solid var(--border); color: var(--text-secondary);">—</td>';
-                    }
+                    const price = DB.prices.find(p => p.product === prod && DB.companies.find(c => c.id === p.companyId)?.name === comp);
+                    html += `<td>${price ? '¥' + (price.value * exchangeRate).toFixed(2) : '—'}</td>`;
                 });
                 html += '</tr>';
             });
             html += '</table>';
             document.getElementById('comparisonTable').innerHTML = html;
-
-            // Volume analytics
-            const analytics = {};
-            DB.prices.forEach(p => {
-                if (!analytics[p.product]) {
-                    analytics[p.product] = { volume: 0, usd: 0, cnt: 0 };
-                }
-                analytics[p.product].volume += p.volume || 0;
-                analytics[p.product].usd += p.value * (p.volume || 1);
-                analytics[p.product].cnt += 1;
-            });
-
-            const tbody = document.querySelector('#volumeTable tbody');
-            tbody.innerHTML = Object.entries(analytics).map(([prod, data]) => `<tr>
-                <td>${prod}</td>
-                <td>${data.volume}</td>
-                <td>$${data.usd.toFixed(2)}</td>
-                <td><span class="badge badge-primary">¥${(data.usd * exchangeRate).toFixed(2)}</span></td>
-                <td>$${(data.usd / data.cnt).toFixed(2)}</td>
-            </tr>`).join('');
         }
 
-        // ===== IMPORT/EXPORT =====
-        function handleExcelImport() {
-            const file = document.getElementById('excelFileInput').files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const range = XLSX.utils.decode_range(sheet['!ref']);
-                    let imported = 0, updated = 0;
-
-                    const firstRow = [];
-                    for (let C = range.s.c; C <= range.e.c; ++C) {
-                        const cellAddress = XLSX.utils.encode_col(C) + '1';
-                        const cell = sheet[cellAddress];
-                        firstRow.push(cell ? cell.v : '');
-                    }
-
-                    const hasProductNameCol = firstRow.some(h => 
-                        String(h).toLowerCase().includes('product') || 
-                        String(h).toLowerCase().includes('продукт')
-                    );
-                    
-                    const companyColumnsStart = firstRow.findIndex((h, i) => {
-                        const header = String(h).toLowerCase();
-                        return i > 0 && !header.includes('product') && !header.includes('продукт') && 
-                               !header.includes('volume') && !header.includes('объём') &&
-                               !header.includes('price') && !header.includes('цена') &&
-                               !header.includes('unnamed') && h && h.trim().length > 0;
-                    });
-
-                    if (hasProductNameCol && companyColumnsStart > 0) {
-                        const productColIndex = firstRow.findIndex(h => 
-                            String(h).toLowerCase().includes('product') || 
-                            String(h).toLowerCase().includes('продукт')
-                        );
-                        
-                        const volumeColIndex = firstRow.findIndex(h =>
-                            String(h).toLowerCase().includes('volume') ||
-                            String(h).toLowerCase().includes('объём')
-                        );
-
-                        for (let R = 2; R <= range.e.r; ++R) {
-                            const productCell = sheet[XLSX.utils.encode_cell({r: R - 1, c: productColIndex})];
-                            const product = productCell ? String(productCell.v).trim() : '';
-                            
-                            if (!product) continue;
-
-                            let volume = 0;
-                            if (volumeColIndex >= 0) {
-                                const volumeCell = sheet[XLSX.utils.encode_cell({r: R - 1, c: volumeColIndex})];
-                                if (volumeCell && volumeCell.v) {
-                                    volume = parseInt(String(volumeCell.v).replace(/[^0-9]/g, '')) || 0;
-                                }
-                            }
-
-                            for (let C = companyColumnsStart; C < firstRow.length; ++C) {
-                                const companyName = firstRow[C];
-                                if (!companyName || !companyName.trim()) continue;
-
-                                const priceCell = sheet[XLSX.utils.encode_cell({r: R - 1, c: C})];
-                                const priceStr = priceCell ? String(priceCell.v) : '';
-                                
-                                if (!priceStr || priceStr.toLowerCase().includes('refuse') || 
-                                    priceStr.toLowerCase().includes('size') || 
-                                    priceStr.toLowerCase().includes('checking')) {
-                                    continue;
-                                }
-
-                                const price = parseFloat(priceStr.replace(/[^0-9.]/g, ''));
-                                if (isNaN(price) || price <= 0) continue;
-
-                                let company = DB.companies.find(c => c.name.toLowerCase() === companyName.toLowerCase());
-                                if (!company) {
-                                    company = {
-                                        id: DB.companies.length + 1,
-                                        name: companyName,
-                                        site: '',
-                                        desc: 'Импортировано из Excel',
-                                        phone: '',
-                                        email: '',
-                                    };
-                                    DB.companies.push(company);
-                                }
-
-                                const existing = DB.prices.find(p => 
-                                    p.companyId === company.id && 
-                                    p.product.toLowerCase() === product.toLowerCase()
-                                );
-
-                                if (existing) {
-                                    const change = ((price - existing.value) / existing.value) * 100;
-                                    DB.priceHistory.push({
-                                        company: company.name, product, oldPrice: existing.value, newPrice: price,
-                                        change, date: new Date().toLocaleDateString('ru-RU'), user: currentUser?.name || 'Импорт',
-                                    });
-                                    existing.value = price;
-                                    existing.volume = volume;
-                                    existing.date = new Date().toLocaleDateString('ru-RU');
-                                    updated++;
-                                } else {
-                                    DB.prices.push({
-                                        id: DB.prices.length + 1, companyId: company.id, product,
-                                        value: price, volume, date: new Date().toLocaleDateString('ru-RU'),
-                                    });
-                                    imported++;
-                                }
-                            }
-                        }
-                    } else {
-                        const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-                        rows.forEach(row => {
-                            const compName = String(row['Компания'] || row['Company'] || row['компания'] || '').trim() || 'Unknown';
-                            const product = String(row['Продукт'] || row['Product'] || row['продукт'] || '').trim();
-                            const priceStr = String(row['Цена USD'] || row['Price USD'] || row['Price'] || row['цена'] || '0').trim();
-                            const volumeStr = String(row['Объём'] || row['Volume'] || row['объём'] || '0').trim();
-                            
-                            const price = parseFloat(priceStr.replace(/[^0-9.]/g, ''));
-                            const volume = parseInt(volumeStr.replace(/[^0-9]/g, '') || '0');
-
-                            if (product && !isNaN(price) && price > 0) {
-                                let company = DB.companies.find(c => c.name === compName);
-                                if (!company) {
-                                    company = {
-                                        id: DB.companies.length + 1, name: compName, site: '', desc: 'Импортировано',
-                                        phone: '', email: '',
-                                    };
-                                    DB.companies.push(company);
-                                }
-
-                                const existing = DB.prices.find(p => p.companyId === company.id && p.product.toLowerCase() === product.toLowerCase());
-                                if (existing) {
-                                    const change = ((price - existing.value) / existing.value) * 100;
-                                    DB.priceHistory.push({
-                                        company: company.name, product, oldPrice: existing.value, newPrice: price,
-                                        change, date: new Date().toLocaleDateString('ru-RU'), user: currentUser?.name || 'Импорт',
-                                    });
-                                    existing.value = price;
-                                    existing.volume = volume;
-                                    existing.date = new Date().toLocaleDateString('ru-RU');
-                                    updated++;
-                                } else {
-                                    DB.prices.push({
-                                        id: DB.prices.length + 1, companyId: company.id, product, value: price,
-                                        volume, date: new Date().toLocaleDateString('ru-RU'),
-                                    });
-                                    imported++;
-                                }
-                            }
-                        });
-                    }
-
-                    saveDB();
-                    showToast(`✅ Добавлено: ${imported}, Обновлено: ${updated}`, 'success');
-                    loadPrices();
-                    loadDashboard();
-                    document.getElementById('excelFileInput').value = '';
-                } catch (err) {
-                    showToast(`❌ Ошибка: ${err.message}`, 'error');
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function exportToExcel() {
-            const ws = XLSX.utils.json_to_sheet(DB.prices.map(p => {
-                const company = DB.companies.find(c => c.id === p.companyId);
-                return {
-                    'Компания': company?.name || '—',
-                    'Продукт': p.product,
-                    'Цена USD': p.value,
-                    'Цена CNY': (p.value * exchangeRate).toFixed(2),
-                    'Объём': p.volume || 0,
-                    'Дата': p.date,
-                };
-            }));
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Цены');
-            XLSX.writeFile(wb, `price_manager_${new Date().toISOString().split('T')[0]}.xlsx`);
-            showToast('✅ Файл экспортирован', 'success');
-        }
-
-        function exportToCSV() {
-            let csv = 'Компания,Продукт,Цена USD,Цена CNY,Объём,Дата\n';
-            DB.prices.forEach(p => {
-                const company = DB.companies.find(c => c.id === p.companyId);
-                csv += `"${company?.name || '—'}","${p.product}",${p.value},"${(p.value * exchangeRate).toFixed(2)}",${p.volume || 0},"${p.date}"\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `price_manager_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            showToast('✅ CSV экспортирован', 'success');
-        }
-
-        function clearPrices() {
-            if (confirm('Очистить все цены? Это необратимо!')) {
-                DB.prices = [];
-                DB.priceHistory = [];
-                saveDB();
-                loadPrices();
-                loadDashboard();
-                showToast('✅ Цены очищены', 'success');
-            }
-        }
-
-        function resetAllData() {
-            if (confirm('Сбросить ВСЕ данные? Это необратимо!')) {
-                DB.prices = [];
-                DB.priceHistory = [];
-                DB.companies = [];
-                saveDB();
-                loadPrices();
-                loadCompanies();
-                loadDashboard();
-                showToast('✅ Все данные сброшены', 'success');
-            }
-        }
-
-        // ===== COMPANIES =====
         function addCompany() {
             const name = document.getElementById('companyName').value.trim();
             const site = document.getElementById('companySite').value.trim();
-            const desc = document.getElementById('companyDesc').value.trim();
-            const phone = document.getElementById('companyPhone').value.trim();
-            const email = document.getElementById('companyEmail').value.trim();
 
             if (!name) {
-                showToast('Введите название компании', 'error');
+                showToast('❌ Введите название');
                 return;
             }
 
-            DB.companies.push({ id: DB.companies.length + 1, name, site, desc, phone, email });
-            saveDB();
-            showToast('✅ Компания добавлена', 'success');
+            DB.companies.push({ id: DB.companies.length + 1, name, site });
+            safeSaveDB();
+            showToast('✅ Компания добавлена');
             document.getElementById('companyName').value = '';
             document.getElementById('companySite').value = '';
-            document.getElementById('companyDesc').value = '';
-            document.getElementById('companyPhone').value = '';
-            document.getElementById('companyEmail').value = '';
             loadCompanies();
             loadPrices();
         }
 
         function loadCompanies() {
-            const list = document.getElementById('companiesList');
-            list.innerHTML = DB.companies.map(c => `<div class="card" style="cursor: default; background: var(--surface);">
-                <div style="font-weight: 600; font-size: 16px; margin-bottom: 12px;">${c.name}</div>
-                <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <svg class="feather" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                        ${c.site ? `<a href="${c.site}" target="_blank" style="color: var(--primary);">${c.site}</a>` : '—'}
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <svg class="feather" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                        ${c.phone || '—'}
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <svg class="feather" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-10 5L2 7"></path></svg>
-                        ${c.email || '—'}
-                    </div>
-                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 8px;">
-                        <svg class="feather" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"></line><polyline points="19 5 9 15 5 11"></polyline></svg>
-                        <strong>${DB.prices.filter(p => p.companyId === c.id).length}</strong> продуктов
-                    </div>
-                </div>
-                ${currentUser?.role === 'admin' ? `<button class="btn btn-danger" style="width: 100%; margin-top: 12px;" onclick="deleteCompany(${c.id})"><svg class="feather" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> Удалить</button>` : ''}
-            </div>`).join('') || '<p style="padding: 20px; text-align: center; color: var(--text-secondary);">Компании не добавлены</p>';
+            const tbody = document.querySelector('#companiesTable tbody');
+            tbody.innerHTML = DB.companies.map(c => {
+                const count = DB.prices.filter(p => p.companyId === c.id).length;
+                return `<tr>
+                    <td><strong>${c.name}</strong></td>
+                    <td><a href="${c.site}" target="_blank" style="color: var(--primary);">${c.site || '—'}</a></td>
+                    <td>${count}</td>
+                    <td><button class="btn btn-danger" onclick="deleteCompany(${c.id})">🗑️</button></td>
+                </tr>`;
+            }).join('') || '<tr><td colspan="4">Нет компаний</td></tr>';
         }
 
         function deleteCompany(id) {
-            if (confirm('Удалить компанию?')) {
+            if (confirm('Удалить?')) {
                 DB.companies = DB.companies.filter(c => c.id !== id);
                 DB.prices = DB.prices.filter(p => p.companyId !== id);
-                saveDB();
+                safeSaveDB();
                 loadCompanies();
                 loadPrices();
-                showToast('✅ Компания удалена', 'success');
             }
         }
 
-        // ===== USERS =====
-        function loadUsers() {
-            const tbody = document.querySelector('#usersTable tbody');
-            tbody.innerHTML = DB.users.map(u => `<tr>
-                <td>${u.name}</td>
-                <td>${u.email}</td>
-                <td>${u.position}</td>
-                <td><span class="badge ${u.role === 'admin' ? 'badge-primary' : 'badge-success'}">${u.role === 'admin' ? '👑 Admin' : '👁️ Viewer'}</span></td>
-                <td>${u.created}</td>
-                <td>${u.id !== currentUser.id ? `<button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="deleteUser(${u.id})"><i class="fas fa-trash"></i></button>` : 'Это вы'}</td>
-            </tr>`).join('');
-        }
+        window.addEventListener('load', () => {
+            console.log('✅ Page loaded');
+            safeLoadDB();
+            const theme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
 
-        function deleteUser(id) {
-            if (confirm('Удалить пользователя?')) {
-                DB.users = DB.users.filter(u => u.id !== id);
-                saveDB();
-                loadUsers();
-                showToast('✅ Пользователь удалён', 'success');
+            if (currentUser) {
+                document.getElementById('loginApp').classList.remove('active');
+                document.getElementById('mainApp').classList.add('active');
+                document.getElementById('userAvatar').textContent = currentUser.name[0].toUpperCase();
+                document.getElementById('userName').textContent = currentUser.name;
+                loadDashboard();
+            } else {
+                document.getElementById('loginApp').classList.add('active');
             }
-        }
-
-        // ===== AUTO-LOAD =====
-        async function loadInitialPriceData() {
-            try {
-                const response = await fetch('https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/f08cb294-8c4c-42a9-9415-32cdbd168267');
-                const arrayBuffer = await response.arrayBuffer();
-                const data = new Uint8Array(arrayBuffer);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-
-                let imported = 0;
-                rows.forEach(row => {
-                    const compName = String(row['Компания'] || row['Company'] || row['компания'] || '').trim() || 'Unknown';
-                    const product = String(row['Продукт'] || row['Product'] || row['продукт'] || '').trim();
-                    const priceStr = String(row['Цена USD'] || row['Price USD'] || row['Price'] || row['цена'] || '0').trim();
-                    const volumeStr = String(row['Объём'] || row['Volume'] || row['объём'] || '0').trim();
-                    
-                    const price = parseFloat(priceStr.replace(/[^0-9.]/g, ''));
-                    const volume = parseInt(volumeStr.replace(/[^0-9]/g, '') || '0');
-
-                    if (product && !isNaN(price) && price > 0) {
-                        let company = DB.companies.find(c => c.name.toLowerCase() === compName.toLowerCase());
-                        if (!company) {
-                            company = {
-                                id: DB.companies.length + 1, name: compName, site: '', desc: 'Автозагруженная',
-                                phone: '', email: '',
-                            };
-                            DB.companies.push(company);
-                        }
-
-                        const existing = DB.prices.find(p => p.companyId === company.id && p.product.toLowerCase() === product.toLowerCase());
-                        if (!existing) {
-                            DB.prices.push({
-                                id: DB.prices.length + 1, companyId: company.id, product, value: price, volume,
-                                date: new Date().toLocaleDateString('ru-RU'),
-                            });
-                            imported++;
-                        }
-                    }
-                });
-
-                if (imported > 0) {
-                    saveDB();
-                    console.log(`✅ Загружено ${imported} цен`);
-                }
-            } catch (err) {
-                console.log('⚠️ Автозагрузка: ' + err.message);
-            }
-        }
+        });
     </script>
 </body>
 </html>
