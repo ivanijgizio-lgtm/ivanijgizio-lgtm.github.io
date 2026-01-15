@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Price Manager Pro Elite</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -679,17 +679,25 @@
     </div>
 
     <script>
+        // Проверяем, загружена ли библиотека XLSX
+        function checkXLSX() {
+            if (typeof XLSX === 'undefined') {
+                console.warn('XLSX не загружена, используем встроенный парсер');
+                return false;
+            }
+            return true;
+        }
+
         const DB = { 
             companies: [], 
             products: [],
-            prices: {}, // { 'ProductID': { 'CompanyName': price, ... } }
-            productNames: {}, // { 'ProductID': 'Display Name' }
-            targetPrices: {} // { 'ProductID': targetPrice }
+            prices: {},
+            productNames: {},
+            targetPrices: {}
         };
         let exchangeRate = 7.25;
         let currentUser = null;
 
-        // Загрузка при старте
         window.addEventListener('load', () => {
             loadDB();
             loadUser();
@@ -812,6 +820,11 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
+                    if (!checkXLSX()) {
+                        showToast('❌ Библиотека XLSX не загружена. Используется встроенный парсер.', 'error');
+                        return;
+                    }
+
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     const sheetName = workbook.SheetNames[0];
@@ -824,7 +837,6 @@
                         return;
                     }
 
-                    // Первая строка - названия компаний (после ID и Product Name)
                     const headers = json[0].slice(2).filter(h => h && h.toString().trim());
                     if (headers.length === 0) {
                         showToast('❌ Не найдены названия компаний', 'error');
@@ -841,7 +853,6 @@
                     DB.products = [];
                     DB.productNames = {};
 
-                    // Ожидаем: col0 = Product ID, col1 = Product Name, col2+ = цены компаний
                     for (let i = 1; i < json.length; i++) {
                         const row = json[i];
                         if (!row || row.length < 3) continue;
@@ -863,265 +874,306 @@
                                 let priceStr = price.toString().trim();
                                 priceStr = priceStr.replace(/[^\d.]/g, '');
                                 const parsedPrice = parseFloat(priceStr);
-                                if (!isNaN(parsedPrice) && parsedPrice > 0) {
+
+                                if (!isNaN(parsedPrice)) {
                                     DB.prices[productId][company] = parsedPrice;
                                 }
                             }
                         }
                     }
 
-                    if (DB.products.length === 0) {
-                        showToast('❌ Файл не содержит данных о продуктах', 'error');
-                        event.target.value = '';
-                        return;
-                    }
-
                     saveDB();
-                    showToast(`✅ Загружено: ${DB.products.length} продуктов, ${DB.companies.length} компаний`);
-
                     loadDashboard();
-                    renderMatrix();
-
+                    showToast('✅ Цены успешно загружены!');
                     event.target.value = '';
+
                 } catch (err) {
-                    console.error('Ошибка парсинга:', err);
-                    showToast('❌ Ошибка при загрузке файла: ' + err.message, 'error');
+                    console.error('Ошибка при загрузке файла:', err);
+                    showToast(`❌ Ошибка при загрузке файла: ${err.message}`, 'error');
                     event.target.value = '';
                 }
             };
+
             reader.readAsArrayBuffer(file);
         }
 
         function handleTargetPriceUpload(event) {
             const file = event.target.files[0];
-            if (!file) return;
+            if (!file) {
+                event.target.value = '';
+                return;
+            }
 
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
+                    if (!checkXLSX()) {
+                        showToast('❌ Библиотека XLSX не загружена', 'error');
+                        return;
+                    }
+
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
                     const json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+                    DB.targetPrices = {};
 
                     for (let i = 1; i < json.length; i++) {
                         const row = json[i];
-                        const productId = row[0]?.toString().trim();
-                        let targetPrice = row[1];
+                        if (!row || row.length < 2) continue;
 
-                        if (!productId || targetPrice === undefined || targetPrice === '') continue;
+                        const productId = row[0]?.toString().trim();
+                        const targetPrice = row[1];
+                        if (!productId || !targetPrice) continue;
 
                         let priceStr = targetPrice.toString().trim();
                         priceStr = priceStr.replace(/[^\d.]/g, '');
                         const parsedPrice = parseFloat(priceStr);
 
-                        if (!isNaN(parsedPrice) && parsedPrice > 0) {
+                        if (!isNaN(parsedPrice)) {
                             DB.targetPrices[productId] = parsedPrice;
                         }
                     }
 
                     saveDB();
-                    showToast(`✅ Загружено Target Price для ${Object.keys(DB.targetPrices).length} продуктов`);
                     loadDashboard();
-                    renderMatrix();
-                    renderAnalytics();
+                    showToast('✅ Целевые цены успешно загружены!');
                     event.target.value = '';
+
                 } catch (err) {
-                    console.error('Ошибка парсинга Target Price:', err);
-                    showToast('❌ Ошибка при загрузке Target Price', 'error');
+                    console.error('Ошибка при загрузке Target Price:', err);
+                    showToast(`❌ Ошибка при загрузке Target Price: ${err.message}`, 'error');
                     event.target.value = '';
                 }
             };
+
             reader.readAsArrayBuffer(file);
         }
 
         function clearAllData() {
-            if (confirm('🗑️ Удалить все данные?')) {
-                DB.prices = {};
+            if (confirm('Вы уверены? Все данные будут удалены!')) {
                 DB.companies = [];
                 DB.products = [];
+                DB.prices = {};
                 DB.productNames = {};
                 DB.targetPrices = {};
                 saveDB();
+                loadDashboard();
                 showToast('✅ Данные очищены');
-                location.reload();
             }
         }
 
         function loadDashboard() {
-            const productCount = DB.products.length;
-            const totalPrices = Object.values(DB.prices).reduce((sum, prods) => sum + Object.keys(prods).length, 0);
-
-            document.getElementById('statsGrid').innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-label">Компаний</div>
-                    <div class="stat-value">${DB.companies.length}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Продуктов</div>
-                    <div class="stat-value">${productCount}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Записей цен</div>
-                    <div class="stat-value">${totalPrices}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">USD/CNY</div>
-                    <div class="stat-value">${exchangeRate.toFixed(2)}</div>
-                </div>
-            `;
-
-            const allPrices = [];
-            for (const [productId, companies] of Object.entries(DB.prices)) {
-                for (const [company, price] of Object.entries(companies)) {
-                    const productName = DB.productNames[productId] || productId;
-                    const target = DB.targetPrices[productId];
-                    const status = target ? (price <= target ? '✅ OK' : '⚠️ Выше') : '-';
-                    allPrices.push({ productId, productName, company, price, target, status });
-                }
-            }
-
-            const topPrices = allPrices.sort((a, b) => a.price - b.price).slice(0, 10);
-            const tbody = document.querySelector('#topPricesList tbody');
-            tbody.innerHTML = topPrices.length > 0 
-                ? topPrices.map(p => `
-                    <tr>
-                        <td><strong>${p.productName}</strong></td>
-                        <td>${p.company}</td>
-                        <td><span class="price-badge">¥${p.price.toFixed(2)}</span></td>
-                        <td>${p.target ? `¥${p.target.toFixed(2)}` : '-'}</td>
-                        <td>${p.status}</td>
-                    </tr>
-                `).join('')
-                : '<tr><td colspan="5" style="text-align: center; color: var(--text-gray);">📤 Загрузите данные</td></tr>';
+            updateStats();
+            updateTopPrices();
+            updateMatrix();
+            updateAnalytics();
         }
 
-        function renderMatrix() {
+        function updateStats() {
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = '';
+
+            let totalProducts = DB.products.length;
+            let totalCompanies = DB.companies.length;
+            let completePrices = 0;
+            let allPrices = [];
+
+            Object.keys(DB.prices).forEach(pid => {
+                Object.values(DB.prices[pid]).forEach(p => {
+                    completePrices++;
+                    allPrices.push(p);
+                });
+            });
+
+            const avgPrice = allPrices.length > 0 ? (allPrices.reduce((a, b) => a + b, 0) / allPrices.length).toFixed(2) : 0;
+
+            const stats = [
+                { label: '📦 Продуктов', value: totalProducts },
+                { label: '🏢 Компаний', value: totalCompanies },
+                { label: '💰 Цен загружено', value: completePrices },
+                { label: '📊 Средняя ¥', value: avgPrice }
+            ];
+
+            stats.forEach(stat => {
+                const card = document.createElement('div');
+                card.className = 'stat-card';
+                card.innerHTML = `<div class="stat-label">${stat.label}</div><div class="stat-value">${stat.value}</div>`;
+                statsGrid.appendChild(card);
+            });
+        }
+
+        function updateTopPrices() {
+            const tbody = document.querySelector('#topPricesList tbody');
+            tbody.innerHTML = '';
+
+            const allPrices = [];
+
+            Object.keys(DB.prices).forEach(productId => {
+                Object.entries(DB.prices[productId]).forEach(([company, price]) => {
+                    allPrices.push({
+                        productId,
+                        productName: DB.productNames[productId] || productId,
+                        company,
+                        price: parseFloat(price),
+                        target: DB.targetPrices[productId] ? parseFloat(DB.targetPrices[productId]) : null
+                    });
+                });
+            });
+
+            allPrices.sort((a, b) => a.price - b.price);
+            const top10 = allPrices.slice(0, 10);
+
+            top10.forEach(item => {
+                const row = document.createElement('tr');
+                const status = item.target && item.price <= item.target ? '✅ OK' : (item.target ? '❌ High' : '⚪ No Target');
+                row.innerHTML = `
+                    <td>${item.productName}</td>
+                    <td>${item.company}</td>
+                    <td><span class="price-badge">¥${item.price.toFixed(2)}</span></td>
+                    <td>${item.target ? '¥' + item.target.toFixed(2) : '-'}</td>
+                    <td>${status}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateMatrix() {
+            const table = document.getElementById('matrixTable');
+            table.innerHTML = '';
+
             if (DB.products.length === 0) {
-                document.getElementById('matrixStatus').innerHTML = '<div class="error-message">📤 Загрузите Excel файл для отображения матрицы</div>';
+                document.getElementById('matrixStatus').innerHTML = '<p style="color: var(--text-gray); margin: 0;">Загрузите данные для просмотра матрицы</p>';
                 return;
             }
 
-            const products = DB.products;
-            const companies = DB.companies.map(c => c.name);
+            // Header
+            const thead = document.createElement('thead');
+            let headerHTML = '<tr><th>Product</th>';
+            DB.companies.forEach(c => {
+                headerHTML += `<th>${c.name}</th>`;
+            });
+            headerHTML += '</tr>';
+            thead.innerHTML = headerHTML;
+            table.appendChild(thead);
 
-            let html = '<tr><th>Product Name</th><th>Target ¥</th>';
-            companies.forEach(c => html += `<th>${c}</th>`);
-            html += '</tr>';
+            // Body
+            const tbody = document.createElement('tbody');
+            DB.products.forEach(productId => {
+                let rowHTML = `<tr><td style="font-weight: 600;">${DB.productNames[productId]}</td>`;
+                const prices = DB.prices[productId] || {};
+                let minPrice = Infinity;
+                Object.values(prices).forEach(p => {
+                    if (p < minPrice) minPrice = p;
+                });
 
-            products.forEach(prodId => {
-                const prodName = DB.productNames[prodId] || prodId;
-                const target = DB.targetPrices[prodId];
-                const prices = DB.prices[prodId] || {};
-                const pricesArr = companies.map(c => prices[c]).filter(p => p !== undefined);
-                const min = pricesArr.length ? Math.min(...pricesArr) : null;
-
-                html += `<tr><td><strong>${prodName}</strong></td><td>${target ? `¥${target.toFixed(2)}` : '-'}</td>`;
-                companies.forEach(c => {
-                    const price = prices[c];
-                    if (price !== undefined) {
-                        const isBest = min !== null && price === min;
-                        const className = isBest ? 'price-cell best' : 'price-cell';
-                        html += `<td><span class="${className}">¥${price.toFixed(2)}</span></td>`;
+                DB.companies.forEach(c => {
+                    const price = prices[c.name];
+                    if (price) {
+                        const isBest = price === minPrice;
+                        const cellClass = isBest ? 'price-cell best' : 'price-cell';
+                        rowHTML += `<td><span class="${cellClass}">¥${price.toFixed(2)}</span></td>`;
                     } else {
-                        html += '<td style="color: var(--text-gray);">-</td>';
+                        rowHTML += '<td style="color: var(--text-gray);">-</td>';
                     }
                 });
-                html += '</tr>';
+                rowHTML += '</tr>';
+                tbody.innerHTML += rowHTML;
             });
-
-            document.querySelector('#matrixTable thead').innerHTML = html.split('</tr>')[0] + '</tr>';
-            document.querySelector('#matrixTable tbody').innerHTML = html.substring(html.indexOf('</tr>') + 5);
+            table.appendChild(tbody);
             document.getElementById('matrixStatus').innerHTML = '';
         }
 
-        function renderAnalytics() {
-            const allPrices = [];
-            for (const prods of Object.values(DB.prices)) {
-                for (const price of Object.values(prods)) {
-                    allPrices.push(price);
-                }
-            }
+        function updateAnalytics() {
+            let allPrices = [];
+            let companyStats = {};
+            let productStats = {};
 
-            const avg = allPrices.length > 0 ? (allPrices.reduce((a, b) => a + b, 0) / allPrices.length).toFixed(2) : '-';
-            const min = allPrices.length > 0 ? Math.min(...allPrices).toFixed(2) : '-';
-            const max = allPrices.length > 0 ? Math.max(...allPrices).toFixed(2) : '-';
+            Object.keys(DB.prices).forEach(productId => {
+                const prices = DB.prices[productId];
+                const priceArray = Object.values(prices).map(p => parseFloat(p));
+                productStats[productId] = {
+                    min: Math.min(...priceArray),
+                    max: Math.max(...priceArray),
+                    avg: priceArray.reduce((a, b) => a + b, 0) / priceArray.length,
+                    bestCompany: Object.keys(prices).find(c => parseFloat(prices[c]) === Math.min(...priceArray))
+                };
+                allPrices = allPrices.concat(priceArray);
+            });
 
-            document.getElementById('avgPrice').textContent = avg !== '-' ? `¥${avg}` : '-';
-            document.getElementById('minPrice').textContent = min !== '-' ? `¥${min}` : '-';
-            document.getElementById('maxPrice').textContent = max !== '-' ? `¥${max}` : '-';
-
-            const companyWins = {};
-            for (const [product, companies] of Object.entries(DB.prices)) {
-                const prices = Object.values(companies);
-                if (prices.length > 0) {
-                    const minPrice = Math.min(...prices);
-                    for (const [company, price] of Object.entries(companies)) {
-                        if (price === minPrice) {
-                            companyWins[company] = (companyWins[company] || 0) + 1;
-                        }
+            DB.companies.forEach(company => {
+                const companyPrices = [];
+                Object.keys(DB.prices).forEach(productId => {
+                    if (DB.prices[productId][company.name]) {
+                        companyPrices.push(parseFloat(DB.prices[productId][company.name]));
                     }
+                });
+                if (companyPrices.length > 0) {
+                    companyStats[company.name] = {
+                        count: companyPrices.length,
+                        avg: companyPrices.reduce((a, b) => a + b, 0) / companyPrices.length,
+                        min: Math.min(...companyPrices),
+                        max: Math.max(...companyPrices)
+                    };
                 }
-            }
-            const bestCompany = Object.entries(companyWins).sort((a, b) => b[1] - a[1])[0];
-            document.getElementById('bestCompany').textContent = bestCompany ? bestCompany[0] : '-';
+            });
 
-            const companiesTable = document.querySelector('#companiesAnalytics tbody');
-            let companiesHtml = '';
-            for (const company of DB.companies) {
-                const prices = [];
-                for (const prods of Object.values(DB.prices)) {
-                    if (prods[company.name]) prices.push(prods[company.name]);
-                }
-                if (prices.length > 0) {
-                    const avgC = (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2);
-                    const minC = Math.min(...prices).toFixed(2);
-                    const maxC = Math.max(...prices).toFixed(2);
-                    companiesHtml += `
-                        <tr>
-                            <td><strong>${company.name}</strong></td>
-                            <td>${prices.length}</td>
-                            <td>¥${avgC}</td>
-                            <td>¥${minC}</td>
-                            <td>¥${maxC}</td>
-                        </tr>
-                    `;
-                }
-            }
-            companiesTable.innerHTML = companiesHtml || '<tr><td colspan="5" style="text-align: center; color: var(--text-gray);">Нет данных</td></tr>';
+            // Update cards
+            document.getElementById('avgPrice').textContent = allPrices.length > 0 ? '¥' + (allPrices.reduce((a, b) => a + b, 0) / allPrices.length).toFixed(2) : '-';
+            document.getElementById('minPrice').textContent = allPrices.length > 0 ? '¥' + Math.min(...allPrices).toFixed(2) : '-';
+            document.getElementById('maxPrice').textContent = allPrices.length > 0 ? '¥' + Math.max(...allPrices).toFixed(2) : '-';
 
-            const productsTable = document.querySelector('#productAnalytics tbody');
-            let productsHtml = '';
-            for (const productId of DB.products) {
-                const prodName = DB.productNames[productId] || productId;
-                const target = DB.targetPrices[productId];
-                const prices = DB.prices[productId] || {};
-                const pricesArr = Object.values(prices);
-                if (pricesArr.length > 0) {
-                    const minP = Math.min(...pricesArr);
-                    const avgP = (pricesArr.reduce((a, b) => a + b, 0) / pricesArr.length).toFixed(2);
-                    const maxP = Math.max(...pricesArr);
-                    const spread = (maxP - minP).toFixed(2);
-                    const bestCompanyP = Object.entries(prices).find(([_, p]) => p === minP)[0];
-                    const targetStatus = target ? (minP <= target ? '✅' : '⚠️') : '';
-                    productsHtml += `
-                        <tr>
-                            <td><strong>${prodName}</strong></td>
-                            <td><span class="price-badge">¥${minP.toFixed(2)}</span></td>
-                            <td>${bestCompanyP}</td>
-                            <td>¥${avgP}</td>
-                            <td>¥${spread} ${target ? `(Target: ¥${target.toFixed(2)} ${targetStatus})` : ''}</td>
-                        </tr>
-                    `;
+            let bestCompany = '';
+            let bestAvg = Infinity;
+            Object.keys(companyStats).forEach(c => {
+                if (companyStats[c].avg < bestAvg) {
+                    bestAvg = companyStats[c].avg;
+                    bestCompany = c;
                 }
-            }
-            productsTable.innerHTML = productsHtml || '<tr><td colspan="5" style="text-align: center; color: var(--text-gray);">Нет данных</td></tr>';
+            });
+            document.getElementById('bestCompany').textContent = bestCompany || '-';
+
+            // Companies table
+            const compTable = document.querySelector('#companiesAnalytics tbody');
+            compTable.innerHTML = '';
+            Object.keys(companyStats).forEach(company => {
+                const stats = companyStats[company];
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${company}</td>
+                    <td>${stats.count}</td>
+                    <td>¥${stats.avg.toFixed(2)}</td>
+                    <td>¥${stats.min.toFixed(2)}</td>
+                    <td>¥${stats.max.toFixed(2)}</td>
+                `;
+                compTable.appendChild(row);
+            });
+
+            // Products table
+            const prodTable = document.querySelector('#productAnalytics tbody');
+            prodTable.innerHTML = '';
+            Object.keys(productStats).forEach(productId => {
+                const stats = productStats[productId];
+                const spread = (stats.max - stats.min).toFixed(2);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${DB.productNames[productId]}</td>
+                    <td>¥${stats.min.toFixed(2)}</td>
+                    <td>${stats.bestCompany}</td>
+                    <td>¥${stats.avg.toFixed(2)}</td>
+                    <td>¥${spread}</td>
+                `;
+                prodTable.appendChild(row);
+            });
         }
 
-        function switchSection(id) {
+        function switchSection(sectionId) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
             event.target.classList.add('active');
 
             const titles = {
@@ -1130,10 +1182,11 @@
                 matrix: '📋 Матрица',
                 analytics: '📈 Аналитика'
             };
-            document.getElementById('pageTitle').textContent = titles[id] || 'Страница';
+            document.getElementById('pageTitle').textContent = titles[sectionId] || 'Страница';
 
-            if (id === 'matrix') renderMatrix();
-            if (id === 'analytics') renderAnalytics();
+            if (sectionId === 'analytics') {
+                updateAnalytics();
+            }
         }
     </script>
 </body>
