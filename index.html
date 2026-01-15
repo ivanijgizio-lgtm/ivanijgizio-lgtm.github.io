@@ -3,280 +3,378 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Price Manager Pro Elite - Advanced Analytics</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <title>Price Manager Pro Elite</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        :root{
-            --primary:#6366f1;--primary-light:#818cf8;--primary-dark:#4f46e5;
-            --secondary:#ec4899;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;
-            --bg-dark:#0f172a;--surface-dark:#1e293b;--border-dark:#334155;
-            --text-light:#f1f5f9;--text-gray:#cbd5e1
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        html{
-            --bg:var(--bg-dark);--surface:var(--surface-dark);
-            --border:var(--border-dark);--text:var(--text-light);
-            --text-secondary:var(--text-gray)
+
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-dark: #0f172a;
+            --surface-dark: #1e293b;
+            --border-dark: #334155;
+            --text-light: #f1f5f9;
+            --text-gray: #cbd5e1;
         }
-        body{
-            font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-            background:var(--bg);color:var(--text);overflow:hidden
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            overflow: hidden;
         }
-        .app{display:none;height:100vh;flex-direction:column}
-        .app.active{display:flex}
-        .header{
-            background:var(--surface);border-bottom:1px solid var(--border);
-            padding:15px 30px;display:flex;justify-content:space-between;
-            align-items:center;flex-wrap:wrap;gap:15px
+
+        .app {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        .header-left{display:flex;align-items:center;gap:20px}
-        .logo{
-            font-size:20px;font-weight:800;
-            background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);
-            -webkit-background-clip:text;-webkit-text-fill-color:transparent
+
+        .header {
+            background: var(--surface-dark);
+            border-bottom: 1px solid var(--border-dark);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
         }
-        .page-title{font-size:20px;font-weight:700}
-        .header-right{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
-        .rate-display{
-            background:rgba(99,102,241,.15);border:1px solid var(--primary);
-            padding:10px 15px;border-radius:8px;font-weight:600;
-            display:flex;align-items:center;gap:8px
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6366f1, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .rate-live{
-            width:10px;height:10px;background:var(--success);
-            border-radius:50%;animation:pulse 2s infinite
+
+        .rate-display {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid var(--primary);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
         }
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-        .user-profile{display:flex;align-items:center;gap:10px}
-        .avatar{
-            width:32px;height:32px;border-radius:50%;
-            background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);
-            color:#fff;display:flex;align-items:center;justify-content:center;
-            font-weight:600;font-size:12px
+
+        .content-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
         }
-        .logout-btn{
-            padding:8px 16px;background:var(--danger);color:#fff;border:none;
-            border-radius:6px;cursor:pointer;font-weight:600
+
+        .sidebar {
+            width: 250px;
+            background: var(--surface-dark);
+            border-right: 1px solid var(--border-dark);
+            overflow-y: auto;
+            padding: 15px 0;
         }
-        .logout-btn:hover{background:#dc2626}
-        .sidebar{
-            width:280px;background:var(--surface);border-right:1px solid var(--border);
-            display:flex;flex-direction:column;overflow-y:auto
+
+        .menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            font-size: 14px;
+            color: var(--text-gray);
+            transition: all 0.2s;
         }
-        .sidebar-menu{flex:1;padding:20px 0}
-        .menu-item{
-            padding:12px 20px;cursor:pointer;color:var(--text-secondary);
-            border-left:3px solid transparent;font-size:14px;font-weight:500;
-            transition:all .2s
+
+        .menu-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-light);
         }
-        .menu-item:hover{
-            background:rgba(99,102,241,.1);color:var(--primary-light)
+
+        .menu-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+            border-left-color: var(--primary);
         }
-        .menu-item.active{
-            background:rgba(99,102,241,.15);color:var(--primary);
-            border-left-color:var(--primary)
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
         }
-        .content-wrapper{display:flex;flex:1;overflow:hidden}
-        .content{flex:1;overflow-y:auto;padding:30px}
-        .section{display:none}
-        .section.active{display:block}
-        .card{
-            background:var(--surface);border:1px solid var(--border);
-            border-radius:12px;padding:20px;margin-bottom:20px
+
+        .section {
+            display: none;
         }
-        .card-title{
-            font-size:16px;font-weight:700;margin-bottom:15px;
-            padding-bottom:12px;border-bottom:2px solid var(--border)
+
+        .section.active {
+            display: block;
         }
-        .upload-zone{
-            border:2px dashed var(--primary);border-radius:8px;padding:20px;
-            text-align:center;cursor:pointer;transition:all .2s;
-            background:rgba(99,102,241,.05)
+
+        .card {
+            background: var(--surface-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
-        .upload-zone:hover{
-            background:rgba(99,102,241,.1);border-color:var(--primary-light)
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-dark);
         }
-        .upload-zone input{display:none}
-        .btn{
-            padding:10px 20px;border:none;border-radius:8px;
-            font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;
-            display:inline-flex;align-items:center;gap:8px
+
+        .upload-zone {
+            border: 2px dashed var(--primary);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            background: rgba(99, 102, 241, 0.05);
+            transition: all 0.2s;
         }
-        .btn-primary{
-            background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);
-            color:#fff
+
+        .upload-zone:hover {
+            background: rgba(99, 102, 241, 0.1);
         }
-        .btn-primary:hover{transform:translateY(-2px)}
-        .btn-danger{background:var(--danger);color:#fff}
-        .btn-danger:hover{background:#dc2626}
-        .stats-grid{
-            display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-            gap:15px;margin-bottom:20px
+
+        .upload-zone input {
+            display: none;
         }
-        .stat-card{
-            background:var(--surface);border:1px solid var(--border);
-            border-radius:12px;padding:20px;text-align:center
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
         }
-        .stat-label{font-size:12px;color:var(--text-secondary);margin-bottom:8px}
-        .stat-value{
-            font-size:28px;font-weight:800;
-            background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);
-            -webkit-background-clip:text;-webkit-text-fill-color:transparent
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
         }
-        .matrix-table{width:100%;border-collapse:collapse;font-size:13px}
-        .matrix-table th,.matrix-table td{
-            padding:12px;text-align:center;border:1px solid var(--border)
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
         }
-        .matrix-table th{
-            background:rgba(99,102,241,.15);font-weight:600;color:var(--primary)
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
         }
-        .price-cell{
-            padding:10px;border-radius:6px;font-weight:600;
-            animation:slideIn .3s ease-out
+
+        .btn-danger:hover {
+            background: #dc2626;
         }
-        .price-cell.best{
-            background:rgba(16,185,129,.2);color:var(--success)
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
-        .price-cell.average{
-            background:rgba(99,102,241,.2);color:var(--primary)
+
+        .stat-card {
+            background: var(--surface-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
         }
-        .price-cell.high{
-            background:rgba(239,68,68,.15);color:var(--danger)
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-bottom: 8px;
         }
-        @keyframes slideIn{
-            from{opacity:0;transform:translateY(-5px)}
-            to{opacity:1;transform:translateY(0)}
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
         }
-        .analytics-grid{
-            display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-            gap:15px;margin-bottom:20px
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 15px;
         }
-        .analysis-card{
-            background:var(--surface);border:1px solid var(--border);
-            border-radius:12px;padding:15px
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-dark);
         }
-        .analysis-title{font-weight:600;margin-bottom:10px;color:var(--primary);font-size:13px}
-        .analysis-value{font-size:18px;font-weight:700;margin-bottom:5px}
-        .analysis-subtitle{font-size:11px;color:var(--text-secondary)}
-        .login-page{
-            display:none;min-height:100vh;
-            background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);
-            align-items:center;justify-content:center;position:fixed;
-            inset:0;z-index:1000
+
+        table th {
+            background: rgba(99, 102, 241, 0.1);
+            font-weight: 600;
+            color: var(--primary);
         }
-        .login-page.active{display:flex}
-        .login-box{
-            background:var(--surface);padding:40px;border-radius:16px;
-            width:100%;max-width:420px
+
+        table tr:hover {
+            background: rgba(99, 102, 241, 0.05);
         }
-        .login-box h1{margin:0 0 30px;text-align:center;color:var(--primary);font-size:24px}
-        .form-group{margin-bottom:15px}
-        .form-group label{
-            display:block;font-size:12px;font-weight:600;
-            margin-bottom:6px;color:var(--text-secondary)
+
+        .price-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
         }
-        .form-group input{
-            width:100%;padding:10px 12px;background:var(--bg);
-            border:1px solid var(--border);border-radius:8px;
-            color:var(--text);font-size:14px
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--surface-dark);
+            border-left: 4px solid #10b981;
+            padding: 16px;
+            border-radius: 8px;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
         }
-        .form-group input:focus{
-            outline:none;border-color:var(--primary);
-            box-shadow:0 0 0 3px rgba(99,102,241,.1)
+
+        .toast.error {
+            border-left-color: #ef4444;
         }
-        .toast{
-            position:fixed;bottom:20px;right:20px;background:var(--surface);
-            border-left:4px solid var(--success);padding:16px 20px;border-radius:8px;
-            box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:9999;
-            animation:slideInRight .3s ease
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
         }
-        .toast.error{border-left-color:var(--danger)}
-        @keyframes slideInRight{
-            from{transform:translateX(400px);opacity:0}
-            to{transform:translateX(0);opacity:1}
+
+        .matrix-container {
+            overflow-x: auto;
+            margin-top: 15px;
         }
-        table{width:100%;border-collapse:collapse;margin-top:15px}
-        table th,table td{
-            padding:10px;text-align:left;border-bottom:1px solid var(--border)
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
         }
-        table th{
-            background:rgba(99,102,241,.1);font-weight:600
+
+        .matrix-table td {
+            padding: 12px;
+            border: 1px solid var(--border-dark);
+            text-align: center;
         }
-        table tr:hover{background:rgba(99,102,241,.05)}
-        .badge{
-            display:inline-block;padding:4px 10px;border-radius:6px;
-            font-size:11px;font-weight:600
+
+        .matrix-table th {
+            padding: 12px;
+            border: 1px solid var(--border-dark);
+            background: rgba(99, 102, 241, 0.15);
+            font-weight: 600;
+            color: var(--primary);
         }
-        .badge-success{background:rgba(16,185,129,.2);color:var(--success)}
-        .badge-warning{background:rgba(245,158,11,.2);color:var(--warning)}
-        @media (max-width:768px){
-            .content-wrapper{flex-direction:column}
-            .sidebar{
-                width:100%;height:auto;border-right:none;
-                border-bottom:1px solid var(--border);flex-direction:row;overflow-x:auto
+
+        .price-cell {
+            font-weight: 600;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .price-cell.best {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .price-cell.high {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .analysis-card {
+            background: var(--surface-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .analysis-title {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-bottom: 8px;
+        }
+
+        .analysis-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            border-radius: 8px;
+            padding: 15px;
+            color: #fca5a5;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                flex-direction: column;
             }
-            .sidebar-menu{display:flex;gap:0;padding:0}
-            .menu-item{
-                white-space:nowrap;flex:1;border-left:none;
-                border-bottom:3px solid transparent
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border-dark);
+                display: flex;
+                overflow-x: auto;
+                padding: 0;
             }
-            .menu-item.active{
-                border-left:none;border-bottom-color:var(--primary)
+            .menu-item {
+                flex: 1;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                white-space: nowrap;
             }
-            .stats-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
-            .header{padding:12px 15px;font-size:13px}
-            .content{padding:15px}
+            .menu-item.active {
+                border-left: none;
+                border-bottom-color: var(--primary);
+            }
         }
     </style>
 </head>
 <body>
-    <!-- LOGIN -->
-    <div id="loginApp" class="login-page active">
-        <div class="login-box">
-            <h1>💎 Price Manager Pro</h1>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="loginEmail" value="admin@example.com">
-            </div>
-            <div class="form-group">
-                <label>Пароль</label>
-                <input type="password" id="loginPassword" value="admin123">
-            </div>
-            <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="handleLogin()">
-                Вход
-            </button>
-        </div>
-    </div>
-
-    <!-- MAIN APP -->
-    <div id="mainApp" class="app">
+    <div class="app">
         <div class="header">
-            <div class="header-left">
-                <div class="logo">⚙️ PMP Elite</div>
-                <div class="page-title" id="pageTitle">📊 Дашборд</div>
+            <div>
+                <div class="logo">⚙️ Price Manager Pro</div>
             </div>
-            <div class="header-right">
-                <div class="rate-display">
-                    <span class="rate-live"></span>
-                    <span>USD/CNY: <strong id="rateValue">7.25</strong></span>
-                </div>
-                <div class="user-profile">
-                    <div class="avatar" id="userAvatar">A</div>
-                    <div id="userName">Администратор</div>
-                </div>
-                <button class="logout-btn" onclick="handleLogout()">Выход</button>
+            <div class="rate-display">
+                📊 USD/CNY: <strong id="rateValue">7.25</strong>
             </div>
         </div>
 
         <div class="content-wrapper">
             <div class="sidebar">
-                <div class="sidebar-menu">
-                    <div class="menu-item active" onclick="switchSection(event,'dashboard')">📊 Дашборд</div>
-                    <div class="menu-item" onclick="switchSection(event,'upload')">📤 Загрузка</div>
-                    <div class="menu-item" onclick="switchSection(event,'matrix')">📊 Матрица</div>
-                    <div class="menu-item" onclick="switchSection(event,'analytics')">📈 Аналитика</div>
-                    <div class="menu-item" onclick="switchSection(event,'companies')">🏢 Компании</div>
-                </div>
+                <div class="menu-item active" onclick="switchSection('dashboard')">📊 Дашборд</div>
+                <div class="menu-item" onclick="switchSection('upload')">📤 Загрузка</div>
+                <div class="menu-item" onclick="switchSection('matrix')">📋 Матрица</div>
+                <div class="menu-item" onclick="switchSection('analytics')">📈 Аналитика</div>
             </div>
 
             <div class="content">
@@ -284,17 +382,18 @@
                 <section id="dashboard" class="section active">
                     <div class="stats-grid" id="statsGrid"></div>
                     <div class="card">
-                        <div class="card-title">⭐ Топ 10 лучших цен</div>
-                        <table>
+                        <div class="card-title">⭐ Лучшие цены (Top 10)</div>
+                        <table id="topPricesList">
                             <thead>
                                 <tr>
-                                    <th>Продукт</th>
+                                    <th>Product Name</th>
                                     <th>Компания</th>
-                                    <th>Цена CNY</th>
-                                    <th>Дата</th>
+                                    <th>Цена ¥</th>
+                                    <th>Target Price</th>
+                                    <th>Статус</th>
                                 </tr>
                             </thead>
-                            <tbody id="topPricesList"></tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </section>
@@ -302,39 +401,39 @@
                 <!-- UPLOAD -->
                 <section id="upload" class="section">
                     <div class="card">
-                        <div class="card-title">📥 Загрузить данные из Excel</div>
+                        <div class="card-title">📥 Загрузить Excel файл с ценами</div>
                         <div class="upload-zone" onclick="document.getElementById('excelFile').click()">
-                            <p style="margin:0;font-weight:600;color:var(--primary);cursor:pointer">
+                            <p style="margin: 0; font-weight: 600; color: var(--primary); cursor: pointer;">
                                 📤 Нажмите для загрузки или перетащите файл
                             </p>
-                            <p style="margin:5px 0 0;font-size:12px;color:var(--text-secondary)">
-                                Поддерживаются форматы: XLSX, XLS, CSV
+                            <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--text-gray);">
+                                Поддерживаются: XLSX, XLS, CSV
                             </p>
                             <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" onchange="handleExcelUpload(event)">
                         </div>
-                        <div style="margin-top:20px;padding:15px;background:rgba(99,102,241,.05);border-radius:8px;font-size:12px">
-                            <p><strong>ℹ️ Формат файла:</strong></p>
-                            <ul style="margin:10px 0 0 20px;color:var(--text-secondary)">
-                                <li>Первая строка — заголовки: продукт, компании</li>
-                                <li>Первая колонка — наименования продуктов</li>
-                                <li>Остальные ячейки — цены в CNY</li>
-                                <li>Символ ¥ можно, он удаляется автоматически</li>
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(99, 102, 241, 0.05); border-radius: 8px; font-size: 12px; color: var(--text-gray);">
+                            <p><strong style="color: var(--primary);">ℹ️ Требуемый формат:</strong></p>
+                            <ul style="margin: 10px 0 0 20px;">
+                                <li>Первая строка - названия компаний</li>
+                                <li>Первая колонка - Product ID (код)</li>
+                                <li>Вторая колонка - Product Name (FOB, HCG, Myoglobin и т.д.)</li>
+                                <li>Остальные ячейки - цены (¥)</li>
                             </ul>
                         </div>
                     </div>
 
                     <div class="card">
-                        <div class="card-title">🏢 Загрузить компании</div>
-                        <div class="upload-zone" onclick="document.getElementById('companiesFile').click()">
-                            <p style="margin:0;font-weight:600;color:var(--primary);cursor:pointer">
-                                📤 Загрузить список компаний (отдельный файл)
+                        <div class="card-title">🎯 Загрузить Target Price (Целевые цены)</div>
+                        <div class="upload-zone" onclick="document.getElementById('targetPriceFile').click()">
+                            <p style="margin: 0; font-weight: 600; color: var(--primary); cursor: pointer;">
+                                📤 Загрузить цели (Product ID, Target Price)
                             </p>
-                            <input type="file" id="companiesFile" accept=".xlsx,.xls,.csv" onchange="handleCompaniesUpload(event)">
+                            <input type="file" id="targetPriceFile" accept=".xlsx,.xls,.csv" onchange="handleTargetPriceUpload(event)">
                         </div>
                     </div>
 
                     <div class="card">
-                        <div class="card-title">⚙️ Действия</div>
+                        <div class="card-title">⚙️ Управление</div>
                         <button class="btn btn-danger" onclick="clearAllData()">🗑️ Очистить все данные</button>
                     </div>
                 </section>
@@ -342,52 +441,48 @@
                 <!-- MATRIX -->
                 <section id="matrix" class="section">
                     <div class="card">
-                        <div class="card-title">📊 Матрица цен (CNY) с аналитикой</div>
-                        <div style="overflow-x:auto">
+                        <div class="card-title">📊 Матрица сравнения цен с аналитикой</div>
+                        <div id="matrixStatus"></div>
+                        <div class="matrix-container">
                             <table class="matrix-table" id="matrixTable">
                                 <thead></thead>
                                 <tbody></tbody>
                             </table>
                         </div>
                     </div>
-
-                    <div class="analytics-grid">
-                        <div class="analysis-card">
-                            <div class="analysis-title">💰 Средняя цена</div>
-                            <div class="analysis-value" id="avgPrice">-</div>
-                            <div class="analysis-subtitle">по всем продуктам</div>
-                        </div>
-                        <div class="analysis-card">
-                            <div class="analysis-title">📉 Минимальная</div>
-                            <div class="analysis-value" id="minPrice">-</div>
-                            <div class="analysis-subtitle">самое выгодное предложение</div>
-                        </div>
-                        <div class="analysis-card">
-                            <div class="analysis-title">📈 Максимальная</div>
-                            <div class="analysis-value" id="maxPrice">-</div>
-                            <div class="analysis-subtitle">самое дорогое предложение</div>
-                        </div>
-                        <div class="analysis-card">
-                            <div class="analysis-title">🎯 Самая конкурентная</div>
-                            <div class="analysis-value" id="bestCompany">-</div>
-                            <div class="analysis-subtitle">по количеству лучших цен</div>
-                        </div>
-                    </div>
                 </section>
 
                 <!-- ANALYTICS -->
                 <section id="analytics" class="section">
+                    <div class="analytics-grid">
+                        <div class="analysis-card">
+                            <div class="analysis-title">💰 Средняя цена</div>
+                            <div class="analysis-value" id="avgPrice">-</div>
+                        </div>
+                        <div class="analysis-card">
+                            <div class="analysis-title">📉 Минимальная</div>
+                            <div class="analysis-value" id="minPrice">-</div>
+                        </div>
+                        <div class="analysis-card">
+                            <div class="analysis-title">📈 Максимальная</div>
+                            <div class="analysis-value" id="maxPrice">-</div>
+                        </div>
+                        <div class="analysis-card">
+                            <div class="analysis-title">🏆 Лучшая компания</div>
+                            <div class="analysis-value" id="bestCompany">-</div>
+                        </div>
+                    </div>
+
                     <div class="card">
-                        <div class="card-title">📈 Аналитика по компаниям</div>
+                        <div class="card-title">📋 Статистика по компаниям</div>
                         <table id="companiesAnalytics">
                             <thead>
                                 <tr>
                                     <th>Компания</th>
                                     <th>Кол-во цен</th>
-                                    <th>Средняя цена</th>
-                                    <th>Мин. цена</th>
-                                    <th>Макс. цена</th>
-                                    <th>Статус</th>
+                                    <th>Средняя ¥</th>
+                                    <th>Мин ¥</th>
+                                    <th>Макс ¥</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -395,32 +490,15 @@
                     </div>
 
                     <div class="card">
-                        <div class="card-title">🏆 Лучшие предложения по продуктам</div>
+                        <div class="card-title">🎯 Лучшие предложения по продуктам</div>
                         <table id="productAnalytics">
                             <thead>
                                 <tr>
                                     <th>Продукт</th>
-                                    <th>Лучшая цена</th>
+                                    <th>Лучшая цена ¥</th>
                                     <th>Компания</th>
-                                    <th>Среднее</th>
+                                    <th>Средняя ¥</th>
                                     <th>Разброс</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <!-- COMPANIES -->
-                <section id="companies" class="section">
-                    <div class="card">
-                        <div class="card-title">🏢 Список компаний</div>
-                        <table id="companiesList">
-                            <thead>
-                                <tr>
-                                    <th>Компания</th>
-                                    <th>Продуктов</th>
-                                    <th>Средняя цена</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -431,468 +509,403 @@
         </div>
     </div>
 
-<script>
-const DB = { companies: [], prices: {} }; // prices: { product: { company: price } }
-let currentUser = null;
-let exchangeRate = 7.25;
+    <script>
+        const DB = { 
+            companies: [], 
+            products: [],
+            prices: {}, // { 'ProductName': { 'CompanyName': price, ... } }
+            productNames: {}, // { 'ProductName': 'Display Name (FOB, HCG, etc)' }
+            targetPrices: {} // { 'ProductName': targetPrice }
+        };
+        let exchangeRate = 7.25;
 
-// INIT
-window.addEventListener('load', () => {
-    safeLoadDB();
-    const theme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', theme);
-
-    if (currentUser) showMainApp();
-    else showLoginApp();
-
-    loadExchangeRate();
-    setInterval(loadExchangeRate, 5*60*1000);
-    console.log('✅ App loaded');
-});
-
-// EXCHANGE RATE
-function loadExchangeRate(){
-    fetch('https://api.exchangerate-api.com/v4/latest/USD')
-        .then(r=>r.json())
-        .then(data=>{
-            if(data && data.rates && data.rates.CNY){
-                exchangeRate = data.rates.CNY;
-                document.getElementById('rateValue').textContent = exchangeRate.toFixed(2);
-            }
-        })
-        .catch(err=>{
-            console.log('⚠️ Курс не обновлён:', err);
+        // Загрузка при старте
+        window.addEventListener('load', () => {
+            loadDB();
+            loadExchangeRate();
+            setInterval(loadExchangeRate, 5 * 60 * 1000);
+            loadDashboard();
         });
-}
 
-// STORAGE
-function safeLoadDB(){
-    try{
-        const stored = localStorage.getItem('priceManagerDB');
-        if(stored){
-            const parsed = JSON.parse(stored);
-            if(parsed && typeof parsed === 'object'){
-                if(parsed.companies) DB.companies = parsed.companies;
-                if(parsed.prices) DB.prices = parsed.prices;
+        function loadDB() {
+            try {
+                const stored = localStorage.getItem('priceManagerDB');
+                if (stored) {
+                    Object.assign(DB, JSON.parse(stored));
+                    console.log('✅ Данные загружены из памяти:', DB);
+                }
+            } catch (err) {
+                console.error('❌ Ошибка при загрузке:', err);
             }
         }
-    }catch(e){console.error(e);}
 
-    try{
-        const u = localStorage.getItem('currentUserPM');
-        if(u) currentUser = JSON.parse(u);
-    }catch(e){}
+        function saveDB() {
+            try {
+                localStorage.setItem('priceManagerDB', JSON.stringify(DB));
+                console.log('✅ Данные сохранены');
+            } catch (err) {
+                console.error('❌ Ошибка при сохранении:', err);
+                showToast('Ошибка сохранения', 'error');
+            }
+        }
 
-    if(!DB.companies || !Array.isArray(DB.companies) || DB.companies.length===0){
-        DB.companies = [{id:1,name:'Администратор',site:''}];
-    }
-}
+        function loadExchangeRate() {
+            fetch('https://api.exchangerate-api.com/v4/latest/USD')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.rates && data.rates.CNY) {
+                        exchangeRate = data.rates.CNY;
+                        document.getElementById('rateValue').textContent = exchangeRate.toFixed(2);
+                    }
+                })
+                .catch(e => console.log('ℹ️ Курс не обновлён:', e.message));
+        }
 
-function safeSaveDB(){
-    try{
-        localStorage.setItem('priceManagerDB', JSON.stringify(DB));
-        if(currentUser) localStorage.setItem('currentUserPM', JSON.stringify(currentUser));
-    }catch(e){
-        console.error(e);
-        showToast('Ошибка сохранения', 'error');
-    }
-}
+        function showToast(msg, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
 
-// TOASTS
-function showToast(msg,type='success'){
-    const t=document.createElement('div');
-    t.className='toast'+(type==='error'?' error':'');
-    t.textContent=msg;
-    document.body.appendChild(t);
-    setTimeout(()=>t.remove(),3000);
-}
+        function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-// AUTH
-function handleLogin(){
-    const email=document.getElementById('loginEmail').value.trim();
-    const pwd=document.getElementById('loginPassword').value;
-    if(email==='admin@example.com' && pwd==='admin123'){
-        currentUser={id:1,name:'Администратор',email};
-        safeSaveDB();
-        showMainApp();
-    }else{
-        showToast('❌ Неверные учётные данные','error');
-    }
-}
-function handleLogout(){
-    if(confirm('Выйти из системы?')){
-        currentUser=null;
-        localStorage.removeItem('currentUserPM');
-        location.reload();
-    }
-}
-function showLoginApp(){
-    document.getElementById('loginApp').classList.add('active');
-    document.getElementById('mainApp').classList.remove('active');
-}
-function showMainApp(){
-    document.getElementById('loginApp').classList.remove('active');
-    document.getElementById('mainApp').classList.add('active');
-    document.getElementById('userAvatar').textContent=currentUser.name[0].toUpperCase();
-    document.getElementById('userName').textContent=currentUser.name;
-    loadDashboard();
-}
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    const json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
-// NAV
-function switchSection(ev,id){
-    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('active'));
-    if(ev && ev.target) ev.target.closest('.menu-item').classList.add('active');
+                    console.log('📄 Прочитан файл:', json);
 
-    const titles={
-        dashboard:'📊 Дашборд',
-        upload:'📤 Загрузка данных',
-        matrix:'📊 Матрица цен',
-        analytics:'📈 Аналитика',
-        companies:'🏢 Компании'
-    };
-    document.getElementById('pageTitle').textContent=titles[id]||'Страница';
+                    if (json.length < 2) {
+                        showToast('❌ Файл пуст или неверный формат', 'error');
+                        event.target.value = '';
+                        return;
+                    }
 
-    if(id==='matrix') renderMatrix();
-    if(id==='analytics') renderAnalytics();
-    if(id==='companies') renderCompanies();
-}
+                    // Первая строка - названия компаний
+                    const headers = json[0].slice(1).filter(h => h.toString().trim());
+                    console.log('🏢 Компании:', headers);
 
-// EXCEL UPLOAD (MAIN)
-function handleExcelUpload(e){
-    const file=e.target.files[0];
-    if(!file) return;
+                    if (headers.length === 0) {
+                        showToast('❌ Не найдены названия компаний', 'error');
+                        event.target.value = '';
+                        return;
+                    }
 
-    const reader=new FileReader();
-    reader.onload=(ev)=>{
-        try{
-            const data=new Uint8Array(ev.target.result);
-            const wb=XLSX.read(data,{type:'array'});
-            const sheet=wb.Sheets[wb.SheetNames[0]];
-            const json=XLSX.utils.sheet_to_json(sheet,{header:1,defval:''});
+                    // Обновляем компании
+                    DB.companies = headers.map((name, i) => ({
+                        id: i + 1,
+                        name: name.toString().trim()
+                    }));
 
-            if(!json || json.length<2){
-                showToast('❌ Пустой или неверный файл','error');
+                    // Очищаем цены
+                    DB.prices = {};
+                    DB.products = [];
+
+                    // Загружаем цены
+                    // Ожидаем: col0 = Product ID, col1 = Product Name, col2+ = цены компаний
+                    for (let i = 1; i < json.length; i++) {
+                        const row = json[i];
+                        if (!row || row.length < 3) continue;
+                        
+                        const productId = row[0]?.toString().trim();
+                        const productName = row[1]?.toString().trim();
+                        
+                        if (!productId || !productName) continue;
+
+                        DB.products.push(productId);
+                        DB.productNames[productId] = productName;
+                        DB.prices[productId] = {};
+
+                        console.log(`📦 ${productName} (ID: ${productId})`);
+
+                        // Цены начинаются со 3-й колонки (index 2)
+                        // headers содержит только названия компаний
+                        for (let j = 2; j < row.length && j - 2 < headers.length; j++) {
+                            const company = headers[j - 2]?.toString().trim();
+                            if (!company) continue;
+                            
+                            let price = row[j];
+
+                            if (price !== undefined && price !== '' && price !== null) {
+                                // Очищаем цену: ¥, пробелы, запятые
+                                let priceStr = price.toString().trim();
+                                priceStr = priceStr.replace(/¥|,|\s|/g, '').replace(/[^\d.]/g, '');
+                                const parsedPrice = parseFloat(priceStr);
+
+                                if (!isNaN(parsedPrice) && parsedPrice > 0) {
+                                    DB.prices[productId][company] = parsedPrice;
+                                    console.log(`  💰 ${company}: ¥${parsedPrice}`);
+                                }
+                            }
+                        }
+                    }
+
+                    saveDB();
+                    showToast(`✅ Загружено: ${DB.products.length} продуктов, ${DB.companies.length} компаний`);
+                    
+                    loadDashboard();
+                    renderMatrix();
+                    
+                    event.target.value = '';
+                } catch (err) {
+                    console.error('❌ Ошибка парсинга:', err);
+                    showToast('❌ Ошибка при загрузке файла', 'error');
+                    event.target.value = '';
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function clearAllData() {
+            if (confirm('🗑️ Удалить все данные?')) {
+                DB.prices = {};
+                DB.companies = [];
+                DB.products = [];
+                saveDB();
+                showToast('✅ Данные очищены');
+                location.reload();
+            }
+        }
+
+        function loadDashboard() {
+            const productCount = DB.products.length;
+            const totalPrices = Object.values(DB.prices).reduce((sum, prods) => sum + Object.keys(prods).length, 0);
+
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-label">Компаний</div>
+                    <div class="stat-value">${DB.companies.length}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Продуктов</div>
+                    <div class="stat-value">${productCount}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Записей цен</div>
+                    <div class="stat-value">${totalPrices}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">USD/CNY</div>
+                    <div class="stat-value">${exchangeRate.toFixed(2)}</div>
+                </div>
+            `;
+
+            // Топ 10 лучших цен
+            const allPrices = [];
+            for (const [productId, companies] of Object.entries(DB.prices)) {
+                for (const [company, price] of Object.entries(companies)) {
+                    const productName = DB.productNames[productId] || productId;
+                    const target = DB.targetPrices[productId];
+                    const status = target ? (price <= target ? '✅ OK' : '⚠️ Выше') : '-';
+                    allPrices.push({ productId, productName, company, price, target, status });
+                }
+            }
+
+            const topPrices = allPrices.sort((a, b) => a.price - b.price).slice(0, 10);
+            const tbody = document.querySelector('#topPricesList tbody');
+            tbody.innerHTML = topPrices.length > 0 
+                ? topPrices.map(p => `
+                    <tr>
+                        <td><strong>${p.productName}</strong></td>
+                        <td>${p.company}</td>
+                        <td><span class="price-badge">¥${p.price.toFixed(2)}</span></td>
+                        <td>${p.target ? `¥${p.target.toFixed(2)}` : '-'}</td>
+                        <td>${p.status}</td>
+                    </tr>
+                `).join('')
+                : '<tr><td colspan="5" style="text-align: center; color: var(--text-gray);">📤 Загрузите данные</td></tr>';
+        }
+
+        function renderMatrix() {
+            if (DB.products.length === 0) {
+                document.getElementById('matrixStatus').innerHTML = '<div class="error-message">📤 Загрузите Excel файл для отображения матрицы</div>';
                 return;
             }
 
-            // Ожидаем: первая строка – заголовки (Product, Company1, Company2,...)
-            const headers=json[0].map(h=>String(h).trim()).filter(h=>h!=='');
-            if(headers.length<2){
-                showToast('❌ В первой строке должны быть продукт и компании','error');
-                return;
+            const products = DB.products;
+            const companies = DB.companies.map(c => c.name);
+
+            let html = '<tr><th>Product Name</th><th>Target ¥</th>';
+            companies.forEach(c => html += `<th>${c}</th>`);
+            html += '</tr>';
+
+            products.forEach(prodId => {
+                const prodName = DB.productNames[prodId] || prodId;
+                const target = DB.targetPrices[prodId];
+                const prices = DB.prices[prodId] || {};
+                const pricesArr = companies.map(c => prices[c]).filter(p => p !== undefined);
+                const min = Math.min(...pricesArr);
+
+                html += `<tr><td><strong>${prodName}</strong></td><td>${target ? `¥${target.toFixed(2)}` : '-'}</td>`;
+                companies.forEach(c => {
+                    const price = prices[c];
+                    if (price !== undefined) {
+                        const isBest = price === min;
+                        const className = isBest ? 'price-cell best' : 'price-cell';
+                        html += `<td><span class="${className}">¥${price.toFixed(2)}</span></td>`;
+                    } else {
+                        html += '<td style="color: var(--text-gray);">-</td>';
+                    }
+                });
+                html += '</tr>';
+            });
+
+            document.querySelector('#matrixTable thead').innerHTML = html.split('</tr>')[0] + '</tr>';
+            document.querySelector('#matrixTable tbody').innerHTML = html.substring(html.indexOf('</tr>') + 5);
+            document.getElementById('matrixStatus').innerHTML = '';
+        }
+
+        function renderAnalytics() {
+            // Общая статистика
+            const allPrices = [];
+            for (const prods of Object.values(DB.prices)) {
+                for (const price of Object.values(prods)) {
+                    allPrices.push(price);
+                }
             }
 
-            const productColIndex=0; // первая колонка — продукт
-            const companyNames=headers.slice(1); // остальные – компании
+            const avg = allPrices.length > 0 ? (allPrices.reduce((a, b) => a + b, 0) / allPrices.length).toFixed(2) : '-';
+            const min = allPrices.length > 0 ? Math.min(...allPrices).toFixed(2) : '-';
+            const max = allPrices.length > 0 ? Math.max(...allPrices).toFixed(2) : '-';
 
-            // Перестраиваем список компаний
-            DB.companies = companyNames.map((name,i)=>({
-                id:i+1,
-                name,
-                site:''
-            }));
+            document.getElementById('avgPrice').textContent = avg !== '-' ? `¥${avg}` : '-';
+            document.getElementById('minPrice').textContent = min !== '-' ? `¥${min}` : '-';
+            document.getElementById('maxPrice').textContent = max !== '-' ? `¥${max}` : '-';
 
-            // Очищаем цены
-            DB.prices={};
-
-            // Строки с данными
-            for(let r=1;r<json.length;r++){
-                const row=json[r];
-                if(!row || row.length===0) continue;
-
-                const product=String(row[productColIndex]||'').trim();
-                if(!product) continue;
-
-                if(!DB.prices[product]) DB.prices[product]={};
-
-                for(let c=1;c<headers.length;c++){
-                    const company=headers[c];
-                    let val=row[c];
-
-                    if(val===null || val===undefined || val==='') continue;
-
-                    // Чистим строку цены: убираем ¥, пробелы, запятые
-                    let str=String(val).replace(/¥/g,'').replace(/\s/g,'').replace(/,/g,'.');
-                    const num=parseFloat(str);
-                    if(!isNaN(num)){
-                        DB.prices[product][company]=num;
+            // Лучшая компания (с наибольшим количеством лучших цен)
+            const companyWins = {};
+            for (const [product, companies] of Object.entries(DB.prices)) {
+                const prices = Object.values(companies);
+                if (prices.length > 0) {
+                    const minPrice = Math.min(...prices);
+                    for (const [company, price] of Object.entries(companies)) {
+                        if (price === minPrice) {
+                            companyWins[company] = (companyWins[company] || 0) + 1;
+                        }
                     }
                 }
             }
+            const bestCompany = Object.entries(companyWins).sort((a, b) => b[1] - a[1])[0];
+            document.getElementById('bestCompany').textContent = bestCompany ? bestCompany[0] : '-';
 
-            safeSaveDB();
-            showToast(`✅ Загружено продуктов: ${Object.keys(DB.prices).length}, компаний: ${DB.companies.length}`);
-            loadDashboard();
-            e.target.value='';
-            console.log('📥 Загруженные данные:', DB);
-        }catch(err){
-            console.error('❌ Excel parse error',err);
-            showToast('❌ Ошибка чтения файла (см. консоль)','error');
-        }
-    };
-    reader.readAsArrayBuffer(file);
-}
-
-// COMPANIES UPLOAD (OPTIONAL)
-function handleCompaniesUpload(e){
-    const file=e.target.files[0];
-    if(!file) return;
-    const reader=new FileReader();
-    reader.onload=(ev)=>{
-        try{
-            const data=new Uint8Array(ev.target.result);
-            const wb=XLSX.read(data,{type:'array'});
-            const sheet=wb.Sheets[wb.SheetNames[0]];
-            const json=XLSX.utils.sheet_to_json(sheet,{header:1,defval:''});
-
-            DB.companies=[];
-            for(let i=1;i<json.length;i++){
-                const row=json[i];
-                if(!row || !row[0]) continue;
-                DB.companies.push({
-                    id:i,
-                    name:String(row[0]).trim(),
-                    site:String(row[1]||'').trim()
-                });
-            }
-            safeSaveDB();
-            showToast(`✅ Загружено компаний: ${DB.companies.length}`);
-            e.target.value='';
-        }catch(err){
-            console.error(err);
-            showToast('❌ Ошибка загрузки компаний','error');
-        }
-    };
-    reader.readAsArrayBuffer(file);
-}
-
-// CLEAR DATA
-function clearAllData(){
-    if(confirm('Удалить все данные цен и компаний?')){
-        DB.prices={};
-        DB.companies=[{id:1,name:'Администратор',site:''}];
-        safeSaveDB();
-        loadDashboard();
-        showToast('✅ Данные очищены');
-    }
-}
-
-// DASHBOARD
-function loadDashboard(){
-    const productCount=Object.keys(DB.prices).length;
-    const totalPrices=Object.values(DB.prices)
-        .reduce((sum,p)=>sum+Object.keys(p).length,0);
-
-    document.getElementById('statsGrid').innerHTML=`
-        <div class="stat-card">
-            <div class="stat-label">Компаний</div>
-            <div class="stat-value">${DB.companies.length}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Продуктов</div>
-            <div class="stat-value">${productCount}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Записей цен</div>
-            <div class="stat-value">${totalPrices}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Курс USD/CNY</div>
-            <div class="stat-value">${exchangeRate.toFixed(2)}</div>
-        </div>
-    `;
-
-    const allPrices=[];
-    for(const [product,companies] of Object.entries(DB.prices)){
-        for(const [company,price] of Object.entries(companies)){
-            allPrices.push({product,company,price});
-        }
-    }
-    const top=allPrices.sort((a,b)=>a.price-b.price).slice(0,10);
-    const tbody=document.getElementById('topPricesList');
-    if(top.length===0){
-        tbody.innerHTML='<tr><td colspan="4">Нет данных. Загрузите Excel.</td></tr>';
-    }else{
-        tbody.innerHTML=top.map(p=>`
-            <tr>
-                <td><strong>${p.product}</strong></td>
-                <td>${p.company}</td>
-                <td><span class="badge badge-success">¥${p.price.toFixed(2)}</span></td>
-                <td>${new Date().toLocaleDateString('ru-RU')}</td>
-            </tr>
-        `).join('');
-    }
-}
-
-// MATRIX + SUMMARY
-function renderMatrix(){
-    const table=document.getElementById('matrixTable');
-    const thead=table.querySelector('thead');
-    const tbody=table.querySelector('tbody');
-
-    const products=Object.keys(DB.prices);
-    if(products.length===0){
-        thead.innerHTML='';
-        tbody.innerHTML='<tr><td>📤 Загрузите данные из Excel на вкладке "Загрузка"</td></tr>';
-        document.getElementById('avgPrice').textContent='-';
-        document.getElementById('minPrice').textContent='-';
-        document.getElementById('maxPrice').textContent='-';
-        document.getElementById('bestCompany').textContent='-';
-        return;
-    }
-
-    const companies=[...new Set(products.flatMap(p=>Object.keys(DB.prices[p])))];
-
-    // HEAD
-    let headRow='<tr><th>Продукт</th>';
-    companies.forEach(c=>headRow+=`<th>${c}</th>`);
-    headRow+='</tr>';
-    thead.innerHTML=headRow;
-
-    // BODY
-    let rowsHTML='';
-    const allNumericPrices=[];
-    const bestCountByCompany={};
-
-    products.forEach(product=>{
-        const rowPrices=DB.prices[product];
-        const rowValues=companies.map(c=>rowPrices[c]).filter(v=>typeof v==='number');
-        const minRow=Math.min(...rowValues);
-
-        rowsHTML+=`<tr><td style="text-align:left">${product}</td>`;
-        companies.forEach(company=>{
-            const price=rowPrices[company];
-            if(typeof price!=='number'){
-                rowsHTML+='<td>-</td>';
-            }else{
-                allNumericPrices.push(price);
-                let cls='average';
-                if(price===minRow){
-                    cls='best';
-                    bestCountByCompany[company]=(bestCountByCompany[company]||0)+1;
-                }else if(price>minRow*1.2){
-                    cls='high';
+            // Статистика по компаниям
+            const companiesTable = document.querySelector('#companiesAnalytics tbody');
+            let companiesHtml = '';
+            for (const company of DB.companies) {
+                const prices = [];
+                for (const prods of Object.values(DB.prices)) {
+                    if (prods[company.name]) prices.push(prods[company.name]);
                 }
-                rowsHTML+=`<td><div class="price-cell ${cls}">¥${price.toFixed(2)}</div></td>`;
+                if (prices.length > 0) {
+                    const avg = (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2);
+                    const min = Math.min(...prices).toFixed(2);
+                    const max = Math.max(...prices).toFixed(2);
+                    companiesHtml += `
+                        <tr>
+                            <td><strong>${company.name}</strong></td>
+                            <td>${prices.length}</td>
+                            <td>¥${avg}</td>
+                            <td>¥${min}</td>
+                            <td>¥${max}</td>
+                        </tr>
+                    `;
+                }
             }
-        });
-        rowsHTML+='</tr>';
-    });
+            companiesTable.innerHTML = companiesHtml || '<tr><td colspan="5" style="text-align: center; color: var(--text-gray);">Нет данных</td></tr>';
 
-    tbody.innerHTML=rowsHTML;
-
-    if(allNumericPrices.length>0){
-        const sum=allNumericPrices.reduce((a,b)=>a+b,0);
-        const avg=sum/allNumericPrices.length;
-        const min=Math.min(...allNumericPrices);
-        const max=Math.max(...allNumericPrices);
-        document.getElementById('avgPrice').textContent='¥'+avg.toFixed(2);
-        document.getElementById('minPrice').textContent='¥'+min.toFixed(2);
-        document.getElementById('maxPrice').textContent='¥'+max.toFixed(2);
-
-        let bestCompany='-';
-        let bestCount=0;
-        for(const [c,count] of Object.entries(bestCountByCompany)){
-            if(count>bestCount){bestCount=count;bestCompany=c;}
+            // Лучшие предложения по продуктам
+            const productsTable = document.querySelector('#productAnalytics tbody');
+            let productsHtml = '';
+            for (const productId of DB.products) {
+                const prodName = DB.productNames[productId] || productId;
+                const target = DB.targetPrices[productId];
+                const prices = DB.prices[productId];
+                const pricesArr = Object.values(prices);
+                if (pricesArr.length > 0) {
+                    const min = Math.min(...pricesArr);
+                    const avg = (pricesArr.reduce((a, b) => a + b, 0) / pricesArr.length).toFixed(2);
+                    const max = Math.max(...pricesArr);
+                    const spread = (max - min).toFixed(2);
+                    const bestCompany = Object.entries(prices).find(([_, p]) => p === min)[0];
+                    const targetStatus = target ? (min <= target ? '✅' : '⚠️') : '';
+                    productsHtml += `
+                        <tr>
+                            <td><strong>${prodName}</strong></td>
+                            <td><span class="price-badge">¥${min.toFixed(2)}</span></td>
+                            <td>${bestCompany}</td>
+                            <td>¥${avg}</td>
+                            <td>¥${spread} ${target ? `(Target: ¥${target.toFixed(2)} ${targetStatus})` : ''}</td>
+                        </tr>
+                    `;
+                }
+            }
+            productsTable.innerHTML = productsHtml || '<tr><td colspan="5" style="text-align: center; color: var(--text-gray);">Нет данных</td></tr>';
         }
-        document.getElementById('bestCompany').textContent=bestCompany==='-'?'-':`${bestCompany} (${bestCount})`;
-    }else{
-        document.getElementById('avgPrice').textContent='-';
-        document.getElementById('minPrice').textContent='-';
-        document.getElementById('maxPrice').textContent='-';
-        document.getElementById('bestCompany').textContent='-';
-    }
-}
 
-// ANALYTICS (COMPANIES + PRODUCTS)
-function renderAnalytics(){
-    const companiesAnalyticsBody=document.querySelector('#companiesAnalytics tbody');
-    const productAnalyticsBody=document.querySelector('#productAnalytics tbody');
+        function handleTargetPriceUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-    const companyStats={}; // name -> {count,sum,min,max}
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
-    for(const [product,companies] of Object.entries(DB.prices)){
-        for(const [company,price] of Object.entries(companies)){
-            if(typeof price!=='number') continue;
-            if(!companyStats[company]) companyStats[company]={count:0,sum:0,min:price,max:price};
-            const s=companyStats[company];
-            s.count++; s.sum+=price;
-            if(price<s.min) s.min=price;
-            if(price>s.max) s.max=price;
+                    console.log('📄 Target Price файл:', json);
+
+                    for (let i = 1; i < json.length; i++) {
+                        const row = json[i];
+                        const productId = row[0]?.toString().trim();
+                        let targetPrice = row[1];
+
+                        if (!productId || targetPrice === undefined || targetPrice === '') continue;
+
+                        let priceStr = targetPrice.toString().trim();
+                        priceStr = priceStr.replace(/¥|,| /g, '');
+                        const parsedPrice = parseFloat(priceStr);
+
+                        if (!isNaN(parsedPrice) && parsedPrice > 0) {
+                            DB.targetPrices[productId] = parsedPrice;
+                            console.log(`🎯 ${productId}: Target ¥${parsedPrice}`);
+                        }
+                    }
+
+                    saveDB();
+                    showToast(`✅ Загружено Target Price для ${Object.keys(DB.targetPrices).length} продуктов`);
+                    loadDashboard();
+                    renderMatrix();
+                    renderAnalytics();
+                    event.target.value = '';
+                } catch (err) {
+                    console.error('❌ Ошибка парсинга Target Price:', err);
+                    showToast('❌ Ошибка при загрузке Target Price', 'error');
+                    event.target.value = '';
+                }
+            };
+            reader.readAsArrayBuffer(file);
         }
-    }
 
-    const companiesRows=Object.entries(companyStats).map(([name,s])=>{
-        const avg=s.sum/s.count;
-        const status=avg===s.min?'Лидер':'Нормальный';
-        const badgeClass=avg===s.min?'badge-success':'badge-warning';
-        return `
-            <tr>
-                <td>${name}</td>
-                <td>${s.count}</td>
-                <td>¥${avg.toFixed(2)}</td>
-                <td>¥${s.min.toFixed(2)}</td>
-                <td>¥${s.max.toFixed(2)}</td>
-                <td><span class="badge ${badgeClass}">${status}</span></td>
-            </tr>
-        `;
-    }).join('');
-    companiesAnalyticsBody.innerHTML=companiesRows || '<tr><td colspan="6">Нет данных</td></tr>';
+        function switchSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            event.target.classList.add('active');
 
-    // PRODUCTS ANALYTICS
-    const productRows=Object.entries(DB.prices).map(([product,companies])=>{
-        const prices=Object.values(companies).filter(v=>typeof v==='number');
-        if(prices.length===0) return '';
-        const minPrice=Math.min(...prices);
-        const maxPrice=Math.max(...prices);
-        const sum=prices.reduce((a,b)=>a+b,0);
-        const avg=sum/prices.length;
-        const bestCompany=Object.entries(companies).find(([c,p])=>p===minPrice)?.[0]||'-';
-        const spread=maxPrice-minPrice;
-
-        return `
-            <tr>
-                <td>${product}</td>
-                <td>¥${minPrice.toFixed(2)}</td>
-                <td>${bestCompany}</td>
-                <td>¥${avg.toFixed(2)}</td>
-                <td>¥${spread.toFixed(2)}</td>
-            </tr>
-        `;
-    }).filter(Boolean).join('');
-    productAnalyticsBody.innerHTML=productRows || '<tr><td colspan="5">Нет данных</td></tr>';
-}
-
-// COMPANIES LIST
-function renderCompanies(){
-    const tbody=document.querySelector('#companiesList tbody');
-
-    const statsByCompany={};
-    for(const [product,companies] of Object.entries(DB.prices)){
-        for(const [company,price] of Object.entries(companies)){
-            if(typeof price!=='number') continue;
-            if(!statsByCompany[company]) statsByCompany[company]={products:new Set(),sum:0,count:0};
-            statsByCompany[company].products.add(product);
-            statsByCompany[company].sum+=price;
-            statsByCompany[company].count++;
+            if (id === 'matrix') renderMatrix();
+            if (id === 'analytics') renderAnalytics();
         }
-    }
-
-    const rows=Object.entries(statsByCompany).map(([name,s])=>{
-        const avg=s.sum/s.count;
-        return `
-            <tr>
-                <td>${name}</td>
-                <td>${s.products.size}</td>
-                <td>¥${avg.toFixed(2)}</td>
-            </tr>
-        `;
-    }).join('');
-
-    tbody.innerHTML=rows || '<tr><td colspan="3">Нет данных</td></tr>';
-}
-</script>
+    </script>
 </body>
 </html>
