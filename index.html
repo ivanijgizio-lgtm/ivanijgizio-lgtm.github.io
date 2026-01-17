@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Price Manager Pro Elite</title>
+    <title>Price Manager Pro Elite + AI</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
@@ -262,24 +262,6 @@
             border-bottom: 1px solid var(--border-dark);
         }
 
-        .upload-zone {
-            border: 2px dashed var(--primary);
-            border-radius: 8px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            background: rgba(99, 102, 241, 0.05);
-            transition: all 0.2s;
-        }
-
-        .upload-zone:hover {
-            background: rgba(99, 102, 241, 0.1);
-        }
-
-        .upload-zone input {
-            display: none;
-        }
-
         .btn {
             padding: 10px 20px;
             border: none;
@@ -308,31 +290,114 @@
             background: #dc2626;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
+        /* AI CHAT STYLES */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 600px;
             background: var(--surface-dark);
             border: 1px solid var(--border-dark);
             border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
             padding: 20px;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-gray);
-            margin-bottom: 8px;
+        .message {
+            display: flex;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
         }
 
-        .stat-value {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--primary);
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .message.user .message-bubble {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.assistant .message-bubble {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid var(--border-dark);
+            border-bottom-left-radius: 2px;
+        }
+
+        .chat-input-box {
+            padding: 15px;
+            border-top: 1px solid var(--border-dark);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 12px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 14px;
+            resize: none;
+            height: 40px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .chat-send-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .chat-send-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--surface-dark);
+            border-left: 4px solid #10b981;
+            padding: 16px;
+            border-radius: 8px;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.error {
+            border-left-color: #ef4444;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
         }
 
         table {
@@ -366,270 +431,6 @@
             font-weight: 600;
         }
 
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--surface-dark);
-            border-left: 4px solid #10b981;
-            padding: 16px;
-            border-radius: 8px;
-            z-index: 9999;
-            animation: slideIn 0.3s ease;
-        }
-
-        .toast.error {
-            border-left-color: #ef4444;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(400px); }
-            to { transform: translateX(0); }
-        }
-
-        .matrix-container {
-            overflow-x: auto;
-            margin-top: 15px;
-        }
-
-        .matrix-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        .matrix-table td {
-            padding: 12px;
-            border: 1px solid var(--border-dark);
-            text-align: center;
-        }
-
-        .matrix-table th {
-            padding: 12px;
-            border: 1px solid var(--border-dark);
-            background: rgba(99, 102, 241, 0.15);
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .price-cell {
-            font-weight: 600;
-            padding: 8px;
-            border-radius: 4px;
-        }
-
-        .price-cell.best {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-        }
-
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .analysis-card {
-            background: var(--surface-dark);
-            border: 1px solid var(--border-dark);
-            border-radius: 12px;
-            padding: 15px;
-        }
-
-        .analysis-title {
-            font-size: 12px;
-            color: var(--text-gray);
-            margin-bottom: 8px;
-        }
-
-        .analysis-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .search-box {
-            background: var(--surface-dark);
-            border: 1px solid var(--border-dark);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 20px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 10px;
-            background: var(--bg-dark);
-            border: 1px solid var(--border-dark);
-            border-radius: 6px;
-            color: var(--text-light);
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-
-        .comparison-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .comparison-select {
-            background: var(--surface-dark);
-            border: 1px solid var(--border-dark);
-            border-radius: 8px;
-            padding: 15px;
-        }
-
-        .comparison-select label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-gray);
-            margin-bottom: 8px;
-        }
-
-        .comparison-select select {
-            width: 100%;
-            padding: 10px;
-            background: var(--bg-dark);
-            border: 1px solid var(--border-dark);
-            border-radius: 6px;
-            color: var(--text-light);
-            font-size: 14px;
-        }
-
-        .comparison-select select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .comparison-result {
-            grid-column: 1 / -1;
-            background: var(--surface-dark);
-            border: 1px solid var(--border-dark);
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .comparison-result.empty {
-            text-align: center;
-            color: var(--text-gray);
-            padding: 40px 20px;
-        }
-
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        .comparison-table th, .comparison-table td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border-dark);
-            text-align: left;
-        }
-
-        .comparison-table th {
-            background: rgba(99, 102, 241, 0.15);
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .comparison-table tr:hover {
-            background: rgba(99, 102, 241, 0.05);
-        }
-
-        .price-diff {
-            font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-
-        .price-diff.lower {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-        }
-
-        .price-diff.higher {
-            background: rgba(239, 68, 68, 0.15);
-            color: #ef4444;
-        }
-
-        .price-diff.equal {
-            background: rgba(148, 163, 184, 0.2);
-            color: #cbd5e1;
-        }
-
-        .search-results {
-            margin-top: 20px;
-        }
-
-        .result-item {
-            background: rgba(99, 102, 241, 0.05);
-            border: 1px solid var(--border-dark);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .result-item:hover {
-            background: rgba(99, 102, 241, 0.1);
-            border-color: var(--primary);
-        }
-
-        .result-item-title {
-            font-weight: 600;
-            color: var(--text-light);
-            margin-bottom: 4px;
-        }
-
-        .result-item-subtitle {
-            font-size: 12px;
-            color: var(--text-gray);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-gray);
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .top-banner {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
-            border: 1px solid var(--border-dark);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .top-banner-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-light);
-            margin-bottom: 8px;
-        }
-
-        .top-banner-desc {
-            font-size: 13px;
-            color: var(--text-gray);
-        }
-
         @media (max-width: 768px) {
             .content-wrapper {
                 flex-direction: column;
@@ -658,9 +459,6 @@
             }
             .content {
                 padding: 16px;
-            }
-            .comparison-container {
-                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -709,26 +507,25 @@
                 <div class="menu-item" onclick="switchSection('compare')">⚖️ Сравнение</div>
                 <div class="menu-item" onclick="switchSection('matrix')">📋 Матрица</div>
                 <div class="menu-item" onclick="switchSection('analytics')">📈 Аналитика</div>
+                <div class="menu-item" onclick="switchSection('assistant')">🤖 AI Помощник</div>
                 <div class="menu-item" onclick="switchSection('upload')">📤 Загрузка</div>
             </div>
 
             <div class="content">
+                <!-- DASHBOARD -->
                 <section id="dashboard" class="section active">
-                    <div class="top-banner">
-                        <div class="top-banner-title">🚀 Добро пожаловать в Price Manager Pro</div>
-                        <div class="top-banner-desc">Управляйте ценами, сравнивайте компании и анализируйте рынок в реальном времени</div>
+                    <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%); border: 1px solid var(--border-dark); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <div style="font-size: 18px; font-weight: 700; color: var(--text-light); margin-bottom: 8px;">🚀 Добро пожаловать в Price Manager Pro</div>
+                        <div style="font-size: 13px; color: var(--text-gray);">Управляйте ценами, сравнивайте компании и получайте консультации от AI</div>
                     </div>
-                    <div class="stats-grid" id="statsGrid"></div>
                     <div class="card">
-                        <div class="card-title">⭐ Лучшие цены (Top 10)</div>
+                        <div class="card-title">⭐ Статистика</div>
                         <table id="topPricesList">
                             <thead>
                                 <tr>
-                                    <th>Product Name</th>
-                                    <th>Компания</th>
-                                    <th>Цена ¥</th>
-                                    <th>Target Price</th>
-                                    <th>Статус</th>
+                                    <th>Product</th>
+                                    <th>Company</th>
+                                    <th>Price ¥</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -736,52 +533,69 @@
                     </div>
                 </section>
 
-                <section id="search" class="section">
+                <!-- AI ASSISTANT -->
+                <section id="assistant" class="section">
                     <div class="card">
-                        <div class="card-title">🔍 Поиск по продуктам и компаниям</div>
-                        <div class="search-box">
-                            <input type="text" id="searchInput" class="search-input" placeholder="Введите название продукта или компании..." oninput="performSearch()">
-                        </div>
-                        <div id="searchResults" class="search-results"></div>
-                    </div>
-                </section>
-
-                <section id="compare" class="section">
-                    <div class="card">
-                        <div class="card-title">⚖️ Живое сравнение компаний</div>
-                        <div class="comparison-container">
-                            <div class="comparison-select">
-                                <label>📦 Первая компания</label>
-                                <select id="company1" onchange="updateComparison()">
-                                    <option value="">Выберите компанию...</option>
-                                </select>
-                            </div>
-                            <div class="comparison-select">
-                                <label>📦 Вторая компания</label>
-                                <select id="company2" onchange="updateComparison()">
-                                    <option value="">Выберите компанию...</option>
-                                </select>
-                            </div>
-                            <div class="comparison-result empty" id="comparisonResult">
-                                <div class="empty-state">
-                                    <div class="empty-state-icon">📊</div>
-                                    <p>Выберите две компании для сравнения</p>
+                        <div class="card-title">🤖 AI Консультант по ценам</div>
+                        <p style="font-size: 13px; color: var(--text-gray); margin-bottom: 15px;">
+                            Задайте вопросы о ценах, получите рекомендации и советы по управлению расходами
+                        </p>
+                        <div class="chat-container">
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="message assistant">
+                                    <div class="message-bubble">
+                                        👋 Привет! Я AI помощник. Я помогу вам:
+                                        <br>• Анализировать цены
+                                        <br>• Найти лучшие предложения
+                                        <br>• Дать рекомендации по сокращению расходов
+                                        <br><br>Загрузите данные и спросите меня!
+                                    </div>
                                 </div>
                             </div>
+                            <div class="chat-input-box">
+                                <textarea class="chat-input" id="chatInput" placeholder="Например: какая средняя цена? где лучше..."></textarea>
+                                <button class="chat-send-btn" onclick="sendAIMessage()">📤</button>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title">💡 Статистика сравнения</div>
-                        <div class="analytics-grid" id="comparisonStats"></div>
                     </div>
                 </section>
 
+                <!-- SEARCH -->
+                <section id="search" class="section">
+                    <div class="card">
+                        <div class="card-title">🔍 Поиск</div>
+                        <input type="text" id="searchInput" class="chat-input" placeholder="Поиск...">
+                        <div id="searchResults" style="margin-top: 20px;"></div>
+                    </div>
+                </section>
+
+                <!-- COMPARE -->
+                <section id="compare" class="section">
+                    <div class="card">
+                        <div class="card-title">⚖️ Сравнение</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div>
+                                <label style="display: block; font-size: 12px; color: var(--text-gray); margin-bottom: 8px;">📦 Компания 1</label>
+                                <select id="company1" onchange="updateComparison()" style="width: 100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 6px; color: var(--text-light);">
+                                    <option>Выберите...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 12px; color: var(--text-gray); margin-bottom: 8px;">📦 Компания 2</label>
+                                <select id="company2" onchange="updateComparison()" style="width: 100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 6px; color: var(--text-light);">
+                                    <option>Выберите...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="comparisonResult"></div>
+                    </div>
+                </section>
+
+                <!-- MATRIX -->
                 <section id="matrix" class="section">
                     <div class="card">
-                        <div class="card-title">📊 Матрица сравнения цен</div>
-                        <div id="matrixStatus"></div>
-                        <div class="matrix-container">
+                        <div class="card-title">📊 Матрица цен</div>
+                        <div style="overflow-x: auto;">
                             <table class="matrix-table" id="matrixTable">
                                 <thead></thead>
                                 <tbody></tbody>
@@ -790,52 +604,16 @@
                     </div>
                 </section>
 
+                <!-- ANALYTICS -->
                 <section id="analytics" class="section">
-                    <div class="analytics-grid">
-                        <div class="analysis-card">
-                            <div class="analysis-title">💰 Средняя цена</div>
-                            <div class="analysis-value" id="avgPrice">-</div>
-                        </div>
-                        <div class="analysis-card">
-                            <div class="analysis-title">📉 Минимальная</div>
-                            <div class="analysis-value" id="minPrice">-</div>
-                        </div>
-                        <div class="analysis-card">
-                            <div class="analysis-title">📈 Максимальная</div>
-                            <div class="analysis-value" id="maxPrice">-</div>
-                        </div>
-                        <div class="analysis-card">
-                            <div class="analysis-title">🏆 Лучшая компания</div>
-                            <div class="analysis-value" id="bestCompany">-</div>
-                        </div>
-                    </div>
-
                     <div class="card">
-                        <div class="card-title">📋 Статистика по компаниям</div>
-                        <table id="companiesAnalytics">
+                        <div class="card-title">📈 Аналитика</div>
+                        <table id="analyticsTable">
                             <thead>
                                 <tr>
                                     <th>Компания</th>
-                                    <th>Кол-во цен</th>
+                                    <th>Кол-во</th>
                                     <th>Средняя ¥</th>
-                                    <th>Мин ¥</th>
-                                    <th>Макс ¥</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title">🎯 Лучшие предложения по продуктам</div>
-                        <table id="productAnalytics">
-                            <thead>
-                                <tr>
-                                    <th>Продукт</th>
-                                    <th>Лучшая цена ¥</th>
-                                    <th>Компания</th>
-                                    <th>Средняя ¥</th>
-                                    <th>Разброс</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -843,42 +621,14 @@
                     </div>
                 </section>
 
+                <!-- UPLOAD -->
                 <section id="upload" class="section">
                     <div class="card">
-                        <div class="card-title">📥 Загрузить Excel файл с ценами</div>
-                        <div class="upload-zone" onclick="document.getElementById('excelFile').click()">
-                            <p style="margin: 0; font-weight: 600; color: var(--primary); cursor: pointer;">
-                                📤 Нажмите для загрузки
-                            </p>
-                            <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--text-gray);">
-                                Поддерживаются: XLSX, XLS, CSV
-                            </p>
-                            <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" onchange="handleExcelUpload(event)">
+                        <div class="card-title">📥 Загрузить данные</div>
+                        <div style="border: 2px dashed var(--primary); border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; background: rgba(99, 102, 241, 0.05);" onclick="document.getElementById('excelFile').click()">
+                            <p style="margin: 0; font-weight: 600; color: var(--primary);">📤 Загрузить Excel</p>
+                            <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" onchange="handleExcelUpload(event)" style="display: none;">
                         </div>
-                        <div style="margin-top: 15px; padding: 15px; background: rgba(99, 102, 241, 0.05); border-radius: 8px; font-size: 12px; color: var(--text-gray);">
-                            <p><strong style="color: var(--primary);">ℹ️ Формат файла:</strong></p>
-                            <ul style="margin: 10px 0 0 20px;">
-                                <li>Первая строка - названия компаний</li>
-                                <li>Первая колонка - Product ID</li>
-                                <li>Вторая колонка - Product Name</li>
-                                <li>Остальные - цены (¥)</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title">🎯 Загрузить Target Price</div>
-                        <div class="upload-zone" onclick="document.getElementById('targetPriceFile').click()">
-                            <p style="margin: 0; font-weight: 600; color: var(--primary); cursor: pointer;">
-                                📤 Загрузить цели
-                            </p>
-                            <input type="file" id="targetPriceFile" accept=".xlsx,.xls,.csv" onchange="handleTargetPriceUpload(event)">
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title">⚙️ Управление</div>
-                        <button class="btn btn-danger" onclick="clearAllData()">🗑️ Очистить все данные</button>
                     </div>
                 </section>
             </div>
@@ -891,40 +641,27 @@
             products: [],
             prices: {},
             productNames: {},
-            targetPrices: {}
         };
-        let exchangeRate = 7.25;
         let currentUser = null;
 
         window.addEventListener('load', () => {
             loadDB();
             loadUser();
-            loadExchangeRate();
-            setInterval(loadExchangeRate, 5 * 60 * 1000);
-            if (currentUser) {
-                showMainApp();
-            } else {
-                showLoginApp();
-            }
+            if (currentUser) showMainApp();
+            else showLoginApp();
         });
 
         function loadUser() {
             try {
                 const stored = localStorage.getItem('currentUserPM');
                 if (stored) currentUser = JSON.parse(stored);
-            } catch (e) {
-                console.error('User load error', e);
-            }
+            } catch (e) {}
         }
 
         function saveUser() {
             try {
-                if (currentUser) {
-                    localStorage.setItem('currentUserPM', JSON.stringify(currentUser));
-                }
-            } catch (e) {
-                console.error('User save error', e);
-            }
+                if (currentUser) localStorage.setItem('currentUserPM', JSON.stringify(currentUser));
+            } catch (e) {}
         }
 
         function handleLogin() {
@@ -937,7 +674,7 @@
                 showMainApp();
                 showToast('✅ Добро пожаловать!');
             } else {
-                showToast('❌ Неверные учётные данные', 'error');
+                showToast('❌ Неверные данные', 'error');
             }
         }
 
@@ -958,40 +695,24 @@
             document.getElementById('loginApp').classList.add('hidden');
             document.getElementById('mainApp').classList.add('active');
             if (currentUser) {
-                document.getElementById('userAvatar').textContent = currentUser.name[0].toUpperCase();
+                document.getElementById('userAvatar').textContent = currentUser.name[0];
                 document.getElementById('userName').textContent = currentUser.name;
             }
-            loadDashboard();
-            initializeCompanySelects();
         }
 
         function loadDB() {
             try {
                 const stored = localStorage.getItem('priceManagerDB');
                 if (stored) Object.assign(DB, JSON.parse(stored));
-            } catch (err) {
-                console.error('DB load error', err);
-            }
+            } catch (err) {}
         }
 
         function saveDB() {
             try {
                 localStorage.setItem('priceManagerDB', JSON.stringify(DB));
             } catch (err) {
-                showToast('Ошибка сохранения', 'error');
+                showToast('Ошибка', 'error');
             }
-        }
-
-        function loadExchangeRate() {
-            fetch('https://api.exchangerate-api.com/v4/latest/USD')
-                .then(r => r.json())
-                .then(data => {
-                    if (data.rates && data.rates.CNY) {
-                        exchangeRate = data.rates.CNY;
-                        document.getElementById('rateValue').textContent = exchangeRate.toFixed(2);
-                    }
-                })
-                .catch(e => console.log('Курс:', e.message));
         }
 
         function showToast(msg, type = 'success') {
@@ -1014,19 +735,7 @@
                     const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     const json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
-                    if (json.length < 2) {
-                        showToast('❌ Файл пуст', 'error');
-                        event.target.value = '';
-                        return;
-                    }
-
                     const headers = json[0].slice(2).filter(h => h && h.toString().trim());
-                    if (headers.length === 0) {
-                        showToast('❌ Не найдены компании', 'error');
-                        event.target.value = '';
-                        return;
-                    }
-
                     DB.companies = headers.map((name, i) => ({
                         id: i + 1,
                         name: name.toString().trim()
@@ -1066,13 +775,13 @@
                     }
 
                     saveDB();
-                    loadDashboard();
-                    initializeCompanySelects();
-                    showToast('✅ Цены загружены!');
+                    updateDashboard();
+                    initializeSelects();
+                    showToast('✅ Данные загружены!');
                     event.target.value = '';
 
                 } catch (err) {
-                    showToast(`❌ Ошибка: ${err.message}`, 'error');
+                    showToast('❌ Ошибка: ' + err.message, 'error');
                     event.target.value = '';
                 }
             };
@@ -1080,119 +789,17 @@
             reader.readAsArrayBuffer(file);
         }
 
-        function handleTargetPriceUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-
-                    DB.targetPrices = {};
-
-                    for (let i = 1; i < json.length; i++) {
-                        const row = json[i];
-                        if (!row || row.length < 2) continue;
-
-                        const productId = row[0]?.toString().trim();
-                        const targetPrice = row[1];
-                        if (!productId || !targetPrice) continue;
-
-                        let priceStr = targetPrice.toString().trim();
-                        priceStr = priceStr.replace(/[^\d.]/g, '');
-                        const parsedPrice = parseFloat(priceStr);
-
-                        if (!isNaN(parsedPrice)) {
-                            DB.targetPrices[productId] = parsedPrice;
-                        }
-                    }
-
-                    saveDB();
-                    loadDashboard();
-                    showToast('✅ Целевые цены загружены!');
-                    event.target.value = '';
-
-                } catch (err) {
-                    showToast(`❌ Ошибка: ${err.message}`, 'error');
-                    event.target.value = '';
-                }
-            };
-
-            reader.readAsArrayBuffer(file);
-        }
-
-        function clearAllData() {
-            if (confirm('Вы уверены?')) {
-                DB.companies = [];
-                DB.products = [];
-                DB.prices = {};
-                DB.productNames = {};
-                DB.targetPrices = {};
-                saveDB();
-                loadDashboard();
-                initializeCompanySelects();
-                showToast('✅ Данные очищены');
-            }
-        }
-
-        function loadDashboard() {
-            updateStats();
-            updateTopPrices();
-            updateMatrix();
-            updateAnalytics();
-        }
-
-        function updateStats() {
-            const statsGrid = document.getElementById('statsGrid');
-            statsGrid.innerHTML = '';
-
-            let totalProducts = DB.products.length;
-            let totalCompanies = DB.companies.length;
-            let completePrices = 0;
-            let allPrices = [];
-
-            Object.keys(DB.prices).forEach(pid => {
-                Object.values(DB.prices[pid]).forEach(p => {
-                    completePrices++;
-                    allPrices.push(p);
-                });
-            });
-
-            const avgPrice = allPrices.length > 0 ? (allPrices.reduce((a, b) => a + b, 0) / allPrices.length).toFixed(2) : 0;
-
-            const stats = [
-                { label: '📦 Продуктов', value: totalProducts },
-                { label: '🏢 Компаний', value: totalCompanies },
-                { label: '💰 Цен', value: completePrices },
-                { label: '📊 Средняя ¥', value: avgPrice }
-            ];
-
-            stats.forEach(stat => {
-                const card = document.createElement('div');
-                card.className = 'stat-card';
-                card.innerHTML = `<div class="stat-label">${stat.label}</div><div class="stat-value">${stat.value}</div>`;
-                statsGrid.appendChild(card);
-            });
-        }
-
-        function updateTopPrices() {
+        function updateDashboard() {
             const tbody = document.querySelector('#topPricesList tbody');
             tbody.innerHTML = '';
 
             const allPrices = [];
-
             Object.keys(DB.prices).forEach(productId => {
                 Object.entries(DB.prices[productId]).forEach(([company, price]) => {
                     allPrices.push({
-                        productId,
                         productName: DB.productNames[productId] || productId,
                         company,
-                        price: parseFloat(price),
-                        target: DB.targetPrices[productId] ? parseFloat(DB.targetPrices[productId]) : null
+                        price: parseFloat(price)
                     });
                 });
             });
@@ -1202,166 +809,29 @@
 
             top10.forEach(item => {
                 const row = document.createElement('tr');
-                const status = item.target && item.price <= item.target ? '✅ OK' : (item.target ? '❌ High' : '⚪ No');
                 row.innerHTML = `
                     <td>${item.productName}</td>
                     <td>${item.company}</td>
                     <td><span class="price-badge">¥${item.price.toFixed(2)}</span></td>
-                    <td>${item.target ? '¥' + item.target.toFixed(2) : '-'}</td>
-                    <td>${status}</td>
                 `;
                 tbody.appendChild(row);
             });
 
             if (top10.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-gray); padding: 40px;">Нет данных</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-gray);">Загрузите данные</td></tr>';
             }
         }
 
-        function performSearch() {
-            const query = document.getElementById('searchInput').value.toLowerCase().trim();
-            const resultsDiv = document.getElementById('searchResults');
-
-            if (query.length === 0) {
-                resultsDiv.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><p>Введите поиск</p></div>';
-                return;
-            }
-
-            let results = [];
-
-            DB.products.forEach(productId => {
-                const productName = DB.productNames[productId] || productId;
-                if (productName.toLowerCase().includes(query) || productId.toLowerCase().includes(query)) {
-                    results.push({
-                        type: 'product',
-                        id: productId,
-                        name: productName,
-                        subtitle: `ID: ${productId}`
-                    });
-                }
-            });
-
-            DB.companies.forEach(company => {
-                if (company.name.toLowerCase().includes(query)) {
-                    const productsCount = Object.keys(DB.prices).filter(pid => DB.prices[pid][company.name]).length;
-                    results.push({
-                        type: 'company',
-                        id: company.name,
-                        name: company.name,
-                        subtitle: `${productsCount} товаров`
-                    });
-                }
-            });
-
-            if (results.length === 0) {
-                resultsDiv.innerHTML = '<div class="empty-state"><div class="empty-state-icon">❌</div><p>Ничего не найдено</p></div>';
-                return;
-            }
-
-            let html = '';
-            results.forEach(result => {
-                if (result.type === 'product') {
-                    const prices = DB.prices[result.id] || {};
-                    const validPrices = Object.values(prices).filter(p => !isNaN(p));
-                    const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : 0;
-                    const companies = Object.keys(prices).length;
-                    html += `
-                        <div class="result-item" onclick="showProductDetails('${result.id}')">
-                            <div class="result-item-title">📦 ${result.name}</div>
-                            <div class="result-item-subtitle">Цена: ¥${minPrice.toFixed(2)} • ${companies} компаний</div>
-                        </div>
-                    `;
-                } else {
-                    const priceStats = getCompanyStats(result.id);
-                    html += `
-                        <div class="result-item" onclick="showCompanyDetails('${result.id}')">
-                            <div class="result-item-title">🏢 ${result.name}</div>
-                            <div class="result-item-subtitle">Средняя: ¥${priceStats.avg.toFixed(2)}</div>
-                        </div>
-                    `;
-                }
-            });
-
-            resultsDiv.innerHTML = html;
-        }
-
-        function showProductDetails(productId) {
-            const productName = DB.productNames[productId];
-            const prices = DB.prices[productId] || {};
-            
-            let details = `<div style="margin-top: 20px; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--border-dark); border-radius: 8px; padding: 15px;">
-                <div style="font-weight: 600; color: var(--text-light); margin-bottom: 10px;">📦 ${productName}</div>
-                <table style="width: 100%; font-size: 12px;">
-                <tr style="background: rgba(99, 102, 241, 0.1);"><th style="padding: 8px; text-align: left;">Компания</th><th style="padding: 8px; text-align: right;">Цена ¥</th></tr>`;
-
-            const sortedPrices = Object.entries(prices).sort((a, b) => a[1] - b[1]);
-            sortedPrices.forEach(([company, price]) => {
-                details += `<tr><td style="padding: 8px; border-bottom: 1px solid var(--border-dark);">${company}</td><td style="padding: 8px; border-bottom: 1px solid var(--border-dark); text-align: right; font-weight: 600; color: #10b981;">¥${price.toFixed(2)}</td></tr>`;
-            });
-            
-            details += `</table></div>`;
-            document.getElementById('searchResults').innerHTML = details;
-        }
-
-        function showCompanyDetails(companyName) {
-            const companyPrices = [];
-            Object.keys(DB.prices).forEach(productId => {
-                if (DB.prices[productId][companyName]) {
-                    companyPrices.push({
-                        productName: DB.productNames[productId],
-                        productId,
-                        price: DB.prices[productId][companyName]
-                    });
-                }
-            });
-
-            companyPrices.sort((a, b) => a.price - b.price);
-
-            let details = `<div style="margin-top: 20px; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--border-dark); border-radius: 8px; padding: 15px;">
-                <div style="font-weight: 600; color: var(--text-light); margin-bottom: 10px;">🏢 ${companyName}</div>
-                <table style="width: 100%; font-size: 12px;">
-                <tr style="background: rgba(99, 102, 241, 0.1);"><th style="padding: 8px; text-align: left;">Продукт</th><th style="padding: 8px; text-align: right;">Цена ¥</th></tr>`;
-
-            companyPrices.forEach(item => {
-                details += `<tr><td style="padding: 8px; border-bottom: 1px solid var(--border-dark);">${item.productName}</td><td style="padding: 8px; border-bottom: 1px solid var(--border-dark); text-align: right; font-weight: 600; color: #10b981;">¥${item.price.toFixed(2)}</td></tr>`;
-            });
-            
-            details += `</table></div>`;
-            document.getElementById('searchResults').innerHTML = details;
-        }
-
-        function getCompanyStats(companyName) {
-            const prices = [];
-            Object.keys(DB.prices).forEach(productId => {
-                if (DB.prices[productId][companyName]) {
-                    prices.push(DB.prices[productId][companyName]);
-                }
-            });
-            return {
-                count: prices.length,
-                avg: prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 0,
-                min: prices.length > 0 ? Math.min(...prices) : 0,
-                max: prices.length > 0 ? Math.max(...prices) : 0
-            };
-        }
-
-        function initializeCompanySelects() {
+        function initializeSelects() {
             const select1 = document.getElementById('company1');
             const select2 = document.getElementById('company2');
             
-            select1.innerHTML = '<option value="">Выберите...</option>';
-            select2.innerHTML = '<option value="">Выберите...</option>';
+            select1.innerHTML = '<option>Выберите...</option>';
+            select2.innerHTML = '<option>Выберите...</option>';
 
             DB.companies.forEach(company => {
-                const option1 = document.createElement('option');
-                option1.value = company.name;
-                option1.textContent = company.name;
-                select1.appendChild(option1);
-
-                const option2 = document.createElement('option');
-                option2.value = company.name;
-                option2.textContent = company.name;
-                select2.appendChild(option2);
+                select1.appendChild(new Option(company.name, company.name));
+                select2.appendChild(new Option(company.name, company.name));
             });
         }
 
@@ -1371,13 +841,12 @@
             const resultDiv = document.getElementById('comparisonResult');
 
             if (!company1 || !company2 || company1 === company2) {
-                resultDiv.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📊</div><p>Выберите две компании</p></div>';
-                document.getElementById('comparisonStats').innerHTML = '';
+                resultDiv.innerHTML = '<p style="color: var(--text-gray); text-align: center;">Выберите две компании</p>';
                 return;
             }
 
             const comparisonData = [];
-            let company1Lower = 0, company2Lower = 0, equal = 0;
+            let company1Lower = 0, company2Lower = 0;
 
             DB.products.forEach(productId => {
                 const prices = DB.prices[productId] || {};
@@ -1390,97 +859,66 @@
                         productName: DB.productNames[productId],
                         price1: parseFloat(price1),
                         price2: parseFloat(price2),
-                        diff: diff.toFixed(2),
-                        diffPercent: ((diff / price2) * 100).toFixed(1)
+                        diff: diff.toFixed(2)
                     });
 
                     if (diff < 0) company1Lower++;
                     else if (diff > 0) company2Lower++;
-                    else equal++;
                 }
             });
 
-            if (comparisonData.length === 0) {
-                resultDiv.innerHTML = '<div class="empty-state" style="color: var(--danger);">Нет общих товаров</div>';
-                document.getElementById('comparisonStats').innerHTML = '';
-                return;
-            }
-
-            let html = `<table class="comparison-table">
+            let html = `<table class="matrix-table">
                 <thead>
                     <tr>
                         <th>Продукт</th>
                         <th>${company1}</th>
                         <th>${company2}</th>
                         <th>Разница</th>
-                        <th>%</th>
                     </tr>
                 </thead>
                 <tbody>`;
 
             comparisonData.forEach(item => {
-                const diffClass = item.diff < 0 ? 'lower' : (item.diff > 0 ? 'higher' : 'equal');
-                const diffSign = item.diff < 0 ? '✅' : (item.diff > 0 ? '❌' : '🟰');
+                const diffClass = item.diff < 0 ? 'lower' : 'higher';
+                const diffSign = item.diff < 0 ? '✅' : '❌';
                 html += `<tr>
-                    <td style="font-weight: 600;">${item.productName}</td>
+                    <td>${item.productName}</td>
                     <td>¥${item.price1.toFixed(2)}</td>
                     <td>¥${item.price2.toFixed(2)}</td>
-                    <td><span class="price-diff ${diffClass}">${diffSign} ¥${Math.abs(item.diff)}</span></td>
-                    <td><span class="price-diff ${diffClass}">${item.diffPercent}%</span></td>
+                    <td><span style="color: ${diffClass === 'lower' ? '#10b981' : '#ef4444'};">${diffSign} ¥${Math.abs(item.diff)}</span></td>
                 </tr>`;
             });
 
             html += `</tbody></table>`;
-            resultDiv.classList.remove('empty');
             resultDiv.innerHTML = html;
-
-            const avgPrice1 = (comparisonData.reduce((a, b) => a + b.price1, 0) / comparisonData.length).toFixed(2);
-            const avgPrice2 = (comparisonData.reduce((a, b) => a + b.price2, 0) / comparisonData.length).toFixed(2);
-
-            let statsHtml = `
-                <div class="analysis-card"><div class="analysis-title">${company1}</div><div class="analysis-value">¥${avgPrice1}</div></div>
-                <div class="analysis-card"><div class="analysis-title">${company2}</div><div class="analysis-value">¥${avgPrice2}</div></div>
-                <div class="analysis-card"><div class="analysis-title">✅ Дешевле</div><div class="analysis-value">${company1Lower}</div></div>
-                <div class="analysis-card"><div class="analysis-title">❌ Дороже</div><div class="analysis-value">${company2Lower}</div></div>
-                <div class="analysis-card"><div class="analysis-title">🟰 Равно</div><div class="analysis-value">${equal}</div></div>
-                <div class="analysis-card"><div class="analysis-title">💰 Всего</div><div class="analysis-value">${comparisonData.length}</div></div>
-            `;
-            document.getElementById('comparisonStats').innerHTML = statsHtml;
         }
 
         function updateMatrix() {
             const table = document.getElementById('matrixTable');
             table.innerHTML = '';
 
-            if (DB.products.length === 0) {
-                document.getElementById('matrixStatus').innerHTML = '<p style="color: var(--text-gray); margin: 0;">Загрузите данные</p>';
-                return;
-            }
+            if (DB.products.length === 0) return;
 
             const thead = document.createElement('thead');
-            let headerHTML = '<tr><th>Product</th>';
-            DB.companies.forEach(c => {
-                headerHTML += `<th>${c.name}</th>`;
-            });
+            let headerHTML = '<tr><th>Продукт</th>';
+            DB.companies.forEach(c => headerHTML += `<th>${c.name}</th>`);
             headerHTML += '</tr>';
             thead.innerHTML = headerHTML;
             table.appendChild(thead);
 
             const tbody = document.createElement('tbody');
             DB.products.forEach(productId => {
-                let rowHTML = `<tr><td style="font-weight: 600;">${DB.productNames[productId]}</td>`;
+                let rowHTML = `<tr><td>${DB.productNames[productId]}</td>`;
                 const prices = DB.prices[productId] || {};
                 let minPrice = Infinity;
-                Object.values(prices).forEach(p => {
-                    if (p < minPrice) minPrice = p;
-                });
+                Object.values(prices).forEach(p => { if (p < minPrice) minPrice = p; });
 
                 DB.companies.forEach(c => {
                     const price = prices[c.name];
                     if (price) {
                         const isBest = price === minPrice;
-                        const cellClass = isBest ? 'price-cell best' : 'price-cell';
-                        rowHTML += `<td><span class="${cellClass}">¥${price.toFixed(2)}</span></td>`;
+                        const style = isBest ? 'color: #10b981; font-weight: 600;' : '';
+                        rowHTML += `<td style="${style}">¥${price.toFixed(2)}</td>`;
                     } else {
                         rowHTML += '<td style="color: var(--text-gray);">-</td>';
                     }
@@ -1489,25 +927,11 @@
                 tbody.innerHTML += rowHTML;
             });
             table.appendChild(tbody);
-            document.getElementById('matrixStatus').innerHTML = '';
         }
 
         function updateAnalytics() {
-            let allPrices = [];
-            let companyStats = {};
-            let productStats = {};
-
-            Object.keys(DB.prices).forEach(productId => {
-                const prices = DB.prices[productId];
-                const priceArray = Object.values(prices).map(p => parseFloat(p));
-                productStats[productId] = {
-                    min: Math.min(...priceArray),
-                    max: Math.max(...priceArray),
-                    avg: priceArray.reduce((a, b) => a + b, 0) / priceArray.length,
-                    bestCompany: Object.keys(prices).find(c => parseFloat(prices[c]) === Math.min(...priceArray))
-                };
-                allPrices = allPrices.concat(priceArray);
-            });
+            const tbody = document.querySelector('#analyticsTable tbody');
+            tbody.innerHTML = '';
 
             DB.companies.forEach(company => {
                 const companyPrices = [];
@@ -1517,59 +941,93 @@
                     }
                 });
                 if (companyPrices.length > 0) {
-                    companyStats[company.name] = {
-                        count: companyPrices.length,
-                        avg: companyPrices.reduce((a, b) => a + b, 0) / companyPrices.length,
-                        min: Math.min(...companyPrices),
-                        max: Math.max(...companyPrices)
-                    };
+                    const avg = companyPrices.reduce((a, b) => a + b, 0) / companyPrices.length;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${company.name}</td>
+                        <td>${companyPrices.length}</td>
+                        <td>¥${avg.toFixed(2)}</td>
+                    `;
+                    tbody.appendChild(row);
                 }
             });
+        }
 
-            document.getElementById('avgPrice').textContent = allPrices.length > 0 ? '¥' + (allPrices.reduce((a, b) => a + b, 0) / allPrices.length).toFixed(2) : '-';
-            document.getElementById('minPrice').textContent = allPrices.length > 0 ? '¥' + Math.min(...allPrices).toFixed(2) : '-';
-            document.getElementById('maxPrice').textContent = allPrices.length > 0 ? '¥' + Math.max(...allPrices).toFixed(2) : '-';
+        function sendAIMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
 
-            let bestCompany = '';
-            let bestAvg = Infinity;
-            Object.keys(companyStats).forEach(c => {
-                if (companyStats[c].avg < bestAvg) {
-                    bestAvg = companyStats[c].avg;
-                    bestCompany = c;
-                }
+            const messagesDiv = document.getElementById('chatMessages');
+
+            // Добавить сообщение пользователя
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message user';
+            userDiv.innerHTML = `<div class="message-bubble">${message}</div>`;
+            messagesDiv.appendChild(userDiv);
+
+            // Получить ответ AI
+            const response = getAIResponse(message);
+
+            // Добавить ответ AI
+            setTimeout(() => {
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'message assistant';
+                aiDiv.innerHTML = `<div class="message-bubble">${response}</div>`;
+                messagesDiv.appendChild(aiDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 500);
+
+            input.value = '';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function getAIResponse(message) {
+            const msg = message.toLowerCase();
+            
+            let allPrices = [];
+            Object.keys(DB.prices).forEach(pid => {
+                Object.values(DB.prices[pid]).forEach(p => allPrices.push(p));
             });
-            document.getElementById('bestCompany').textContent = bestCompany || '-';
 
-            const compTable = document.querySelector('#companiesAnalytics tbody');
-            compTable.innerHTML = '';
-            Object.keys(companyStats).forEach(company => {
-                const stats = companyStats[company];
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${company}</td>
-                    <td>${stats.count}</td>
-                    <td>¥${stats.avg.toFixed(2)}</td>
-                    <td>¥${stats.min.toFixed(2)}</td>
-                    <td>¥${stats.max.toFixed(2)}</td>
-                `;
-                compTable.appendChild(row);
-            });
+            const avgPrice = allPrices.length > 0 ? (allPrices.reduce((a, b) => a + b, 0) / allPrices.length).toFixed(2) : 'нет';
+            const minPrice = allPrices.length > 0 ? Math.min(...allPrices).toFixed(2) : 'нет';
+            const maxPrice = allPrices.length > 0 ? Math.max(...allPrices).toFixed(2) : 'нет';
 
-            const prodTable = document.querySelector('#productAnalytics tbody');
-            prodTable.innerHTML = '';
-            Object.keys(productStats).forEach(productId => {
-                const stats = productStats[productId];
-                const spread = (stats.max - stats.min).toFixed(2);
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${DB.productNames[productId]}</td>
-                    <td>¥${stats.min.toFixed(2)}</td>
-                    <td>${stats.bestCompany}</td>
-                    <td>¥${stats.avg.toFixed(2)}</td>
-                    <td>¥${spread}</td>
-                `;
-                prodTable.appendChild(row);
-            });
+            if (msg.includes('средн') || msg.includes('average')) {
+                return `📊 Средняя цена: <strong>¥${avgPrice}</strong>`;
+            }
+            if (msg.includes('мин') || msg.includes('min') || msg.includes('дешев')) {
+                return `💚 Минимальная цена: <strong>¥${minPrice}</strong>`;
+            }
+            if (msg.includes('макс') || msg.includes('max') || msg.includes('дорог')) {
+                return `❌ Максимальная цена: <strong>¥${maxPrice}</strong>`;
+            }
+            if (msg.includes('компан') || msg.includes('company')) {
+                let bestCompany = '';
+                let bestAvg = Infinity;
+                DB.companies.forEach(company => {
+                    const companyPrices = [];
+                    Object.keys(DB.prices).forEach(productId => {
+                        if (DB.prices[productId][company.name]) {
+                            companyPrices.push(parseFloat(DB.prices[productId][company.name]));
+                        }
+                    });
+                    if (companyPrices.length > 0) {
+                        const avg = companyPrices.reduce((a, b) => a + b, 0) / companyPrices.length;
+                        if (avg < bestAvg) {
+                            bestAvg = avg;
+                            bestCompany = company.name;
+                        }
+                    }
+                });
+                return bestCompany ? `🏆 Лучшая компания: <strong>${bestCompany}</strong> (средняя: ¥${bestAvg.toFixed(2)})` : '⚠️ Загрузите данные';
+            }
+            if (msg.includes('сколько') || msg.includes('count') || msg.includes('продукт')) {
+                return `📦 Всего продуктов: <strong>${DB.products.length}</strong><br>🏢 Компаний: <strong>${DB.companies.length}</strong>`;
+            }
+
+            return '🤔 Спросите о ценах, компаниях или загрузите данные для анализа';
         }
 
         function switchSection(sectionId) {
@@ -1585,13 +1043,13 @@
                 compare: '⚖️ Сравнение',
                 matrix: '📋 Матрица',
                 analytics: '📈 Аналитика',
+                assistant: '🤖 AI Помощник',
                 upload: '📤 Загрузка'
             };
             document.getElementById('pageTitle').textContent = titles[sectionId] || 'Страница';
 
-            if (sectionId === 'analytics') {
-                updateAnalytics();
-            }
+            if (sectionId === 'matrix') updateMatrix();
+            if (sectionId === 'analytics') updateAnalytics();
         }
     </script>
 </body>
