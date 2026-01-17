@@ -519,13 +519,15 @@
                         <div style="font-size: 13px; color: var(--text-gray);">Управляйте ценами, сравнивайте компании и получайте консультации от AI</div>
                     </div>
                     <div class="card">
-                        <div class="card-title">⭐ Статистика</div>
+                        <div class="card-title">⭐ Лучшие цены (Top 10)</div>
                         <table id="topPricesList">
                             <thead>
                                 <tr>
-                                    <th>Product</th>
-                                    <th>Company</th>
-                                    <th>Price ¥</th>
+                                    <th>Product Name</th>
+                                    <th>Компания</th>
+                                    <th>Цена ¥</th>
+                                    <th>Target Price</th>
+                                    <th>Статус</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -563,8 +565,8 @@
                 <!-- SEARCH -->
                 <section id="search" class="section">
                     <div class="card">
-                        <div class="card-title">🔍 Поиск</div>
-                        <input type="text" id="searchInput" class="chat-input" placeholder="Поиск...">
+                        <div class="card-title">🔍 Поиск по продуктам и компаниям</div>
+                        <input type="text" id="searchInput" class="chat-input" placeholder="Введите название продукта или компании..." oninput="performSearch()">
                         <div id="searchResults" style="margin-top: 20px;"></div>
                     </div>
                 </section>
@@ -624,11 +626,42 @@
                 <!-- UPLOAD -->
                 <section id="upload" class="section">
                     <div class="card">
-                        <div class="card-title">📥 Загрузить данные</div>
+                        <div class="card-title">📥 Загрузить данные (прайс-лист)</div>
                         <div style="border: 2px dashed var(--primary); border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; background: rgba(99, 102, 241, 0.05);" onclick="document.getElementById('excelFile').click()">
-                            <p style="margin: 0; font-weight: 600; color: var(--primary);">📤 Загрузить Excel</p>
+                            <p style="margin: 0; font-weight: 600; color: var(--primary);">📤 Загрузить прайс Excel</p>
+                            <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--text-gray);">Поддерживаются: XLSX, XLS, CSV</p>
                             <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" onchange="handleExcelUpload(event)" style="display: none;">
                         </div>
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(99, 102, 241, 0.05); border-radius: 8px; font-size: 12px; color: var(--text-gray);">
+                            <p><strong style="color: var(--primary);">ℹ️ Формат файла:</strong></p>
+                            <ul style="margin: 10px 0 0 20px;">
+                                <li>Первая строка - названия компаний</li>
+                                <li>Первая колонка - Product ID</li>
+                                <li>Вторая колонка - Product Name</li>
+                                <li>Остальные - цены (¥)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">🎯 Загрузить Target Price (целевые цены)</div>
+                        <div style="border: 2px dashed #f59e0b; border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; background: rgba(245, 158, 11, 0.05);" onclick="document.getElementById('targetPriceFile').click()">
+                            <p style="margin: 0; font-weight: 600; color: #f59e0b;">🎯 Загрузить целевые цены</p>
+                            <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--text-gray);">Поддерживаются: XLSX, XLS, CSV</p>
+                            <input type="file" id="targetPriceFile" accept=".xlsx,.xls,.csv" onchange="handleTargetPriceUpload(event)" style="display: none;">
+                        </div>
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(245, 158, 11, 0.05); border-radius: 8px; font-size: 12px; color: var(--text-gray);">
+                            <p><strong style="color: #f59e0b;">ℹ️ Формат файла:</strong></p>
+                            <ul style="margin: 10px 0 0 20px;">
+                                <li>Первая колонка - Product ID</li>
+                                <li>Вторая колонка - Target Price (¥)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">⚙️ Управление данными</div>
+                        <button class="btn btn-danger" onclick="clearAllData()">🗑️ Очистить все данные</button>
                     </div>
                 </section>
             </div>
@@ -641,6 +674,7 @@
             products: [],
             prices: {},
             productNames: {},
+            targetPrices: {}
         };
         let currentUser = null;
 
@@ -735,7 +769,19 @@
                     const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     const json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
+                    if (json.length < 2) {
+                        showToast('❌ Файл пуст', 'error');
+                        event.target.value = '';
+                        return;
+                    }
+
                     const headers = json[0].slice(2).filter(h => h && h.toString().trim());
+                    if (headers.length === 0) {
+                        showToast('❌ Не найдены компании', 'error');
+                        event.target.value = '';
+                        return;
+                    }
+
                     DB.companies = headers.map((name, i) => ({
                         id: i + 1,
                         name: name.toString().trim()
@@ -777,16 +823,75 @@
                     saveDB();
                     updateDashboard();
                     initializeSelects();
-                    showToast('✅ Данные загружены!');
+                    showToast('✅ Цены загружены!');
                     event.target.value = '';
 
                 } catch (err) {
-                    showToast('❌ Ошибка: ' + err.message, 'error');
+                    showToast(`❌ Ошибка: ${err.message}`, 'error');
                     event.target.value = '';
                 }
             };
 
             reader.readAsArrayBuffer(file);
+        }
+
+        function handleTargetPriceUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+                    DB.targetPrices = {};
+
+                    for (let i = 1; i < json.length; i++) {
+                        const row = json[i];
+                        if (!row || row.length < 2) continue;
+
+                        const productId = row[0]?.toString().trim();
+                        const targetPrice = row[1];
+                        if (!productId || !targetPrice) continue;
+
+                        let priceStr = targetPrice.toString().trim();
+                        priceStr = priceStr.replace(/[^\d.]/g, '');
+                        const parsedPrice = parseFloat(priceStr);
+
+                        if (!isNaN(parsedPrice)) {
+                            DB.targetPrices[productId] = parsedPrice;
+                        }
+                    }
+
+                    saveDB();
+                    updateDashboard();
+                    showToast('✅ Целевые цены загружены!');
+                    event.target.value = '';
+
+                } catch (err) {
+                    showToast(`❌ Ошибка: ${err.message}`, 'error');
+                    event.target.value = '';
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function clearAllData() {
+            if (confirm('Вы уверены?')) {
+                DB.companies = [];
+                DB.products = [];
+                DB.prices = {};
+                DB.productNames = {};
+                DB.targetPrices = {};
+                saveDB();
+                updateDashboard();
+                initializeSelects();
+                showToast('✅ Данные очищены');
+            }
         }
 
         function updateDashboard() {
@@ -797,9 +902,11 @@
             Object.keys(DB.prices).forEach(productId => {
                 Object.entries(DB.prices[productId]).forEach(([company, price]) => {
                     allPrices.push({
+                        productId,
                         productName: DB.productNames[productId] || productId,
                         company,
-                        price: parseFloat(price)
+                        price: parseFloat(price),
+                        target: DB.targetPrices[productId] ? parseFloat(DB.targetPrices[productId]) : null
                     });
                 });
             });
@@ -809,16 +916,19 @@
 
             top10.forEach(item => {
                 const row = document.createElement('tr');
+                const status = item.target && item.price <= item.target ? '✅ OK' : (item.target ? '❌ High' : '⚪ No');
                 row.innerHTML = `
                     <td>${item.productName}</td>
                     <td>${item.company}</td>
                     <td><span class="price-badge">¥${item.price.toFixed(2)}</span></td>
+                    <td>${item.target ? '¥' + item.target.toFixed(2) : '-'}</td>
+                    <td>${status}</td>
                 `;
                 tbody.appendChild(row);
             });
 
             if (top10.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-gray);">Загрузите данные</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-gray);">Загрузите данные</td></tr>';
             }
         }
 
@@ -1028,6 +1138,133 @@
             }
 
             return '🤔 Спросите о ценах, компаниях или загрузите данные для анализа';
+        }
+
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const resultsDiv = document.getElementById('searchResults');
+
+            if (query.length === 0) {
+                resultsDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-gray);"><div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">🔍</div><p>Введите поиск</p></div>';
+                return;
+            }
+
+            let results = [];
+
+            DB.products.forEach(productId => {
+                const productName = DB.productNames[productId] || productId;
+                if (productName.toLowerCase().includes(query) || productId.toLowerCase().includes(query)) {
+                    results.push({
+                        type: 'product',
+                        id: productId,
+                        name: productName,
+                        subtitle: `ID: ${productId}`
+                    });
+                }
+            });
+
+            DB.companies.forEach(company => {
+                if (company.name.toLowerCase().includes(query)) {
+                    const productsCount = Object.keys(DB.prices).filter(pid => DB.prices[pid][company.name]).length;
+                    results.push({
+                        type: 'company',
+                        id: company.name,
+                        name: company.name,
+                        subtitle: `${productsCount} товаров`
+                    });
+                }
+            });
+
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-gray);"><div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">❌</div><p>Ничего не найдено</p></div>';
+                return;
+            }
+
+            let html = '';
+            results.forEach(result => {
+                if (result.type === 'product') {
+                    const prices = DB.prices[result.id] || {};
+                    const validPrices = Object.values(prices).filter(p => !isNaN(p));
+                    const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : 0;
+                    const companies = Object.keys(prices).length;
+                    html += `
+                        <div style="background: rgba(99, 102, 241, 0.05); border: 1px solid var(--border-dark); border-radius: 8px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;" onclick="showProductDetails('${result.id}')" onmouseover="this.style.background='rgba(99, 102, 241, 0.1)'; this.style.borderColor='var(--primary)'" onmouseout="this.style.background='rgba(99, 102, 241, 0.05)'; this.style.borderColor='var(--border-dark)'">
+                            <div style="font-weight: 600; color: var(--text-light); margin-bottom: 4px;">📦 ${result.name}</div>
+                            <div style="font-size: 12px; color: var(--text-gray);">Цена: ¥${minPrice.toFixed(2)} • ${companies} компаний</div>
+                        </div>
+                    `;
+                } else {
+                    const priceStats = getCompanyStats(result.id);
+                    html += `
+                        <div style="background: rgba(99, 102, 241, 0.05); border: 1px solid var(--border-dark); border-radius: 8px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;" onclick="showCompanyDetails('${result.id}')" onmouseover="this.style.background='rgba(99, 102, 241, 0.1)'; this.style.borderColor='var(--primary)'" onmouseout="this.style.background='rgba(99, 102, 241, 0.05)'; this.style.borderColor='var(--border-dark)'">
+                            <div style="font-weight: 600; color: var(--text-light); margin-bottom: 4px;">🏢 ${result.name}</div>
+                            <div style="font-size: 12px; color: var(--text-gray);">Средняя: ¥${priceStats.avg.toFixed(2)}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            resultsDiv.innerHTML = html;
+        }
+
+        function showProductDetails(productId) {
+            const productName = DB.productNames[productId];
+            const prices = DB.prices[productId] || {};
+            
+            let details = `<div style="margin-top: 20px; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--border-dark); border-radius: 8px; padding: 15px;">
+                <div style="font-weight: 600; color: var(--text-light); margin-bottom: 10px;">📦 ${productName}</div>
+                <table style="width: 100%; font-size: 12px;">
+                <tr style="background: rgba(99, 102, 241, 0.1);"><th style="padding: 8px; text-align: left;">Компания</th><th style="padding: 8px; text-align: right;">Цена ¥</th></tr>`;
+
+            const sortedPrices = Object.entries(prices).sort((a, b) => a[1] - b[1]);
+            sortedPrices.forEach(([company, price]) => {
+                details += `<tr><td style="padding: 8px; border-bottom: 1px solid var(--border-dark);">${company}</td><td style="padding: 8px; border-bottom: 1px solid var(--border-dark); text-align: right; font-weight: 600; color: #10b981;">¥${price.toFixed(2)}</td></tr>`;
+            });
+            
+            details += `</table></div>`;
+            document.getElementById('searchResults').innerHTML = details;
+        }
+
+        function showCompanyDetails(companyName) {
+            const companyPrices = [];
+            Object.keys(DB.prices).forEach(productId => {
+                if (DB.prices[productId][companyName]) {
+                    companyPrices.push({
+                        productName: DB.productNames[productId],
+                        productId,
+                        price: DB.prices[productId][companyName]
+                    });
+                }
+            });
+
+            companyPrices.sort((a, b) => a.price - b.price);
+
+            let details = `<div style="margin-top: 20px; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--border-dark); border-radius: 8px; padding: 15px;">
+                <div style="font-weight: 600; color: var(--text-light); margin-bottom: 10px;">🏢 ${companyName}</div>
+                <table style="width: 100%; font-size: 12px;">
+                <tr style="background: rgba(99, 102, 241, 0.1);"><th style="padding: 8px; text-align: left;">Продукт</th><th style="padding: 8px; text-align: right;">Цена ¥</th></tr>`;
+
+            companyPrices.forEach(item => {
+                details += `<tr><td style="padding: 8px; border-bottom: 1px solid var(--border-dark);">${item.productName}</td><td style="padding: 8px; border-bottom: 1px solid var(--border-dark); text-align: right; font-weight: 600; color: #10b981;">¥${item.price.toFixed(2)}</td></tr>`;
+            });
+            
+            details += `</table></div>`;
+            document.getElementById('searchResults').innerHTML = details;
+        }
+
+        function getCompanyStats(companyName) {
+            const prices = [];
+            Object.keys(DB.prices).forEach(productId => {
+                if (DB.prices[productId][companyName]) {
+                    prices.push(DB.prices[productId][companyName]);
+                }
+            });
+            return {
+                count: prices.length,
+                avg: prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 0,
+                min: prices.length > 0 ? Math.min(...prices) : 0,
+                max: prices.length > 0 ? Math.max(...prices) : 0
+            };
         }
 
         function switchSection(sectionId) {
