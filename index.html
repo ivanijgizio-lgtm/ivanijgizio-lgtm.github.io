@@ -469,13 +469,13 @@
             <h1>💎 Price Manager Pro</h1>
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" id="loginEmail" value="admin@example.com">
+                <input type="email" id="loginEmail" value="admin@example.com" autocomplete="off">
             </div>
             <div class="form-group">
                 <label>Пароль</label>
-                <input type="password" id="loginPassword" value="admin123">
+                <input type="password" id="loginPassword" value="admin123" onkeypress="if(event.key==='Enter') return handleLogin(event); false;">
             </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="return handleLogin(event); false;">
                 Вход
             </button>
         </div>
@@ -758,37 +758,77 @@
         let currentUser = null;
 
         window.addEventListener('load', () => {
-            loadDB();
-            loadUser();
-            if (currentUser) showMainApp();
-            else showLoginApp();
+            try {
+                console.log('🔄 Загрузка приложения...');
+                loadDB();
+                loadUser();
+                
+                if (currentUser) {
+                    console.log('✅ Найден пользователь, показываю главное приложение');
+                    showMainApp();
+                } else {
+                    console.log('❌ Пользователь не найден, показываю форму входа');
+                    showLoginApp();
+                }
+            } catch (err) {
+                console.error('❌ Ошибка при загрузке:', err);
+                showLoginApp();
+            }
         });
 
         function loadUser() {
             try {
-                const stored = localStorage.getItem('currentUserPM');
-                if (stored) currentUser = JSON.parse(stored);
-            } catch (e) {}
+                if (typeof(Storage) !== 'undefined') {
+                    const stored = localStorage.getItem('currentUserPM');
+                    if (stored) {
+                        currentUser = JSON.parse(stored);
+                        console.log('✅ Пользователь загружен из localStorage');
+                    }
+                }
+            } catch (e) {
+                console.warn('⚠️ localStorage недоступен:', e.message);
+            }
         }
 
         function saveUser() {
             try {
-                if (currentUser) localStorage.setItem('currentUserPM', JSON.stringify(currentUser));
-            } catch (e) {}
+                if (typeof(Storage) !== 'undefined' && currentUser) {
+                    localStorage.setItem('currentUserPM', JSON.stringify(currentUser));
+                    console.log('✅ Пользователь сохранен');
+                }
+            } catch (e) {
+                console.warn('⚠️ Не удалось сохранить пользователя:', e.message);
+                showToast('⚠️ Сохранение невозможно (режим инкогнито?)', 'error');
+            }
         }
 
-        function handleLogin() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-
-            if (email === 'admin@example.com' && password === 'admin123') {
-                currentUser = { id: 1, name: 'Администратор', email };
-                saveUser();
-                showMainApp();
-                showToast('✅ Добро пожаловать!');
-            } else {
-                showToast('❌ Неверные данные', 'error');
+        function handleLogin(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
             }
+            
+            try {
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value;
+
+                console.log('🔐 Попытка входа:', email);
+
+                if (email === 'admin@example.com' && password === 'admin123') {
+                    currentUser = { id: 1, name: 'Администратор', email };
+                    console.log('✅ Вход успешен');
+                    saveUser();
+                    showMainApp();
+                    showToast('✅ Добро пожаловать!');
+                } else {
+                    console.log('❌ Неверные учетные данные');
+                    showToast('❌ Email: admin@example.com | Пароль: admin123', 'error');
+                }
+            } catch (err) {
+                console.error('❌ Ошибка входа:', err);
+                showToast('❌ Ошибка входа: ' + err.message, 'error');
+            }
+            return false;
         }
 
         function handleLogout() {
@@ -800,16 +840,39 @@
         }
 
         function showLoginApp() {
-            document.getElementById('loginApp').classList.remove('hidden');
-            document.getElementById('mainApp').classList.remove('active');
+            try {
+                const loginApp = document.getElementById('loginApp');
+                const mainApp = document.getElementById('mainApp');
+                if (loginApp) {
+                    loginApp.classList.remove('hidden');
+                    loginApp.style.display = 'flex';
+                }
+                if (mainApp) mainApp.classList.remove('active');
+                console.log('🔒 Форма входа отображена');
+            } catch (err) {
+                console.error('❌ Ошибка при показе формы входа:', err);
+            }
         }
 
         function showMainApp() {
-            document.getElementById('loginApp').classList.add('hidden');
-            document.getElementById('mainApp').classList.add('active');
-            if (currentUser) {
-                document.getElementById('userAvatar').textContent = currentUser.name[0];
-                document.getElementById('userName').textContent = currentUser.name;
+            try {
+                const loginApp = document.getElementById('loginApp');
+                const mainApp = document.getElementById('mainApp');
+                if (loginApp) loginApp.classList.add('hidden');
+                if (mainApp) {
+                    mainApp.classList.add('active');
+                    mainApp.style.display = 'flex';
+                }
+                
+                if (currentUser) {
+                    const avatar = document.getElementById('userAvatar');
+                    const nameEl = document.getElementById('userName');
+                    if (avatar) avatar.textContent = currentUser.name[0] || 'A';
+                    if (nameEl) nameEl.textContent = currentUser.name || 'Администратор';
+                }
+                console.log('✅ Главное приложение отображено');
+            } catch (err) {
+                console.error('❌ Ошибка при показе приложения:', err);
             }
         }
 
