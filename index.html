@@ -475,7 +475,7 @@
                 <label>Пароль</label>
                 <input type="password" id="loginPassword" value="admin123" onkeypress="if(event.key==='Enter') return handleLogin(event); false;">
             </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="return handleLogin(event); false;">
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin(); return false;">
                 Вход
             </button>
         </div>
