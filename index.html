@@ -43,7 +43,7 @@
         }
 
         .login-page.hidden {
-            display: none;
+            display: none !important;
         }
 
         .login-box {
@@ -290,7 +290,6 @@
             background: #dc2626;
         }
 
-        /* AI CHAT STYLES */
         .chat-container {
             display: flex;
             flex-direction: column;
@@ -475,7 +474,7 @@
                 <label>Пароль</label>
                 <input type="password" id="loginPassword" value="admin123">
             </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; cursor: pointer; font-size: 16px; padding: 12px 20px;" type="button" id="loginBtn" onclick="handleLogin()">
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; cursor: pointer; font-size: 16px; padding: 12px 20px;" id="loginBtn">
                 Вход
             </button>
         </div>
@@ -496,7 +495,7 @@
                     <div class="avatar" id="userAvatar">A</div>
                     <div id="userName">Администратор</div>
                 </div>
-                <button class="logout-btn" onclick="handleLogout()">Выход</button>
+                <button class="logout-btn" id="logoutBtn">Выход</button>
             </div>
         </div>
 
@@ -560,7 +559,7 @@
                             </div>
                             <div class="chat-input-box">
                                 <textarea class="chat-input" id="chatInput" placeholder="Например: какая средняя цена? где лучше..."></textarea>
-                                <button class="chat-send-btn" onclick="sendAIMessage()">📤</button>
+                                <button class="chat-send-btn" id="chatSendBtn">📤</button>
                             </div>
                         </div>
                     </div>
@@ -570,7 +569,7 @@
                 <section id="search" class="section">
                     <div class="card">
                         <div class="card-title">🔍 Поиск по продуктам и компаниям</div>
-                        <input type="text" id="searchInput" class="chat-input" placeholder="Введите название продукта или компании..." oninput="performSearch()">
+                        <input type="text" id="searchInput" class="chat-input" placeholder="Введите название продукта или компании...">
                         <div id="searchResults" style="margin-top: 20px;"></div>
                     </div>
                 </section>
@@ -582,13 +581,13 @@
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                             <div>
                                 <label style="display: block; font-size: 12px; color: var(--text-gray); margin-bottom: 8px;">📦 Компания 1</label>
-                                <select id="company1" onchange="updateComparison()" style="width: 100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 6px; color: var(--text-light);">
+                                <select id="company1" style="width: 100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 6px; color: var(--text-light);">
                                     <option>Выберите...</option>
                                 </select>
                             </div>
                             <div>
                                 <label style="display: block; font-size: 12px; color: var(--text-gray); margin-bottom: 8px;">📦 Компания 2</label>
-                                <select id="company2" onchange="updateComparison()" style="width: 100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 6px; color: var(--text-light);">
+                                <select id="company2" style="width: 100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 6px; color: var(--text-light);">
                                     <option>Выберите...</option>
                                 </select>
                             </div>
@@ -634,8 +633,8 @@
                     <div class="card">
                         <div class="card-title">🚚 Управление логистикой и поставками</div>
                         <div style="margin-bottom: 20px; display: flex; gap: 10px;">
-                            <button class="btn btn-primary" onclick="addLogisticsRow()">➕ Добавить поставку</button>
-                            <button class="btn btn-danger" onclick="clearLogistics()">🗑️ Очистить</button>
+                            <button class="btn btn-primary" id="addLogisticsBtn">➕ Добавить поставку</button>
+                            <button class="btn btn-danger" id="clearLogisticsBtn">🗑️ Очистить</button>
                         </div>
                         <div style="overflow-x: auto;">
                             <table id="logisticsTable">
@@ -654,8 +653,7 @@
                                         <th>Действие</th>
                                     </tr>
                                 </thead>
-                                <tbody id="logisticsBody">
-                                </tbody>
+                                <tbody id="logisticsBody"></tbody>
                             </table>
                         </div>
                     </div>
@@ -666,8 +664,8 @@
                     <div class="card">
                         <div class="card-title">📅 Gantt Chart - График проекта</div>
                         <div style="margin-bottom: 20px; display: flex; gap: 10px;">
-                            <button class="btn btn-primary" onclick="addGanttTask()">➕ Добавить задачу</button>
-                            <button class="btn btn-danger" onclick="clearGantt()">🗑️ Очистить</button>
+                            <button class="btn btn-primary" id="addGanttBtn">➕ Добавить задачу</button>
+                            <button class="btn btn-danger" id="clearGanttBtn">🗑️ Очистить</button>
                         </div>
                         <div style="overflow-x: auto; overflow-y: auto; max-height: 600px;">
                             <div id="ganttChart" style="position: relative;">
@@ -694,7 +692,7 @@
                     <div class="card">
                         <div class="card-title">📊 Экспорт данных</div>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button class="btn btn-primary" onclick="exportToExcel()">📥 Скачать Excel</button>
+                            <button class="btn btn-primary" id="exportBtn">📥 Скачать Excel</button>
                         </div>
                     </div>
                 </section>
@@ -706,7 +704,7 @@
                         <div style="border: 2px dashed var(--primary); border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; background: rgba(99, 102, 241, 0.05);" onclick="document.getElementById('excelFile').click()">
                             <p style="margin: 0; font-weight: 600; color: var(--primary);">📤 Загрузить прайс Excel</p>
                             <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--text-gray);">Поддерживаются: XLSX, XLS, CSV</p>
-                            <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" onchange="handleExcelUpload(event)" style="display: none;">
+                            <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display: none;">
                         </div>
                         <div style="margin-top: 15px; padding: 15px; background: rgba(99, 102, 241, 0.05); border-radius: 8px; font-size: 12px; color: var(--text-gray);">
                             <p><strong style="color: var(--primary);">ℹ️ Формат файла:</strong></p>
@@ -724,7 +722,7 @@
                         <div style="border: 2px dashed #f59e0b; border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; background: rgba(245, 158, 11, 0.05);" onclick="document.getElementById('targetPriceFile').click()">
                             <p style="margin: 0; font-weight: 600; color: #f59e0b;">🎯 Загрузить целевые цены</p>
                             <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--text-gray);">Поддерживаются: XLSX, XLS, CSV</p>
-                            <input type="file" id="targetPriceFile" accept=".xlsx,.xls,.csv" onchange="handleTargetPriceUpload(event)" style="display: none;">
+                            <input type="file" id="targetPriceFile" accept=".xlsx,.xls,.csv" style="display: none;">
                         </div>
                         <div style="margin-top: 15px; padding: 15px; background: rgba(245, 158, 11, 0.05); border-radius: 8px; font-size: 12px; color: var(--text-gray);">
                             <p><strong style="color: #f59e0b;">ℹ️ Формат файла:</strong></p>
@@ -737,7 +735,7 @@
 
                     <div class="card">
                         <div class="card-title">⚙️ Управление данными</div>
-                        <button class="btn btn-danger" onclick="clearAllData()">🗑️ Очистить все данные</button>
+                        <button class="btn btn-danger" id="clearAllBtn">🗑️ Очистить все данные</button>
                     </div>
                 </section>
             </div>
@@ -757,173 +755,232 @@
         };
         let currentUser = null;
 
-        window.addEventListener('load', () => {
-            try {
-                console.log('🔄 Загрузка приложения...');
-                loadDB();
-                loadUser();
-                
-                // Привязываем обработчик к кнопке входа - ИСПРАВЛЕНО
-                setTimeout(() => {
-                    const loginBtn = document.getElementById('loginBtn');
-                    const passwordInput = document.getElementById('loginPassword');
-                    
-                    if (loginBtn) {
-                        console.log('✅ Кнопка найдена, привязываю обработчик');
-                        loginBtn.onclick = handleLogin;
-                        loginBtn.addEventListener('click', handleLogin);
-                    } else {
-                        console.error('❌ Кнопка входа не найдена!');
-                    }
-                    
-                    if (passwordInput) {
-                        passwordInput.addEventListener('keypress', (e) => {
-                            if (e.key === 'Enter') {
-                                e.preventDefault();
-                                handleLogin();
-                            }
-                        });
-                    }
-                }, 100);
-                
-                if (currentUser) {
-                    console.log('✅ Найден пользователь, показываю главное приложение');
-                    showMainApp();
-                } else {
-                    console.log('❌ Пользователь не найден, показываю форму входа');
-                    showLoginApp();
-                }
-            } catch (err) {
-                console.error('❌ Ошибка при загрузке:', err);
+        // ИНИЦИАЛИЗАЦИЯ
+        window.addEventListener('DOMContentLoaded', initApp);
+
+        function initApp() {
+            console.log('🔄 Инициализация приложения...');
+            loadDB();
+            loadUser();
+            attachEventListeners();
+            
+            if (currentUser) {
+                showMainApp();
+            } else {
                 showLoginApp();
             }
-        });
+        }
 
-        function loadUser() {
-            try {
-                if (typeof(Storage) !== 'undefined') {
-                    const stored = localStorage.getItem('currentUserPM');
-                    if (stored) {
-                        currentUser = JSON.parse(stored);
-                        console.log('✅ Пользователь загружен из localStorage');
+        // ПРИВЯЗКА СОБЫТИЙ
+        function attachEventListeners() {
+            const loginBtn = document.getElementById('loginBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const passwordInput = document.getElementById('loginPassword');
+            const emailInput = document.getElementById('loginEmail');
+            const excelFile = document.getElementById('excelFile');
+            const targetPriceFile = document.getElementById('targetPriceFile');
+            const chatSendBtn = document.getElementById('chatSendBtn');
+            const searchInput = document.getElementById('searchInput');
+            const company1 = document.getElementById('company1');
+            const company2 = document.getElementById('company2');
+            const addLogisticsBtn = document.getElementById('addLogisticsBtn');
+            const clearLogisticsBtn = document.getElementById('clearLogisticsBtn');
+            const addGanttBtn = document.getElementById('addGanttBtn');
+            const clearGanttBtn = document.getElementById('clearGanttBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+
+            // Вход
+            if (loginBtn) {
+                loginBtn.addEventListener('click', handleLogin);
+            }
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') handleLogin();
+                });
+            }
+            if (emailInput) {
+                emailInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') handleLogin();
+                });
+            }
+
+            // Выход
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+
+            // Файлы
+            if (excelFile) {
+                excelFile.addEventListener('change', handleExcelUpload);
+            }
+            if (targetPriceFile) {
+                targetPriceFile.addEventListener('change', handleTargetPriceUpload);
+            }
+
+            // AI Чат
+            if (chatSendBtn) {
+                chatSendBtn.addEventListener('click', sendAIMessage);
+            }
+            const chatInput = document.getElementById('chatInput');
+            if (chatInput) {
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendAIMessage();
                     }
-                }
-            } catch (e) {
-                console.warn('⚠️ localStorage недоступен:', e.message);
+                });
+            }
+
+            // Поиск
+            if (searchInput) {
+                searchInput.addEventListener('input', performSearch);
+            }
+
+            // Сравнение
+            if (company1) {
+                company1.addEventListener('change', updateComparison);
+            }
+            if (company2) {
+                company2.addEventListener('change', updateComparison);
+            }
+
+            // Логистика
+            if (addLogisticsBtn) {
+                addLogisticsBtn.addEventListener('click', addLogisticsRow);
+            }
+            if (clearLogisticsBtn) {
+                clearLogisticsBtn.addEventListener('click', clearLogistics);
+            }
+
+            // Gantt
+            if (addGanttBtn) {
+                addGanttBtn.addEventListener('click', addGanttTask);
+            }
+            if (clearGanttBtn) {
+                clearGanttBtn.addEventListener('click', clearGantt);
+            }
+
+            // Экспорт
+            if (exportBtn) {
+                exportBtn.addEventListener('click', exportToExcel);
+            }
+
+            // Очистка данных
+            if (clearAllBtn) {
+                clearAllBtn.addEventListener('click', clearAllData);
             }
         }
 
-        function saveUser() {
-            try {
-                if (typeof(Storage) !== 'undefined' && currentUser) {
-                    localStorage.setItem('currentUserPM', JSON.stringify(currentUser));
-                    console.log('✅ Пользователь сохранен');
-                }
-            } catch (e) {
-                console.warn('⚠️ Не удалось сохранить пользователя:', e.message);
-                showToast('⚠️ Сохранение невозможно (режим инкогнито?)', 'error');
-            }
-        }
-
-        function handleLogin(e) {
-            if (e) e.preventDefault();
-            if (e && e.stopPropagation) e.stopPropagation();
+        // ВХОД
+        function handleLogin() {
+            const emailInput = document.getElementById('loginEmail');
+            const passwordInput = document.getElementById('loginPassword');
             
-            try {
-                const emailInput = document.getElementById('loginEmail');
-                const passwordInput = document.getElementById('loginPassword');
-                
-                if (!emailInput || !passwordInput) {
-                    console.error('❌ Поля ввода не найдены');
-                    showToast('❌ Ошибка: поля не найдены', 'error');
-                    return;
-                }
-                
-                const email = emailInput.value.trim();
-                const password = passwordInput.value;
+            if (!emailInput || !passwordInput) {
+                showToast('❌ Ошибка: поля не найдены', 'error');
+                return;
+            }
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
 
-                console.log('🔐 Попытка входа - Email:', email, 'Password длина:', password.length);
-                console.log('🔐 Проверка: email === admin@example.com?', email === 'admin@example.com');
-                console.log('🔐 Проверка: password === admin123?', password === 'admin123');
-
-                if (email === 'admin@example.com' && password === 'admin123') {
-                    currentUser = { id: 1, name: 'Администратор', email };
-                    console.log('✅ Вход успешен', currentUser);
-                    saveUser();
-                    showMainApp();
-                    showToast('✅ Добро пожаловать!');
-                } else {
-                    console.log('❌ Неверные учетные данные');
-                    console.log('Email получен:', email);
-                    console.log('Password получен:', password);
-                    showToast('❌ Email: admin@example.com | Пароль: admin123', 'error');
-                }
-            } catch (err) {
-                console.error('❌ Ошибка входа:', err);
-                showToast('❌ Ошибка: ' + err.message, 'error');
+            if (email === 'admin@example.com' && password === 'admin123') {
+                currentUser = { id: 1, name: 'Администратор', email };
+                saveUser();
+                showMainApp();
+                showToast('✅ Добро пожаловать!');
+            } else {
+                showToast('❌ Email: admin@example.com | Пароль: admin123', 'error');
             }
         }
 
+        // ВЫХОД
         function handleLogout() {
             if (confirm('Выйти?')) {
                 currentUser = null;
-                localStorage.removeItem('currentUserPM');
+                try {
+                    localStorage.removeItem('currentUserPM');
+                } catch (e) {}
                 showLoginApp();
             }
         }
 
+        // ПОКАЗАТЬ ВХОД
         function showLoginApp() {
-            try {
-                const loginApp = document.getElementById('loginApp');
-                const mainApp = document.getElementById('mainApp');
-                if (loginApp) {
-                    loginApp.classList.remove('hidden');
-                    loginApp.style.display = 'flex';
-                }
-                if (mainApp) mainApp.classList.remove('active');
-                console.log('🔒 Форма входа отображена');
-            } catch (err) {
-                console.error('❌ Ошибка при показе формы входа:', err);
+            const loginApp = document.getElementById('loginApp');
+            const mainApp = document.getElementById('mainApp');
+            if (loginApp) {
+                loginApp.classList.remove('hidden');
+                loginApp.style.display = 'flex';
             }
+            if (mainApp) mainApp.classList.remove('active');
         }
 
+        // ПОКАЗАТЬ ПРИЛОЖЕНИЕ
         function showMainApp() {
-            try {
-                const loginApp = document.getElementById('loginApp');
-                const mainApp = document.getElementById('mainApp');
-                if (loginApp) loginApp.classList.add('hidden');
-                if (mainApp) {
-                    mainApp.classList.add('active');
-                    mainApp.style.display = 'flex';
-                }
-                
-                if (currentUser) {
-                    const avatar = document.getElementById('userAvatar');
-                    const nameEl = document.getElementById('userName');
-                    if (avatar) avatar.textContent = currentUser.name[0] || 'A';
-                    if (nameEl) nameEl.textContent = currentUser.name || 'Администратор';
-                }
-                console.log('✅ Главное приложение отображено');
-            } catch (err) {
-                console.error('❌ Ошибка при показе приложения:', err);
+            const loginApp = document.getElementById('loginApp');
+            const mainApp = document.getElementById('mainApp');
+            if (loginApp) loginApp.classList.add('hidden');
+            if (mainApp) mainApp.classList.add('active');
+            
+            if (currentUser) {
+                const avatar = document.getElementById('userAvatar');
+                const nameEl = document.getElementById('userName');
+                if (avatar) avatar.textContent = currentUser.name[0] || 'A';
+                if (nameEl) nameEl.textContent = currentUser.name || 'Администратор';
             }
         }
 
+        // ЗАГРУЗКА БД
         function loadDB() {
             try {
-                const stored = localStorage.getItem('priceManagerDB');
-                if (stored) Object.assign(DB, JSON.parse(stored));
-            } catch (err) {}
-        }
-
-        function saveDB() {
-            try {
-                localStorage.setItem('priceManagerDB', JSON.stringify(DB));
+                if (typeof Storage !== 'undefined') {
+                    const stored = localStorage.getItem('priceManagerDB');
+                    if (stored) Object.assign(DB, JSON.parse(stored));
+                }
             } catch (err) {
-                showToast('Ошибка', 'error');
+                console.warn('⚠️ localStorage недоступен');
             }
         }
 
+        // СОХРАНЕНИЕ БД
+        function saveDB() {
+            try {
+                if (typeof Storage !== 'undefined') {
+                    localStorage.setItem('priceManagerDB', JSON.stringify(DB));
+                }
+            } catch (err) {
+                showToast('⚠️ Не удалось сохранить данные', 'error');
+            }
+        }
+
+        // ЗАГРУЗКА ПОЛЬЗОВАТЕЛЯ
+        function loadUser() {
+            try {
+                if (typeof Storage !== 'undefined') {
+                    const stored = localStorage.getItem('currentUserPM');
+                    if (stored) {
+                        currentUser = JSON.parse(stored);
+                    }
+                }
+            } catch (err) {
+                console.warn('⚠️ localStorage недоступен');
+            }
+        }
+
+        // СОХРАНЕНИЕ ПОЛЬЗОВАТЕЛЯ
+        function saveUser() {
+            try {
+                if (typeof Storage !== 'undefined' && currentUser) {
+                    localStorage.setItem('currentUserPM', JSON.stringify(currentUser));
+                }
+            } catch (err) {
+                showToast('⚠️ Не удалось сохранить пользователя', 'error');
+            }
+        }
+
+        // УВЕДОМЛЕНИЯ
         function showToast(msg, type = 'success') {
             const toast = document.createElement('div');
             toast.className = `toast ${type === 'error' ? 'error' : ''}`;
@@ -932,6 +989,39 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
+        // ПЕРЕКЛЮЧЕНИЕ РАЗДЕЛА
+        function switchSection(sectionId, element) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            
+            const section = document.getElementById(sectionId);
+            if (section) section.classList.add('active');
+            if (element) element.classList.add('active');
+
+            const titles = {
+                dashboard: '📊 Дашборд',
+                search: '🔍 Поиск',
+                compare: '⚖️ Сравнение',
+                matrix: '📋 Матрица',
+                analytics: '📈 Аналитика',
+                assistant: '🤖 AI Помощник',
+                logistics: '🚚 Логистика',
+                gantt: '📅 Gantt',
+                upload: '📤 Загрузка',
+                insights: '💡 Insights'
+            };
+            document.getElementById('pageTitle').textContent = titles[sectionId] || 'Страница';
+
+            if (sectionId === 'matrix') updateMatrix();
+            if (sectionId === 'analytics') updateAnalytics();
+            if (sectionId === 'logistics') updateLogisticsTable();
+            if (sectionId === 'gantt') updateGanttChart();
+            if (sectionId === 'insights') {
+                document.getElementById('aiInsightsContainer').innerHTML = getAIPricingInsights();
+            }
+        }
+
+        // ЗАГРУЗКА ПРАЙСА
         function handleExcelUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -998,7 +1088,6 @@
                             }
                         }
 
-                        // Вычислим медиану для каждого продукта (исправлено для корректного расчета)
                         if (allPricesForMedian.length > 0) {
                             allPricesForMedian.sort((a, b) => a - b);
                             const mid = Math.floor(allPricesForMedian.length / 2);
@@ -1024,6 +1113,7 @@
             reader.readAsArrayBuffer(file);
         }
 
+        // ЗАГРУЗКА ЦЕЛЕВЫХ ЦЕН
         function handleTargetPriceUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1059,7 +1149,9 @@
                         if (!isNaN(parsedPrice) && parsedPrice > 0) {
                             DB.targetPrices[productId] = parsedPrice;
                         }
-                    }            if (Object.keys(DB.targetPrices).length === 0) {
+                    }            
+                    
+                    if (Object.keys(DB.targetPrices).length === 0) {
                         showToast('⚠️ Целевые цены не найдены в файле', 'error');
                         event.target.value = '';
                         return;
@@ -1079,22 +1171,10 @@
             reader.readAsArrayBuffer(file);
         }
 
-        function clearAllData() {
-            if (confirm('Вы уверены?')) {
-                DB.companies = [];
-                DB.products = [];
-                DB.prices = {};
-                DB.productNames = {};
-                DB.targetPrices = {};
-                saveDB();
-                updateDashboard();
-                initializeSelects();
-                showToast('✅ Данные очищены');
-            }
-        }
-
+        // ОБНОВЛЕНИЕ ДАШБОРДА
         function updateDashboard() {
             const tbody = document.querySelector('#topPricesList tbody');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
             const allPrices = [];
@@ -1133,9 +1213,12 @@
             }
         }
 
+        // ИНИЦИАЛИЗАЦИЯ SELECTS
         function initializeSelects() {
             const select1 = document.getElementById('company1');
             const select2 = document.getElementById('company2');
+            
+            if (!select1 || !select2) return;
             
             select1.innerHTML = '<option>Выберите...</option>';
             select2.innerHTML = '<option>Выберите...</option>';
@@ -1146,13 +1229,14 @@
             });
         }
 
+        // ОБНОВЛЕНИЕ СРАВНЕНИЯ
         function updateComparison() {
-            const company1 = document.getElementById('company1').value;
-            const company2 = document.getElementById('company2').value;
+            const company1 = document.getElementById('company1')?.value;
+            const company2 = document.getElementById('company2')?.value;
             const resultDiv = document.getElementById('comparisonResult');
 
             if (!company1 || !company2 || company1 === company2) {
-                resultDiv.innerHTML = '<p style="color: var(--text-gray); text-align: center;">Выберите две компании</p>';
+                if (resultDiv) resultDiv.innerHTML = '<p style="color: var(--text-gray); text-align: center;">Выберите две компании</p>';
                 return;
             }
 
@@ -1201,11 +1285,13 @@
             });
 
             html += `</tbody></table>`;
-            resultDiv.innerHTML = html;
+            if (resultDiv) resultDiv.innerHTML = html;
         }
 
+        // ОБНОВЛЕНИЕ МАТРИЦЫ
         function updateMatrix() {
             const table = document.getElementById('matrixTable');
+            if (!table) return;
             table.innerHTML = '';
 
             if (DB.products.length === 0) return;
@@ -1235,7 +1321,6 @@
                     }
                 });
 
-                // Добавим колонку медианы
                 const median = DB.medians[productId];
                 rowHTML += `<td style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; font-weight: 600;">¥${median ? median.toFixed(2) : '-'}</td>`;
                 rowHTML += '</tr>';
@@ -1244,8 +1329,10 @@
             table.appendChild(tbody);
         }
 
+        // ОБНОВЛЕНИЕ АНАЛИТИКИ
         function updateAnalytics() {
             const tbody = document.querySelector('#analyticsTable tbody');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
             const stats = {};
@@ -1281,23 +1368,22 @@
             });
         }
 
+        // AI СООБЩЕНИЯ
         function sendAIMessage() {
             const input = document.getElementById('chatInput');
-            const message = input.value.trim();
+            const message = input?.value.trim();
             if (!message) return;
 
             const messagesDiv = document.getElementById('chatMessages');
+            if (!messagesDiv) return;
 
-            // Добавить сообщение пользователя
             const userDiv = document.createElement('div');
             userDiv.className = 'message user';
             userDiv.innerHTML = `<div class="message-bubble">${message}</div>`;
             messagesDiv.appendChild(userDiv);
 
-            // Получить ответ AI
             const response = getAIResponse(message);
 
-            // Добавить ответ AI
             setTimeout(() => {
                 const aiDiv = document.createElement('div');
                 aiDiv.className = 'message assistant';
@@ -1306,10 +1392,11 @@
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
             }, 500);
 
-            input.value = '';
+            if (input) input.value = '';
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
+        // AI ОТВЕТЫ
         function getAIResponse(message) {
             const msg = message.toLowerCase();
             
@@ -1358,9 +1445,11 @@
             return '🤔 Спросите о ценах, компаниях или загрузите данные для анализа';
         }
 
+        // ПОИСК
         function performSearch() {
-            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const query = document.getElementById('searchInput')?.value.toLowerCase().trim();
             const resultsDiv = document.getElementById('searchResults');
+            if (!resultsDiv) return;
 
             if (query.length === 0) {
                 resultsDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-gray);"><div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">🔍</div><p>Введите поиск</p></div>';
@@ -1425,6 +1514,7 @@
             resultsDiv.innerHTML = html;
         }
 
+        // ДЕТАЛИ ПРОДУКТА
         function showProductDetails(productId) {
             const productName = DB.productNames[productId];
             const prices = DB.prices[productId] || {};
@@ -1443,6 +1533,7 @@
             document.getElementById('searchResults').innerHTML = details;
         }
 
+        // ДЕТАЛИ КОМПАНИИ
         function showCompanyDetails(companyName) {
             const companyPrices = [];
             Object.keys(DB.prices).forEach(productId => {
@@ -1470,6 +1561,7 @@
             document.getElementById('searchResults').innerHTML = details;
         }
 
+        // СТАТИСТИКА КОМПАНИИ
         function getCompanyStats(companyName) {
             const prices = [];
             Object.keys(DB.prices).forEach(productId => {
@@ -1488,37 +1580,7 @@
             };
         }
 
-        function switchSection(sectionId, element) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-            
-            document.getElementById(sectionId).classList.add('active');
-            if (element) element.classList.add('active');
-
-            const titles = {
-                dashboard: '📊 Дашборд',
-                search: '🔍 Поиск',
-                compare: '⚖️ Сравнение',
-                matrix: '📋 Матрица',
-                analytics: '📈 Аналитика',
-                assistant: '🤖 AI Помощник',
-                logistics: '🚚 Логистика',
-                gantt: '📅 Gantt',
-                upload: '📤 Загрузка',
-                insights: '💡 Insights'
-            };
-            document.getElementById('pageTitle').textContent = titles[sectionId] || 'Страница';
-
-            if (sectionId === 'matrix') updateMatrix();
-            if (sectionId === 'analytics') updateAnalytics();
-            if (sectionId === 'logistics') updateLogisticsTable();
-            if (sectionId === 'gantt') updateGanttChart();
-            if (sectionId === 'insights') {
-                document.getElementById('aiInsightsContainer').innerHTML = getAIPricingInsights();
-            }
-        }
-
-        // === LOGISTICS FUNCTIONS ===
+        // ЛОГИСТИКА
         function addLogisticsRow() {
             const newRow = {
                 id: Date.now(),
@@ -1548,337 +1610,6 @@
             }
         }
 
-        function updateLogisticsTable() {
-            const tbody = document.getElementById('logisticsBody');
-            tbody.innerHTML = '';
-
-            if (DB.logistics.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: var(--text-gray); padding: 20px;">Поставок не найдено</td></tr>';
-                return;
-            }
-
-            DB.logistics.forEach(row => {
-                const tr = document.createElement('tr');
-                const statusColor = row.status.includes('Доставл') ? '#10b981' : 
-                                   row.status.includes('пути') ? '#f59e0b' : 
-                                   '#6366f1';
-                
-                tr.innerHTML = `
-                    <td style="font-weight: 600;">${row.num}</td>
-                    <td><input type="text" value="${row.supplier}" onchange="updateLogisticsRow(${row.id}, 'supplier', this.value)" style="width: 90%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
-                    <td><input type="text" value="${row.article}" onchange="updateLogisticsRow(${row.id}, 'article', this.value)" style="width: 90%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
-                    <td><input type="text" value="${row.name}" onchange="updateLogisticsRow(${row.id}, 'name', this.value)" style="width: 90%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
-                    <td><input type="number" value="${row.quantity}" onchange="updateLogisticsRow(${row.id}, 'quantity', this.value)" style="width: 70%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
-                    <td><input type="text" value="${row.unit}" onchange="updateLogisticsRow(${row.id}, 'unit', this.value)" style="width: 60%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
-                    <td>
-                        <select onchange="updateLogisticsRow(${row.id}, 'status', this.value)" style="width: 100%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: ${statusColor}; font-size: 12px; font-weight: 600;">
-                            <option selected>${row.status}</option>
-                            <option>📋 В ожидании</option>
-                            <option>🚚 В пути</option>
-                            <option>✅ Доставлена</option>
-                            <option>⚠️ Задержка</option>
-                        </select>
-                    </td>
-                    <td><input type="date" value="${row.planDate}" onchange="updateLogisticsRow(${row.id}, 'planDate', this.value)" style="width: 100%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
-                    <td><input type="date" value="${row.factDate}" onchange="updateLogisticsRow(${row.id}, 'factDate', this.value)" style="width: 100%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
-                    <td><input type="number" value="${row.cost}" onchange="updateLogisticsRow(${row.id}, 'cost', this.value)" style="width: 80%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
-                    <td><button class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;" onclick="deleteLogisticsRow(${row.id})">❌</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function deleteLogisticsRow(id) {
-            DB.logistics = DB.logistics.filter(r => r.id !== id);
-            saveDB();
-            updateLogisticsTable();
-            showToast('✅ Поставка удалена');
-        }
-
-        function clearLogistics() {
-            if (confirm('Очистить все поставки?')) {
-                DB.logistics = [];
-                saveDB();
-                updateLogisticsTable();
-                showToast('✅ Логистика очищена');
-            }
-        }
-
-        // === GANTT FUNCTIONS ===
-        function addGanttTask() {
-            const newTask = {
-                id: Date.now(),
-                name: 'Новая задача',
-                start: new Date().toISOString().split('T')[0],
-                end: new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0],
-                progress: 0,
-                color: '#6366f1'
-            };
-            DB.ganttTasks.push(newTask);
-            saveDB();
-            updateGanttChart();
-            showToast('✅ Задача добавлена');
-        }
-
-        function updateGanttTask(id, field, value) {
-            const task = DB.ganttTasks.find(t => t.id === id);
-            if (task) {
-                task[field] = field === 'progress' ? Math.min(100, Math.max(0, parseInt(value) || 0)) : value;
-                saveDB();
-                updateGanttChart();
-            }
-        }
-
-        function deleteGanttTask(id) {
-            DB.ganttTasks = DB.ganttTasks.filter(t => t.id !== id);
-            saveDB();
-            updateGanttChart();
-            showToast('✅ Задача удалена');
-        }
-
-        function clearGantt() {
-            if (confirm('Очистить все задачи?')) {
-                DB.ganttTasks = [];
-                saveDB();
-                updateGanttChart();
-                showToast('✅ Gantt очищена');
-            }
-        }
-
-        function updateGanttChart() {
-            const tasksDiv = document.getElementById('ganttTasks');
-            const svg = document.getElementById('ganttSvg');
-            
-            tasksDiv.innerHTML = '';
-            svg.innerHTML = '';
-
-            if (DB.ganttTasks.length === 0) {
-                tasksDiv.innerHTML = '<div style="color: var(--text-gray); text-align: center; padding: 20px;">Нет задач</div>';
-                return;
-            }
-
-            // Найдем min и max даты
-            const dates = [];
-            DB.ganttTasks.forEach(t => {
-                dates.push(new Date(t.start));
-                dates.push(new Date(t.end));
-            });
-            const minDate = new Date(Math.min(...dates));
-            const maxDate = new Date(Math.max(...dates));
-            const totalDays = Math.ceil((maxDate - minDate) / (1000*60*60*24)) + 1;
-
-            // Масштаб: 1 день = 20px
-            const dayWidth = 20;
-            const taskHeight = 40;
-            const svgWidth = totalDays * dayWidth + 50;
-            const svgHeight = DB.ganttTasks.length * taskHeight + 50;
-
-            svg.setAttribute('width', svgWidth);
-            svg.setAttribute('height', svgHeight);
-
-            // Рисуем оси
-            const ns = "http://www.w3.org/2000/svg";
-            
-            // Горизонтальная ось (даты)
-            for (let i = 0; i <= totalDays; i++) {
-                const x = 50 + i * dayWidth;
-                const line = document.createElementNS(ns, 'line');
-                line.setAttribute('x1', x);
-                line.setAttribute('y1', 30);
-                line.setAttribute('x2', x);
-                line.setAttribute('y2', svgHeight);
-                line.setAttribute('stroke', '#334155');
-                line.setAttribute('stroke-width', '1');
-                svg.appendChild(line);
-
-                if (i % 7 === 0) {
-                    const date = new Date(minDate);
-                    date.setDate(date.getDate() + i);
-                    const text = document.createElementNS(ns, 'text');
-                    text.setAttribute('x', x);
-                    text.setAttribute('y', 20);
-                    text.setAttribute('font-size', '10');
-                    text.setAttribute('fill', '#cbd5e1');
-                    text.setAttribute('text-anchor', 'middle');
-                    text.textContent = date.toLocaleDateString('ru-RU', { month: 'short', day: 'numeric' });
-                    svg.appendChild(text);
-                }
-            }
-
-            // Рисуем задачи
-            DB.ganttTasks.forEach((task, idx) => {
-                const taskStart = new Date(task.start);
-                const taskEnd = new Date(task.end);
-                const startDays = Math.ceil((taskStart - minDate) / (1000*60*60*24));
-                const endDays = Math.ceil((taskEnd - minDate) / (1000*60*60*24));
-                const duration = Math.max(1, endDays - startDays);
-
-                const x = 50 + startDays * dayWidth;
-                const y = 30 + idx * taskHeight;
-                const width = duration * dayWidth;
-
-                // Полоса задачи
-                const rect = document.createElementNS(ns, 'rect');
-                rect.setAttribute('x', x);
-                rect.setAttribute('y', y);
-                rect.setAttribute('width', width);
-                rect.setAttribute('height', 25);
-                rect.setAttribute('fill', task.color);
-                rect.setAttribute('opacity', '0.7');
-                rect.setAttribute('rx', '4');
-                svg.appendChild(rect);
-
-                // Прогресс
-                const progressRect = document.createElementNS(ns, 'rect');
-                progressRect.setAttribute('x', x);
-                progressRect.setAttribute('y', y);
-                progressRect.setAttribute('width', (width * task.progress) / 100);
-                progressRect.setAttribute('height', 25);
-                progressRect.setAttribute('fill', '#10b981');
-                progressRect.setAttribute('rx', '4');
-                svg.appendChild(progressRect);
-
-                // Текст прогресса
-                const text = document.createElementNS(ns, 'text');
-                text.setAttribute('x', x + width/2);
-                text.setAttribute('y', y + 17);
-                text.setAttribute('font-size', '11');
-                text.setAttribute('fill', '#ffffff');
-                text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('font-weight', 'bold');
-                text.textContent = task.progress + '%';
-                svg.appendChild(text);
-
-                // Задача в списке
-                const taskDiv = document.createElement('div');
-                taskDiv.style.cssText = 'padding: 8px; margin-bottom: 8px; background: rgba(99, 102, 241, 0.05); border-radius: 6px; border-left: 4px solid ' + task.color;
-                taskDiv.innerHTML = `
-                    <input type="text" value="${task.name}" onchange="updateGanttTask(${task.id}, 'name', this.value)" style="width: 100%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 11px; margin-bottom: 6px;">
-                    <div style="display: flex; gap: 4px; margin-bottom: 6px;">
-                        <input type="date" value="${task.start}" onchange="updateGanttTask(${task.id}, 'start', this.value)" style="flex: 1; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 10px;">
-                        <input type="date" value="${task.end}" onchange="updateGanttTask(${task.id}, 'end', this.value)" style="flex: 1; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 10px;">
-                    </div>
-                    <div style="display: flex; gap: 4px; align-items: center;">
-                        <input type="range" min="0" max="100" value="${task.progress}" onchange="updateGanttTask(${task.id}, 'progress', this.value)" style="flex: 1; height: 20px;">
-                        <span style="font-size: 11px; font-weight: 600; width: 30px;">${task.progress}%</span>
-                        <button class="btn btn-danger" style="padding: 4px 6px; font-size: 10px;" onclick="deleteGanttTask(${task.id})">❌</button>
-                    </div>
-                `;
-                tasksDiv.appendChild(taskDiv);
-            });
-        }
-
-        // Export functions
-        function exportToExcel() {
-            const headers = ['Product ID', 'Product Name'];
-            DB.companies.forEach(c => headers.push(c.name));
-            headers.push('Медиана', 'Target Price');
-
-            const data = [headers];
-            DB.products.forEach(productId => {
-                const row = [productId, DB.productNames[productId] || ''];
-                DB.companies.forEach(c => {
-                    const price = DB.prices[productId]?.[c.name];
-                    row.push(price ? price.toFixed(2) : '');
-                });
-                row.push(DB.medians[productId]?.toFixed(2) || '');
-                row.push(DB.targetPrices[productId]?.toFixed(2) || '');
-                data.push(row);
-            });
-
-            const ws = XLSX.utils.aoa_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Prices');
-            XLSX.writeFile(wb, 'price_data.xlsx');
-            showToast('✅ Данные экспортированы в Excel');
-        }
-
-        // AIInsights - advanced recommendations
-        function getAIPricingInsights() {
-            let insights = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">';
-
-            // Calculate statistics
-            const allPrices = [];
-            const companyStats = {};
-
-            Object.keys(DB.prices).forEach(productId => {
-                Object.entries(DB.prices[productId]).forEach(([company, price]) => {
-                    const p = parseFloat(price);
-                    if (!isNaN(p) && p > 0) {
-                        allPrices.push(p);
-                        if (!companyStats[company]) {
-                            companyStats[company] = { prices: [], products: [] };
-                        }
-                        companyStats[company].prices.push(p);
-                        companyStats[company].products.push(productId);
-                    }
-                });
-            });
-
-            if (allPrices.length === 0) return '<div style="color: var(--text-gray); padding: 20px; text-align: center;">Загрузите данные для анализа</div>';
-
-            // Best pricing strategy
-            let bestCompany = '';
-            let lowestAvg = Infinity;
-            Object.entries(companyStats).forEach(([company, stats]) => {
-                const avg = stats.prices.length > 0 ? stats.prices.reduce((a, b) => a + b, 0) / stats.prices.length : 0;
-                if (avg > 0 && avg < lowestAvg) {
-                    lowestAvg = avg;
-                    bestCompany = company;
-                }
-            });
-
-            // Price variance insight
-            allPrices.sort((a, b) => a - b);
-            const avgPrice = allPrices.reduce((a, b) => a + b, 0) / allPrices.length;
-            const variance = allPrices.map(p => Math.pow(p - avgPrice, 2)).reduce((a, b) => a + b, 0) / allPrices.length;
-            const stdDev = Math.sqrt(variance);
-            const priceRange = avgPrice > 0 ? ((allPrices[allPrices.length - 1] - allPrices[0]) / avgPrice * 100).toFixed(1) : '0';
-
-            insights += `
-                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 8px; padding: 15px;">
-                    <div style="font-weight: 600; color: #10b981; margin-bottom: 8px;">💚 Рекомендация: Самая низкая цена</div>
-                    <div style="font-size: 12px; color: var(--text-gray);">
-                        <div><strong>${bestCompany}</strong> предлагает самую конкурентную среднюю цену</div>
-                        <div style="margin-top: 5px;">Средняя: <strong>¥${lowestAvg.toFixed(2)}</strong></div>
-                    </div>
-                </div>
-
-                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; border-radius: 8px; padding: 15px;">
-                    <div style="font-weight: 600; color: #f59e0b; margin-bottom: 8px;">📊 Анализ рассеивания</div>
-                    <div style="font-size: 12px; color: var(--text-gray);">
-                        <div>Диапазон цен: <strong>${priceRange}%</strong></div>
-                        <div style="margin-top: 5px;">Стд. отклонение: <strong>¥${stdDev.toFixed(2)}</strong></div>
-                    </div>
-                </div>
-
-                <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid #6366f1; border-radius: 8px; padding: 15px;">
-                    <div style="font-weight: 600; color: #6366f1; margin-bottom: 8px;">📈 Общая статистика</div>
-                    <div style="font-size: 12px; color: var(--text-gray);">
-                        <div>Всего товаров: <strong>${DB.products.length}</strong></div>
-                        <div style="margin-top: 5px;">Компаний: <strong>${DB.companies.length}</strong></div>
-                    </div>
-                </div>
-
-                <div style="background: rgba(236, 72, 153, 0.1); border: 1px solid #ec4899; border-radius: 8px; padding: 15px;">
-                    <div style="font-weight: 600; color: #ec4899; margin-bottom: 8px;">🎯 Целевые цены</div>
-                    <div style="font-size: 12px; color: var(--text-gray);">
-                        <div>Загружено: <strong>${Object.keys(DB.targetPrices).length}</strong></div>
-                        <div style="margin-top: 5px;">Охвачено товаров: <strong>${DB.products.length > 0 ? ((Object.keys(DB.targetPrices).length / DB.products.length) * 100).toFixed(1) : 0}%</strong></div>
-                    </div>
-                </div>
-            `;
-
-            insights += '</div>';
-            return insights;
-        }= id);
-            if (row) {
-                row[field] = value;
-                saveDB();
-                updateLogisticsTable();
-            }
-        }
-
         function deleteLogisticsRow(id) {
             DB.logistics = DB.logistics.filter(r => r.id !== id);
             saveDB();
@@ -1888,6 +1619,7 @@
 
         function updateLogisticsTable() {
             const tbody = document.getElementById('logisticsBody');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
             if (DB.logistics.length === 0) {
@@ -1935,7 +1667,7 @@
             }
         }
 
-        // === GANTT CHART FUNCTIONS ===
+        // GANTT
         function addGanttTask() {
             const newTask = {
                 id: Date.now(),
@@ -1970,6 +1702,7 @@
         function updateGanttChart() {
             const tasksDiv = document.getElementById('ganttTasks');
             const svg = document.getElementById('ganttSvg');
+            if (!tasksDiv || !svg) return;
             
             tasksDiv.innerHTML = '';
             svg.innerHTML = '';
@@ -1979,7 +1712,6 @@
                 return;
             }
 
-            // Найдем min и max даты
             const dates = [];
             DB.ganttTasks.forEach(t => {
                 dates.push(new Date(t.start));
@@ -1989,7 +1721,6 @@
             const maxDate = new Date(Math.max(...dates));
             const totalDays = Math.ceil((maxDate - minDate) / (1000*60*60*24)) + 1;
 
-            // Масштаб: 1 день = 20px
             const dayWidth = 20;
             const taskHeight = 40;
             const svgWidth = totalDays * dayWidth + 50;
@@ -1998,10 +1729,8 @@
             svg.setAttribute('width', svgWidth);
             svg.setAttribute('height', svgHeight);
 
-            // Рисуем оси
             const ns = "http://www.w3.org/2000/svg";
             
-            // Горизонтальная ось (даты)
             for (let i = 0; i <= totalDays; i++) {
                 const x = 50 + i * dayWidth;
                 const line = document.createElementNS(ns, 'line');
@@ -2027,7 +1756,6 @@
                 }
             }
 
-            // Рисуем задачи
             DB.ganttTasks.forEach((task, idx) => {
                 const taskStart = new Date(task.start);
                 const taskEnd = new Date(task.end);
@@ -2039,7 +1767,6 @@
                 const y = 30 + idx * taskHeight;
                 const width = duration * dayWidth;
 
-                // Полоса задачи
                 const rect = document.createElementNS(ns, 'rect');
                 rect.setAttribute('x', x);
                 rect.setAttribute('y', y);
@@ -2050,7 +1777,6 @@
                 rect.setAttribute('rx', '4');
                 svg.appendChild(rect);
 
-                // Прогресс
                 const progressRect = document.createElementNS(ns, 'rect');
                 progressRect.setAttribute('x', x);
                 progressRect.setAttribute('y', y);
@@ -2060,7 +1786,6 @@
                 progressRect.setAttribute('rx', '4');
                 svg.appendChild(progressRect);
 
-                // Текст прогресса
                 const text = document.createElementNS(ns, 'text');
                 text.setAttribute('x', x + width/2);
                 text.setAttribute('y', y + 17);
@@ -2071,7 +1796,6 @@
                 text.textContent = task.progress + '%';
                 svg.appendChild(text);
 
-                // Задача в списке
                 const taskDiv = document.createElement('div');
                 taskDiv.style.cssText = 'padding: 8px; margin-bottom: 8px; background: rgba(99, 102, 241, 0.05); border-radius: 6px; border-left: 4px solid ' + task.color;
                 taskDiv.innerHTML = `
@@ -2098,6 +1822,123 @@
                 showToast('✅ Gantt очищена');
             }
         }
+
+        // ЭКСПОРТ
+        function exportToExcel() {
+            const headers = ['Product ID', 'Product Name'];
+            DB.companies.forEach(c => headers.push(c.name));
+            headers.push('Медиана', 'Target Price');
+
+            const data = [headers];
+            DB.products.forEach(productId => {
+                const row = [productId, DB.productNames[productId] || ''];
+                DB.companies.forEach(c => {
+                    const price = DB.prices[productId]?.[c.name];
+                    row.push(price ? price.toFixed(2) : '');
+                });
+                row.push(DB.medians[productId]?.toFixed(2) || '');
+                row.push(DB.targetPrices[productId]?.toFixed(2) || '');
+                data.push(row);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Prices');
+            XLSX.writeFile(wb, 'price_data.xlsx');
+            showToast('✅ Данные экспортированы в Excel');
+        }
+
+        // AI INSIGHTS
+        function getAIPricingInsights() {
+            let insights = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">';
+
+            const allPrices = [];
+            const companyStats = {};
+
+            Object.keys(DB.prices).forEach(productId => {
+                Object.entries(DB.prices[productId]).forEach(([company, price]) => {
+                    const p = parseFloat(price);
+                    if (!isNaN(p) && p > 0) {
+                        allPrices.push(p);
+                        if (!companyStats[company]) {
+                            companyStats[company] = { prices: [], products: [] };
+                        }
+                        companyStats[company].prices.push(p);
+                        companyStats[company].products.push(productId);
+                    }
+                });
+            });
+
+            if (allPrices.length === 0) return '<div style="color: var(--text-gray); padding: 20px; text-align: center;">Загрузите данные для анализа</div>';
+
+            let bestCompany = '';
+            let lowestAvg = Infinity;
+            Object.entries(companyStats).forEach(([company, stats]) => {
+                const avg = stats.prices.length > 0 ? stats.prices.reduce((a, b) => a + b, 0) / stats.prices.length : 0;
+                if (avg > 0 && avg < lowestAvg) {
+                    lowestAvg = avg;
+                    bestCompany = company;
+                }
+            });
+
+            allPrices.sort((a, b) => a - b);
+            const avgPrice = allPrices.reduce((a, b) => a + b, 0) / allPrices.length;
+            const variance = allPrices.map(p => Math.pow(p - avgPrice, 2)).reduce((a, b) => a + b, 0) / allPrices.length;
+            const stdDev = Math.sqrt(variance);
+            const priceRange = avgPrice > 0 ? ((allPrices[allPrices.length - 1] - allPrices[0]) / avgPrice * 100).toFixed(1) : '0';
+
+            insights += `
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 8px; padding: 15px;">
+                    <div style="font-weight: 600; color: #10b981; margin-bottom: 8px;">💚 Рекомендация: Самая низкая цена</div>
+                    <div style="font-size: 12px; color: var(--text-gray);">
+                        <div><strong>${bestCompany}</strong> предлагает самую конкурентную среднюю цену</div>
+                        <div style="margin-top: 5px;">Средняя: <strong>¥${lowestAvg.toFixed(2)}</strong></div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; border-radius: 8px; padding: 15px;">
+                    <div style="font-weight: 600; color: #f59e0b; margin-bottom: 8px;">📊 Анализ рассеивания</div>
+                    <div style="font-size: 12px; color: var(--text-gray);">
+                        <div>Диапазон цен: <strong>${priceRange}%</strong></div>
+                        <div style="margin-top: 5px;">Стд. отклонение: <strong>¥${stdDev.toFixed(2)}</strong></div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid #6366f1; border-radius: 8px; padding: 15px;">
+                    <div style="font-weight: 600; color: #6366f1; margin-bottom: 8px;">📈 Общая статистика</div>
+                    <div style="font-size: 12px; color: var(--text-gray);">
+                        <div>Всего товаров: <strong>${DB.products.length}</strong></div>
+                        <div style="margin-top: 5px;">Компаний: <strong>${DB.companies.length}</strong></div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(236, 72, 153, 0.1); border: 1px solid #ec4899; border-radius: 8px; padding: 15px;">
+                    <div style="font-weight: 600; color: #ec4899; margin-bottom: 8px;">🎯 Целевые цены</div>
+                    <div style="font-size: 12px; color: var(--text-gray);">
+                        <div>Загружено: <strong>${Object.keys(DB.targetPrices).length}</strong></div>
+                        <div style="margin-top: 5px;">Охвачено товаров: <strong>${DB.products.length > 0 ? ((Object.keys(DB.targetPrices).length / DB.products.length) * 100).toFixed(1) : 0}%</strong></div>
+                    </div>
+                </div>
+            `;
+
+            insights += '</div>';
+            return insights;
+        }
+
+        // ОЧИСТКА ДАННЫХ
+        function clearAllData() {
+            if (confirm('Вы уверены?')) {
+                DB.companies = [];
+                DB.products = [];
+                DB.prices = {};
+                DB.productNames = {};
+                DB.targetPrices = {};
+                saveDB();
+                updateDashboard();
+                initializeSelects();
+                showToast('✅ Данные очищены');
+            }
+        }
     </script>
 </body>
-</html
+</html>
