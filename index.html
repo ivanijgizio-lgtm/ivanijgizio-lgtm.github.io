@@ -502,16 +502,16 @@
 
         <div class="content-wrapper">
             <div class="sidebar">
-                <div class="menu-item active" onclick="switchSection('dashboard')">📊 Дашборд</div>
-                <div class="menu-item" onclick="switchSection('search')">🔍 Поиск</div>
-                <div class="menu-item" onclick="switchSection('compare')">⚖️ Сравнение</div>
-                <div class="menu-item" onclick="switchSection('matrix')">📋 Матрица</div>
-                <div class="menu-item" onclick="switchSection('analytics')">📈 Аналитика</div>
-                <div class="menu-item" onclick="switchSection('assistant')">🤖 AI Помощник</div>
-                <div class="menu-item" onclick="switchSection('logistics')">🚚 Логистика</div>
-                <div class="menu-item" onclick="switchSection('gantt')">📅 Gantt</div>
-                <div class="menu-item" onclick="switchSection('upload')">📤 Загрузка</div>
-                <div class="menu-item" onclick="switchSection('insights')">💡 Insights</div>
+                <div class="menu-item active" onclick="switchSection('dashboard', this)">📊 Дашборд</div>
+                <div class="menu-item" onclick="switchSection('search', this)">🔍 Поиск</div>
+                <div class="menu-item" onclick="switchSection('compare', this)">⚖️ Сравнение</div>
+                <div class="menu-item" onclick="switchSection('matrix', this)">📋 Матрица</div>
+                <div class="menu-item" onclick="switchSection('analytics', this)">📈 Аналитика</div>
+                <div class="menu-item" onclick="switchSection('assistant', this)">🤖 AI Помощник</div>
+                <div class="menu-item" onclick="switchSection('logistics', this)">🚚 Логистика</div>
+                <div class="menu-item" onclick="switchSection('gantt', this)">📅 Gantt</div>
+                <div class="menu-item" onclick="switchSection('upload', this)">📤 Загрузка</div>
+                <div class="menu-item" onclick="switchSection('insights', this)">💡 Insights</div>
             </div>
 
             <div class="content">
@@ -1391,12 +1391,12 @@
             };
         }
 
-        function switchSection(sectionId) {
+        function switchSection(sectionId, element) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
             
             document.getElementById(sectionId).classList.add('active');
-            event.target.classList.add('active');
+            if (element) element.classList.add('active');
 
             const titles = {
                 dashboard: '📊 Дашборд',
@@ -1407,7 +1407,8 @@
                 assistant: '🤖 AI Помощник',
                 logistics: '🚚 Логистика',
                 gantt: '📅 Gantt',
-                upload: '📤 Загрузка'
+                upload: '📤 Загрузка',
+                insights: '💡 Insights'
             };
             document.getElementById('pageTitle').textContent = titles[sectionId] || 'Страница';
 
@@ -1442,37 +1443,49 @@
         }
 
         function updateLogisticsRow(id, field, value) {
-            const row = DB.logistics.find(r => r.id ===
+            const row = DB.logistics.find(r => r.id === id);
+            if (row) {
+                row[field] = value;
+                saveDB();
+                updateLogisticsTable();
+            }
+        }
 
         function updateLogisticsTable() {
             const tbody = document.getElementById('logisticsBody');
+            tbody.innerHTML = '';
+
             if (DB.logistics.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: var(--text-gray); padding: 40px;">Нет данных</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: var(--text-gray); padding: 20px;">Поставок не найдено</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = '';
             DB.logistics.forEach(row => {
                 const tr = document.createElement('tr');
+                const statusColor = row.status.includes('Доставл') ? '#10b981' : 
+                                   row.status.includes('пути') ? '#f59e0b' : 
+                                   '#6366f1';
+                
                 tr.innerHTML = `
-                    <td>${row.num}</td>
-                    <td contenteditable="true" onblur="updateLogisticsRow(${row.id}, 'supplier', this.textContent)">${row.supplier}</td>
-                    <td contenteditable="true" onblur="updateLogisticsRow(${row.id}, 'article', this.textContent)">${row.article}</td>
-                    <td contenteditable="true" onblur="updateLogisticsRow(${row.id}, 'name', this.textContent)">${row.name}</td>
-                    <td contenteditable="true" onblur="updateLogisticsRow(${row.id}, 'quantity', this.textContent)">${row.quantity}</td>
-                    <td contenteditable="true" onblur="updateLogisticsRow(${row.id}, 'unit', this.textContent)">${row.unit}</td>
+                    <td style="font-weight: 600;">${row.num}</td>
+                    <td><input type="text" value="${row.supplier}" onchange="updateLogisticsRow(${row.id}, 'supplier', this.value)" style="width: 90%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td><input type="text" value="${row.article}" onchange="updateLogisticsRow(${row.id}, 'article', this.value)" style="width: 90%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td><input type="text" value="${row.name}" onchange="updateLogisticsRow(${row.id}, 'name', this.value)" style="width: 90%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td><input type="number" value="${row.quantity}" onchange="updateLogisticsRow(${row.id}, 'quantity', this.value)" style="width: 70%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td><input type="text" value="${row.unit}" onchange="updateLogisticsRow(${row.id}, 'unit', this.value)" style="width: 60%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
                     <td>
-                        <select onchange="updateLogisticsRow(${row.id}, 'status', this.value)" style="background: rgba(99, 102, 241, 0.1); border: 1px solid var(--border-dark); color: var(--text-light); padding: 4px; border-radius: 4px;">
-                            <option ${row.status === '📋 В ожидании' ? 'selected' : ''}>📋 В ожидании</option>
-                            <option ${row.status === '📦 Отправлено' ? 'selected' : ''}>📦 Отправлено</option>
-                            <option ${row.status === '✅ Доставлено' ? 'selected' : ''}>✅ Доставлено</option>
-                            <option ${row.status === '❌ Отменено' ? 'selected' : ''}>❌ Отменено</option>
+                        <select onchange="updateLogisticsRow(${row.id}, 'status', this.value)" style="width: 100%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: ${statusColor}; font-size: 12px; font-weight: 600;">
+                            <option selected>${row.status}</option>
+                            <option>📋 В ожидании</option>
+                            <option>🚚 В пути</option>
+                            <option>✅ Доставлена</option>
+                            <option>⚠️ Задержка</option>
                         </select>
                     </td>
-                    <td><input type="date" onchange="updateLogisticsRow(${row.id}, 'planDate', this.value)" value="${row.planDate}" style="background: var(--bg-dark); border: 1px solid var(--border-dark); color: var(--text-light); padding: 4px; border-radius: 4px;"></td>
-                    <td><input type="date" onchange="updateLogisticsRow(${row.id}, 'factDate', this.value)" value="${row.factDate}" style="background: var(--bg-dark); border: 1px solid var(--border-dark); color: var(--text-light); padding: 4px; border-radius: 4px;"></td>
-                    <td contenteditable="true" onblur="updateLogisticsRow(${row.id}, 'cost', this.textContent)" style="color: #10b981;">¥${parseFloat(row.cost || 0).toFixed(2)}</td>
-                    <td><button class="btn btn-danger" onclick="deleteLogisticsRow(${row.id})" style="padding: 6px 10px; font-size: 12px;">🗑️</button></td>
+                    <td><input type="date" value="${row.planDate}" onchange="updateLogisticsRow(${row.id}, 'planDate', this.value)" style="width: 100%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td><input type="date" value="${row.factDate}" onchange="updateLogisticsRow(${row.id}, 'factDate', this.value)" style="width: 100%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td><input type="number" value="${row.cost}" onchange="updateLogisticsRow(${row.id}, 'cost', this.value)" style="width: 80%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td><button class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;" onclick="deleteLogisticsRow(${row.id})">❌</button></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1490,7 +1503,7 @@
                 DB.logistics = [];
                 saveDB();
                 updateLogisticsTable();
-                showToast('✅ Данные очищены');
+                showToast('✅ Логистика очищена');
             }
         }
 
@@ -1499,9 +1512,10 @@
             const newTask = {
                 id: Date.now(),
                 name: 'Новая задача',
-                startDate: new Date().toISOString().split('T')[0],
-                endDate: new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0],
-                progress: 0
+                start: new Date().toISOString().split('T')[0],
+                end: new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0],
+                progress: 0,
+                color: '#6366f1'
             };
             DB.ganttTasks.push(newTask);
             saveDB();
@@ -1512,7 +1526,7 @@
         function updateGanttTask(id, field, value) {
             const task = DB.ganttTasks.find(t => t.id === id);
             if (task) {
-                task[field] = value;
+                task[field] = field === 'progress' ? Math.min(100, Math.max(0, parseInt(value) || 0)) : value;
                 saveDB();
                 updateGanttChart();
             }
@@ -1530,83 +1544,131 @@
                 DB.ganttTasks = [];
                 saveDB();
                 updateGanttChart();
-                showToast('✅ Данные очищены');
+                showToast('✅ Gantt очищена');
             }
         }
 
         function updateGanttChart() {
-            const tasksList = document.getElementById('ganttTasks');
+            const tasksDiv = document.getElementById('ganttTasks');
             const svg = document.getElementById('ganttSvg');
             
-            tasksList.innerHTML = '';
+            tasksDiv.innerHTML = '';
             svg.innerHTML = '';
 
             if (DB.ganttTasks.length === 0) {
-                tasksList.innerHTML = '<div style="color: var(--text-gray); text-align: center; padding: 20px;">Нет задач</div>';
+                tasksDiv.innerHTML = '<div style="color: var(--text-gray); text-align: center; padding: 20px;">Нет задач</div>';
                 return;
             }
 
-            const minDate = new Date(Math.min(...DB.ganttTasks.map(t => new Date(t.startDate))));
-            const maxDate = new Date(Math.max(...DB.ganttTasks.map(t => new Date(t.endDate))));
-            const daysDiff = Math.ceil((maxDate - minDate) / (1000 * 60 * 60 * 24)) + 1;
-
-            DB.ganttTasks.forEach((task, index) => {
-                // Левая часть - названия задач
-                const taskDiv = document.createElement('div');
-                taskDiv.style.cssText = 'font-size: 12px; padding: 12px; border-bottom: 1px solid var(--border-dark); word-break: break-word;';
-                taskDiv.innerHTML = `<input type="text" value="${task.name}" onchange="updateGanttTask(${task.id}, 'name', this.value)" style="width: 100%; background: transparent; border: none; color: var(--text-light); font-size: 12px;" class="gantt-task-name-input">`;
-                tasksList.appendChild(taskDiv);
-
-                // Правая часть - шкала времени
-                const startDate = new Date(task.startDate);
-                const endDate = new Date(task.endDate);
-                const daysFromMin = Math.ceil((startDate - minDate) / (1000 * 60 * 60 * 24));
-                const taskDuration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-
-                const barWidth = (taskDuration / daysDiff) * 100;
-                const barOffset = (daysFromMin / daysDiff) * 100;
-
-                const barGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                barGroup.setAttribute('class', `gantt-bar gantt-bar-${index}`);
-
-                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                rect.setAttribute('x', `${barOffset}%`);
-                rect.setAttribute('y', index * 50 + 10);
-                rect.setAttribute('width', `${barWidth}%`);
-                rect.setAttribute('height', '30');
-                rect.setAttribute('fill', `hsl(${200 + index * 30}, 70%, 50%)`);
-                rect.setAttribute('rx', '4');
-                rect.setAttribute('style', 'cursor: pointer; opacity: 0.85; transition: opacity 0.2s;');
-                rect.setAttribute('onmouseover', `this.style.opacity='1';`);
-                rect.setAttribute('onmouseout', `this.style.opacity='0.85';`);
-
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', `${barOffset + barWidth/2}%`);
-                text.setAttribute('y', index * 50 + 30);
-                text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('fill', 'white');
-                text.setAttribute('font-size', '11');
-                text.setAttribute('font-weight', '600');
-                text.textContent = `${task.progress}%`;
-
-                barGroup.appendChild(rect);
-                barGroup.appendChild(text);
-
-                const deleteBtn = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                deleteBtn.setAttribute('x', '95%');
-                deleteBtn.setAttribute('y', index * 50 + 30);
-                deleteBtn.setAttribute('text-anchor', 'middle');
-                deleteBtn.setAttribute('fill', '#ef4444');
-                deleteBtn.setAttribute('font-size', '14');
-                deleteBtn.setAttribute('cursor', 'pointer');
-                deleteBtn.setAttribute('onclick', `deleteGanttTask(${task.id})`);
-                deleteBtn.textContent = '✕';
-
-                svg.appendChild(barGroup);
-                svg.appendChild(deleteBtn);
+            // Найдем min и max даты
+            const dates = [];
+            DB.ganttTasks.forEach(t => {
+                dates.push(new Date(t.start));
+                dates.push(new Date(t.end));
             });
+            const minDate = new Date(Math.min(...dates));
+            const maxDate = new Date(Math.max(...dates));
+            const totalDays = Math.ceil((maxDate - minDate) / (1000*60*60*24)) + 1;
 
-            svg.setAttribute('height', Math.max(DB.ganttTasks.length * 50 + 50, 400));
+            // Масштаб: 1 день = 20px
+            const dayWidth = 20;
+            const taskHeight = 40;
+            const svgWidth = totalDays * dayWidth + 50;
+            const svgHeight = DB.ganttTasks.length * taskHeight + 50;
+
+            svg.setAttribute('width', svgWidth);
+            svg.setAttribute('height', svgHeight);
+
+            // Рисуем оси
+            const ns = "http://www.w3.org/2000/svg";
+            
+            // Горизонтальная ось (даты)
+            for (let i = 0; i <= totalDays; i++) {
+                const x = 50 + i * dayWidth;
+                const line = document.createElementNS(ns, 'line');
+                line.setAttribute('x1', x);
+                line.setAttribute('y1', 30);
+                line.setAttribute('x2', x);
+                line.setAttribute('y2', svgHeight);
+                line.setAttribute('stroke', '#334155');
+                line.setAttribute('stroke-width', '1');
+                svg.appendChild(line);
+
+                if (i % 7 === 0) {
+                    const date = new Date(minDate);
+                    date.setDate(date.getDate() + i);
+                    const text = document.createElementNS(ns, 'text');
+                    text.setAttribute('x', x);
+                    text.setAttribute('y', 20);
+                    text.setAttribute('font-size', '10');
+                    text.setAttribute('fill', '#cbd5e1');
+                    text.setAttribute('text-anchor', 'middle');
+                    text.textContent = date.toLocaleDateString('ru-RU', { month: 'short', day: 'numeric' });
+                    svg.appendChild(text);
+                }
+            }
+
+            // Рисуем задачи
+            DB.ganttTasks.forEach((task, idx) => {
+                const taskStart = new Date(task.start);
+                const taskEnd = new Date(task.end);
+                const startDays = Math.ceil((taskStart - minDate) / (1000*60*60*24));
+                const endDays = Math.ceil((taskEnd - minDate) / (1000*60*60*24));
+                const duration = Math.max(1, endDays - startDays);
+
+                const x = 50 + startDays * dayWidth;
+                const y = 30 + idx * taskHeight;
+                const width = duration * dayWidth;
+
+                // Полоса задачи
+                const rect = document.createElementNS(ns, 'rect');
+                rect.setAttribute('x', x);
+                rect.setAttribute('y', y);
+                rect.setAttribute('width', width);
+                rect.setAttribute('height', 25);
+                rect.setAttribute('fill', task.color);
+                rect.setAttribute('opacity', '0.7');
+                rect.setAttribute('rx', '4');
+                svg.appendChild(rect);
+
+                // Прогресс
+                const progressRect = document.createElementNS(ns, 'rect');
+                progressRect.setAttribute('x', x);
+                progressRect.setAttribute('y', y);
+                progressRect.setAttribute('width', (width * task.progress) / 100);
+                progressRect.setAttribute('height', 25);
+                progressRect.setAttribute('fill', '#10b981');
+                progressRect.setAttribute('rx', '4');
+                svg.appendChild(progressRect);
+
+                // Текст прогресса
+                const text = document.createElementNS(ns, 'text');
+                text.setAttribute('x', x + width/2);
+                text.setAttribute('y', y + 17);
+                text.setAttribute('font-size', '11');
+                text.setAttribute('fill', '#ffffff');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = task.progress + '%';
+                svg.appendChild(text);
+
+                // Задача в списке
+                const taskDiv = document.createElement('div');
+                taskDiv.style.cssText = 'padding: 8px; margin-bottom: 8px; background: rgba(99, 102, 241, 0.05); border-radius: 6px; border-left: 4px solid ' + task.color;
+                taskDiv.innerHTML = `
+                    <input type="text" value="${task.name}" onchange="updateGanttTask(${task.id}, 'name', this.value)" style="width: 100%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 11px; margin-bottom: 6px;">
+                    <div style="display: flex; gap: 4px; margin-bottom: 6px;">
+                        <input type="date" value="${task.start}" onchange="updateGanttTask(${task.id}, 'start', this.value)" style="flex: 1; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 10px;">
+                        <input type="date" value="${task.end}" onchange="updateGanttTask(${task.id}, 'end', this.value)" style="flex: 1; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 10px;">
+                    </div>
+                    <div style="display: flex; gap: 4px; align-items: center;">
+                        <input type="range" min="0" max="100" value="${task.progress}" onchange="updateGanttTask(${task.id}, 'progress', this.value)" style="flex: 1; height: 20px;">
+                        <span style="font-size: 11px; font-weight: 600; width: 30px;">${task.progress}%</span>
+                        <button class="btn btn-danger" style="padding: 4px 6px; font-size: 10px;" onclick="deleteGanttTask(${task.id})">❌</button>
+                    </div>
+                `;
+                tasksDiv.appendChild(taskDiv);
+            });
         }
 
         // Export functions
