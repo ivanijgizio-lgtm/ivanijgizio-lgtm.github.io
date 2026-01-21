@@ -508,7 +508,10 @@
                 <div class="menu-item" onclick="switchSection('matrix')">📋 Матрица</div>
                 <div class="menu-item" onclick="switchSection('analytics')">📈 Аналитика</div>
                 <div class="menu-item" onclick="switchSection('assistant')">🤖 AI Помощник</div>
+                <div class="menu-item" onclick="switchSection('logistics')">🚚 Логистика</div>
+                <div class="menu-item" onclick="switchSection('gantt')">📅 Gantt</div>
                 <div class="menu-item" onclick="switchSection('upload')">📤 Загрузка</div>
+                <div class="menu-item" onclick="switchSection('insights')">💡 Insights</div>
             </div>
 
             <div class="content">
@@ -526,6 +529,7 @@
                                     <th>Product Name</th>
                                     <th>Компания</th>
                                     <th>Цена ¥</th>
+                                    <th>Медиана ¥</th>
                                     <th>Target Price</th>
                                     <th>Статус</th>
                                 </tr>
@@ -616,10 +620,82 @@
                                     <th>Компания</th>
                                     <th>Кол-во</th>
                                     <th>Средняя ¥</th>
+                                    <th>Мин ¥</th>
+                                    <th>Макс ¥</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
                         </table>
+                    </div>
+                </section>
+
+                <!-- LOGISTICS -->
+                <section id="logistics" class="section">
+                    <div class="card">
+                        <div class="card-title">🚚 Управление логистикой и поставками</div>
+                        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                            <button class="btn btn-primary" onclick="addLogisticsRow()">➕ Добавить поставку</button>
+                            <button class="btn btn-danger" onclick="clearLogistics()">🗑️ Очистить</button>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table id="logisticsTable">
+                                <thead>
+                                    <tr>
+                                        <th>№</th>
+                                        <th>Поставщик</th>
+                                        <th>Артикул</th>
+                                        <th>Наименование</th>
+                                        <th>Кол-во</th>
+                                        <th>Ед.</th>
+                                        <th>Статус</th>
+                                        <th>План доставки</th>
+                                        <th>Факт доставки</th>
+                                        <th>Стоимость ¥</th>
+                                        <th>Действие</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="logisticsBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- GANTT CHART -->
+                <section id="gantt" class="section">
+                    <div class="card">
+                        <div class="card-title">📅 Gantt Chart - График проекта</div>
+                        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                            <button class="btn btn-primary" onclick="addGanttTask()">➕ Добавить задачу</button>
+                            <button class="btn btn-danger" onclick="clearGantt()">🗑️ Очистить</button>
+                        </div>
+                        <div style="overflow-x: auto; overflow-y: auto; max-height: 600px;">
+                            <div id="ganttChart" style="position: relative;">
+                                <div style="display: grid; grid-template-columns: 200px 1fr; gap: 10px;">
+                                    <div style="background: rgba(99, 102, 241, 0.1); padding: 10px; border-radius: 6px;">
+                                        <div style="font-weight: 600; color: var(--text-light); margin-bottom: 10px;">Задачи</div>
+                                        <div id="ganttTasks" style="font-size: 12px;"></div>
+                                    </div>
+                                    <div style="position: relative; overflow-x: auto;">
+                                        <svg id="ganttSvg" width="800" height="400" style="min-width: 100%;"></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- INSIGHTS -->
+                <section id="insights" class="section">
+                    <div class="card">
+                        <div class="card-title">💡 AI Insights и рекомендации</div>
+                        <div id="aiInsightsContainer"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">📊 Экспорт данных</div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-primary" onclick="exportToExcel()">📥 Скачать Excel</button>
+                        </div>
                     </div>
                 </section>
 
@@ -674,7 +750,10 @@
             products: [],
             prices: {},
             productNames: {},
-            targetPrices: {}
+            targetPrices: {},
+            medians: {},
+            logistics: [],
+            ganttTasks: []
         };
         let currentUser = null;
 
@@ -790,6 +869,7 @@
                     DB.prices = {};
                     DB.products = [];
                     DB.productNames = {};
+                    DB.medians = {};
 
                     for (let i = 1; i < json.length; i++) {
                         const row = json[i];
@@ -803,6 +883,8 @@
                         DB.productNames[productId] = productName;
                         DB.prices[productId] = {};
 
+                        const allPricesForMedian = [];
+
                         for (let j = 2; j < row.length && j - 2 < headers.length; j++) {
                             const company = headers[j - 2]?.toString().trim();
                             if (!company) continue;
@@ -815,8 +897,19 @@
 
                                 if (!isNaN(parsedPrice)) {
                                     DB.prices[productId][company] = parsedPrice;
+                                    allPricesForMedian.push(parsedPrice);
                                 }
                             }
+                        }
+
+                        // Вычислим медиану для каждого продукта
+                        if (allPricesForMedian.length > 0) {
+                            allPricesForMedian.sort((a, b) => a - b);
+                            const mid = Math.floor(allPricesForMedian.length / 2);
+                            const median = allPricesForMedian.length % 2 !== 0 
+                                ? allPricesForMedian[mid] 
+                                : (allPricesForMedian[mid - 1] + allPricesForMedian[mid]) / 2;
+                            DB.medians[productId] = median;
                         }
                     }
 
@@ -847,6 +940,12 @@
                     const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     const json = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
+                    if (json.length < 2) {
+                        showToast('❌ Файл пуст или неправильный формат', 'error');
+                        event.target.value = '';
+                        return;
+                    }
+
                     DB.targetPrices = {};
 
                     for (let i = 1; i < json.length; i++) {
@@ -855,20 +954,26 @@
 
                         const productId = row[0]?.toString().trim();
                         const targetPrice = row[1];
-                        if (!productId || !targetPrice) continue;
+                        if (!productId || targetPrice === undefined || targetPrice === '') continue;
 
                         let priceStr = targetPrice.toString().trim();
                         priceStr = priceStr.replace(/[^\d.]/g, '');
                         const parsedPrice = parseFloat(priceStr);
 
-                        if (!isNaN(parsedPrice)) {
+                        if (!isNaN(parsedPrice) && parsedPrice > 0) {
                             DB.targetPrices[productId] = parsedPrice;
                         }
                     }
 
+                    if (Object.keys(DB.targetPrices).length === 0) {
+                        showToast('⚠️ Целевые цены не найдены в файле', 'error');
+                        event.target.value = '';
+                        return;
+                    }
+
                     saveDB();
                     updateDashboard();
-                    showToast('✅ Целевые цены загружены!');
+                    showToast(`✅ Загружено ${Object.keys(DB.targetPrices).length} целевых цен!`);
                     event.target.value = '';
 
                 } catch (err) {
@@ -906,6 +1011,7 @@
                         productName: DB.productNames[productId] || productId,
                         company,
                         price: parseFloat(price),
+                        median: DB.medians[productId] ? parseFloat(DB.medians[productId]) : null,
                         target: DB.targetPrices[productId] ? parseFloat(DB.targetPrices[productId]) : null
                     });
                 });
@@ -921,6 +1027,7 @@
                     <td>${item.productName}</td>
                     <td>${item.company}</td>
                     <td><span class="price-badge">¥${item.price.toFixed(2)}</span></td>
+                    <td style="color: #f59e0b; font-weight: 600;">¥${item.median ? item.median.toFixed(2) : '-'}</td>
                     <td>${item.target ? '¥' + item.target.toFixed(2) : '-'}</td>
                     <td>${status}</td>
                 `;
@@ -928,7 +1035,7 @@
             });
 
             if (top10.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-gray);">Загрузите данные</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-gray);">Загрузите данные</td></tr>';
             }
         }
 
@@ -1012,7 +1119,7 @@
             const thead = document.createElement('thead');
             let headerHTML = '<tr><th>Продукт</th>';
             DB.companies.forEach(c => headerHTML += `<th>${c.name}</th>`);
-            headerHTML += '</tr>';
+            headerHTML += '<th style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; font-weight: 700;">Медиана ¥</th></tr>';
             thead.innerHTML = headerHTML;
             table.appendChild(thead);
 
@@ -1033,6 +1140,10 @@
                         rowHTML += '<td style="color: var(--text-gray);">-</td>';
                     }
                 });
+
+                // Добавим колонку медианы
+                const median = DB.medians[productId];
+                rowHTML += `<td style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; font-weight: 600;">¥${median ? median.toFixed(2) : '-'}</td>`;
                 rowHTML += '</tr>';
                 tbody.innerHTML += rowHTML;
             });
@@ -1043,20 +1154,33 @@
             const tbody = document.querySelector('#analyticsTable tbody');
             tbody.innerHTML = '';
 
+            const stats = {};
             DB.companies.forEach(company => {
-                const companyPrices = [];
-                Object.keys(DB.prices).forEach(productId => {
-                    if (DB.prices[productId][company.name]) {
-                        companyPrices.push(parseFloat(DB.prices[productId][company.name]));
+                stats[company.name] = { prices: [], min: Infinity, max: 0 };
+            });
+
+            Object.keys(DB.prices).forEach(productId => {
+                Object.entries(DB.prices[productId]).forEach(([company, price]) => {
+                    const p = parseFloat(price);
+                    if (!isNaN(p) && stats[company]) {
+                        stats[company].prices.push(p);
+                        stats[company].min = Math.min(stats[company].min, p);
+                        stats[company].max = Math.max(stats[company].max, p);
                     }
                 });
-                if (companyPrices.length > 0) {
-                    const avg = companyPrices.reduce((a, b) => a + b, 0) / companyPrices.length;
+            });
+
+            DB.companies.forEach(company => {
+                const companyStats = stats[company.name];
+                if (companyStats.prices.length > 0) {
+                    const avg = companyStats.prices.reduce((a, b) => a + b, 0) / companyStats.prices.length;
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${company.name}</td>
-                        <td>${companyPrices.length}</td>
+                        <td>${companyStats.prices.length}</td>
                         <td>¥${avg.toFixed(2)}</td>
+                        <td>¥${companyStats.min.toFixed(2)}</td>
+                        <td>¥${companyStats.max.toFixed(2)}</td>
                     `;
                     tbody.appendChild(row);
                 }
@@ -1281,12 +1405,536 @@
                 matrix: '📋 Матрица',
                 analytics: '📈 Аналитика',
                 assistant: '🤖 AI Помощник',
+                logistics: '🚚 Логистика',
+                gantt: '📅 Gantt',
                 upload: '📤 Загрузка'
             };
             document.getElementById('pageTitle').textContent = titles[sectionId] || 'Страница';
 
             if (sectionId === 'matrix') updateMatrix();
             if (sectionId === 'analytics') updateAnalytics();
+            if (sectionId === 'logistics') updateLogisticsTable();
+            if (sectionId === 'gantt') updateGanttChart();
+            if (sectionId === 'insights') {
+                document.getElementById('aiInsightsContainer').innerHTML = getAIPricingInsights();
+            }
+        }
+
+        // === LOGISTICS FUNCTIONS ===
+        function addLogisticsRow() {
+            const newRow = {
+                id: Date.now(),
+                num: DB.logistics.length + 1,
+                supplier: '',
+                article: '',
+                name: '',
+                quantity: '',
+                unit: 'шт.',
+                status: '📋 В ожидании',
+                planDate: new Date().toISOString().split('T')[0],
+                factDate: '',
+                cost: ''
+            };
+            DB.logistics.push(newRow);
+            saveDB();
+            updateLogisticsTable();
+            showToast('✅ Поставка добавлена');
+        }
+
+        function updateLogisticsRow(id, field, value) {
+            const row = DB.logistics.find(r => r.id ===
+
+        function updateLogisticsTable() {
+            const tbody = document.getElementById('logisticsBody');
+            if (DB.logistics.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: var(--text-gray); padding: 40px;">Нет данных</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            DB.logistics.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.num}</td>
+                    <td contenteditable="true" onblur="updateLogisticsRow(${row.id}, 'supplier', this.textContent)">${row.supplier}</td>
+                    <td contenteditable="true" onblur="updateLogisticsRow(${row.id}, 'article', this.textContent)">${row.article}</td>
+                    <td contenteditable="true" onblur="updateLogisticsRow(${row.id}, 'name', this.textContent)">${row.name}</td>
+                    <td contenteditable="true" onblur="updateLogisticsRow(${row.id}, 'quantity', this.textContent)">${row.quantity}</td>
+                    <td contenteditable="true" onblur="updateLogisticsRow(${row.id}, 'unit', this.textContent)">${row.unit}</td>
+                    <td>
+                        <select onchange="updateLogisticsRow(${row.id}, 'status', this.value)" style="background: rgba(99, 102, 241, 0.1); border: 1px solid var(--border-dark); color: var(--text-light); padding: 4px; border-radius: 4px;">
+                            <option ${row.status === '📋 В ожидании' ? 'selected' : ''}>📋 В ожидании</option>
+                            <option ${row.status === '📦 Отправлено' ? 'selected' : ''}>📦 Отправлено</option>
+                            <option ${row.status === '✅ Доставлено' ? 'selected' : ''}>✅ Доставлено</option>
+                            <option ${row.status === '❌ Отменено' ? 'selected' : ''}>❌ Отменено</option>
+                        </select>
+                    </td>
+                    <td><input type="date" onchange="updateLogisticsRow(${row.id}, 'planDate', this.value)" value="${row.planDate}" style="background: var(--bg-dark); border: 1px solid var(--border-dark); color: var(--text-light); padding: 4px; border-radius: 4px;"></td>
+                    <td><input type="date" onchange="updateLogisticsRow(${row.id}, 'factDate', this.value)" value="${row.factDate}" style="background: var(--bg-dark); border: 1px solid var(--border-dark); color: var(--text-light); padding: 4px; border-radius: 4px;"></td>
+                    <td contenteditable="true" onblur="updateLogisticsRow(${row.id}, 'cost', this.textContent)" style="color: #10b981;">¥${parseFloat(row.cost || 0).toFixed(2)}</td>
+                    <td><button class="btn btn-danger" onclick="deleteLogisticsRow(${row.id})" style="padding: 6px 10px; font-size: 12px;">🗑️</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteLogisticsRow(id) {
+            DB.logistics = DB.logistics.filter(r => r.id !== id);
+            saveDB();
+            updateLogisticsTable();
+            showToast('✅ Поставка удалена');
+        }
+
+        function clearLogistics() {
+            if (confirm('Очистить все поставки?')) {
+                DB.logistics = [];
+                saveDB();
+                updateLogisticsTable();
+                showToast('✅ Данные очищены');
+            }
+        }
+
+        // === GANTT FUNCTIONS ===
+        function addGanttTask() {
+            const newTask = {
+                id: Date.now(),
+                name: 'Новая задача',
+                startDate: new Date().toISOString().split('T')[0],
+                endDate: new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0],
+                progress: 0
+            };
+            DB.ganttTasks.push(newTask);
+            saveDB();
+            updateGanttChart();
+            showToast('✅ Задача добавлена');
+        }
+
+        function updateGanttTask(id, field, value) {
+            const task = DB.ganttTasks.find(t => t.id === id);
+            if (task) {
+                task[field] = value;
+                saveDB();
+                updateGanttChart();
+            }
+        }
+
+        function deleteGanttTask(id) {
+            DB.ganttTasks = DB.ganttTasks.filter(t => t.id !== id);
+            saveDB();
+            updateGanttChart();
+            showToast('✅ Задача удалена');
+        }
+
+        function clearGantt() {
+            if (confirm('Очистить все задачи?')) {
+                DB.ganttTasks = [];
+                saveDB();
+                updateGanttChart();
+                showToast('✅ Данные очищены');
+            }
+        }
+
+        function updateGanttChart() {
+            const tasksList = document.getElementById('ganttTasks');
+            const svg = document.getElementById('ganttSvg');
+            
+            tasksList.innerHTML = '';
+            svg.innerHTML = '';
+
+            if (DB.ganttTasks.length === 0) {
+                tasksList.innerHTML = '<div style="color: var(--text-gray); text-align: center; padding: 20px;">Нет задач</div>';
+                return;
+            }
+
+            const minDate = new Date(Math.min(...DB.ganttTasks.map(t => new Date(t.startDate))));
+            const maxDate = new Date(Math.max(...DB.ganttTasks.map(t => new Date(t.endDate))));
+            const daysDiff = Math.ceil((maxDate - minDate) / (1000 * 60 * 60 * 24)) + 1;
+
+            DB.ganttTasks.forEach((task, index) => {
+                // Левая часть - названия задач
+                const taskDiv = document.createElement('div');
+                taskDiv.style.cssText = 'font-size: 12px; padding: 12px; border-bottom: 1px solid var(--border-dark); word-break: break-word;';
+                taskDiv.innerHTML = `<input type="text" value="${task.name}" onchange="updateGanttTask(${task.id}, 'name', this.value)" style="width: 100%; background: transparent; border: none; color: var(--text-light); font-size: 12px;" class="gantt-task-name-input">`;
+                tasksList.appendChild(taskDiv);
+
+                // Правая часть - шкала времени
+                const startDate = new Date(task.startDate);
+                const endDate = new Date(task.endDate);
+                const daysFromMin = Math.ceil((startDate - minDate) / (1000 * 60 * 60 * 24));
+                const taskDuration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+                const barWidth = (taskDuration / daysDiff) * 100;
+                const barOffset = (daysFromMin / daysDiff) * 100;
+
+                const barGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                barGroup.setAttribute('class', `gantt-bar gantt-bar-${index}`);
+
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', `${barOffset}%`);
+                rect.setAttribute('y', index * 50 + 10);
+                rect.setAttribute('width', `${barWidth}%`);
+                rect.setAttribute('height', '30');
+                rect.setAttribute('fill', `hsl(${200 + index * 30}, 70%, 50%)`);
+                rect.setAttribute('rx', '4');
+                rect.setAttribute('style', 'cursor: pointer; opacity: 0.85; transition: opacity 0.2s;');
+                rect.setAttribute('onmouseover', `this.style.opacity='1';`);
+                rect.setAttribute('onmouseout', `this.style.opacity='0.85';`);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', `${barOffset + barWidth/2}%`);
+                text.setAttribute('y', index * 50 + 30);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', 'white');
+                text.setAttribute('font-size', '11');
+                text.setAttribute('font-weight', '600');
+                text.textContent = `${task.progress}%`;
+
+                barGroup.appendChild(rect);
+                barGroup.appendChild(text);
+
+                const deleteBtn = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                deleteBtn.setAttribute('x', '95%');
+                deleteBtn.setAttribute('y', index * 50 + 30);
+                deleteBtn.setAttribute('text-anchor', 'middle');
+                deleteBtn.setAttribute('fill', '#ef4444');
+                deleteBtn.setAttribute('font-size', '14');
+                deleteBtn.setAttribute('cursor', 'pointer');
+                deleteBtn.setAttribute('onclick', `deleteGanttTask(${task.id})`);
+                deleteBtn.textContent = '✕';
+
+                svg.appendChild(barGroup);
+                svg.appendChild(deleteBtn);
+            });
+
+            svg.setAttribute('height', Math.max(DB.ganttTasks.length * 50 + 50, 400));
+        }
+
+        // Export functions
+        function exportToExcel() {
+            const headers = ['Product ID', 'Product Name'];
+            DB.companies.forEach(c => headers.push(c.name));
+            headers.push('Медиана', 'Target Price');
+
+            const data = [headers];
+            DB.products.forEach(productId => {
+                const row = [productId, DB.productNames[productId] || ''];
+                DB.companies.forEach(c => {
+                    const price = DB.prices[productId]?.[c.name];
+                    row.push(price ? price.toFixed(2) : '');
+                });
+                row.push(DB.medians[productId]?.toFixed(2) || '');
+                row.push(DB.targetPrices[productId]?.toFixed(2) || '');
+                data.push(row);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Prices');
+            XLSX.writeFile(wb, 'price_data.xlsx');
+            showToast('✅ Данные экспортированы в Excel');
+        }
+
+        // AIInsights - advanced recommendations
+        function getAIPricingInsights() {
+            let insights = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">';
+
+            // Calculate statistics
+            const allPrices = [];
+            const companyStats = {};
+
+            Object.keys(DB.prices).forEach(productId => {
+                Object.entries(DB.prices[productId]).forEach(([company, price]) => {
+                    allPrices.push(price);
+                    if (!companyStats[company]) {
+                        companyStats[company] = { prices: [], products: [] };
+                    }
+                    companyStats[company].prices.push(price);
+                    companyStats[company].products.push(productId);
+                });
+            });
+
+            if (allPrices.length === 0) return '<div style="color: var(--text-gray); padding: 20px; text-align: center;">Загрузите данные для анализа</div>';
+
+            // Best pricing strategy
+            let bestCompany = '';
+            let lowestAvg = Infinity;
+            Object.entries(companyStats).forEach(([company, stats]) => {
+                const avg = stats.prices.reduce((a, b) => a + b, 0) / stats.prices.length;
+                if (avg < lowestAvg) {
+                    lowestAvg = avg;
+                    bestCompany = company;
+                }
+            });
+
+            // Price variance insight
+            allPrices.sort((a, b) => a - b);
+            const avgPrice = allPrices.reduce((a, b) => a + b, 0) / allPrices.length;
+            const variance = allPrices.map(p => Math.pow(p - avgPrice, 2)).reduce((a, b) => a + b, 0) / allPrices.length;
+            const stdDev = Math.sqrt(variance);
+            const priceRange = ((allPrices[allPrices.length - 1] - allPrices[0]) / avgPrice * 100).toFixed(1);
+
+            insights += `
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 8px; padding: 15px;">
+                    <div style="font-weight: 600; color: #10b981; margin-bottom: 8px;">💚 Рекомендация: Самая низкая цена</div>
+                    <div style="font-size: 12px; color: var(--text-gray);">
+                        <div><strong>${bestCompany}</strong> предлагает самую конкурентную среднюю цену</div>
+                        <div style="margin-top: 5px;">Средняя: <strong>¥${lowestAvg.toFixed(2)}</strong></div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; border-radius: 8px; padding: 15px;">
+                    <div style="font-weight: 600; color: #f59e0b; margin-bottom: 8px;">📊 Анализ рассеивания</div>
+                    <div style="font-size: 12px; color: var(--text-gray);">
+                        <div>Диапазон цен: <strong>${priceRange}%</strong></div>
+                        <div style="margin-top: 5px;">Стд. отклонение: <strong>¥${stdDev.toFixed(2)}</strong></div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid #6366f1; border-radius: 8px; padding: 15px;">
+                    <div style="font-weight: 600; color: #6366f1; margin-bottom: 8px;">📈 Общая статистика</div>
+                    <div style="font-size: 12px; color: var(--text-gray);">
+                        <div>Всего товаров: <strong>${DB.products.length}</strong></div>
+                        <div style="margin-top: 5px;">Компаний: <strong>${DB.companies.length}</strong></div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(236, 72, 153, 0.1); border: 1px solid #ec4899; border-radius: 8px; padding: 15px;">
+                    <div style="font-weight: 600; color: #ec4899; margin-bottom: 8px;">🎯 Целевые цены</div>
+                    <div style="font-size: 12px; color: var(--text-gray);">
+                        <div>Загружено: <strong>${Object.keys(DB.targetPrices).length}</strong></div>
+                        <div style="margin-top: 5px;">Охвачено товаров: <strong>${((Object.keys(DB.targetPrices).length / DB.products.length) * 100).toFixed(1)}%</strong></div>
+                    </div>
+                </div>
+            `;
+
+            insights += '</div>';
+            return insights;
+        }= id);
+            if (row) {
+                row[field] = value;
+                saveDB();
+                updateLogisticsTable();
+            }
+        }
+
+        function deleteLogisticsRow(id) {
+            DB.logistics = DB.logistics.filter(r => r.id !== id);
+            saveDB();
+            updateLogisticsTable();
+            showToast('✅ Поставка удалена');
+        }
+
+        function updateLogisticsTable() {
+            const tbody = document.getElementById('logisticsBody');
+            tbody.innerHTML = '';
+
+            if (DB.logistics.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: var(--text-gray);">Поставок не найдено</td></tr>';
+                return;
+            }
+
+            DB.logistics.forEach(row => {
+                const tr = document.createElement('tr');
+                const statusColor = row.status.includes('Доставлена') ? '#10b981' : 
+                                   row.status.includes('В пути') ? '#f59e0b' : 
+                                   '#6366f1';
+                
+                tr.innerHTML = `
+                    <td style="font-weight: 600;">${row.num}</td>
+                    <td><input type="text" value="${row.supplier}" onchange="updateLogisticsRow(${row.id}, 'supplier', this.value)" style="width: 90%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td><input type="text" value="${row.article}" onchange="updateLogisticsRow(${row.id}, 'article', this.value)" style="width: 90%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td><input type="text" value="${row.name}" onchange="updateLogisticsRow(${row.id}, 'name', this.value)" style="width: 90%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td><input type="number" value="${row.quantity}" onchange="updateLogisticsRow(${row.id}, 'quantity', this.value)" style="width: 70%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td><input type="text" value="${row.unit}" onchange="updateLogisticsRow(${row.id}, 'unit', this.value)" style="width: 60%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td>
+                        <select onchange="updateLogisticsRow(${row.id}, 'status', this.value)" style="width: 100%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: ${statusColor}; font-size: 12px; font-weight: 600;">
+                            <option selected>${row.status}</option>
+                            <option>📋 В ожидании</option>
+                            <option>🚚 В пути</option>
+                            <option>✅ Доставлена</option>
+                            <option>⚠️ Задержка</option>
+                        </select>
+                    </td>
+                    <td><input type="date" value="${row.planDate}" onchange="updateLogisticsRow(${row.id}, 'planDate', this.value)" style="width: 100%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td><input type="date" value="${row.factDate}" onchange="updateLogisticsRow(${row.id}, 'factDate', this.value)" style="width: 100%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td><input type="number" value="${row.cost}" onchange="updateLogisticsRow(${row.id}, 'cost', this.value)" style="width: 80%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 12px;"></td>
+                    <td><button class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;" onclick="deleteLogisticsRow(${row.id})">❌</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function clearLogistics() {
+            if (confirm('Очистить все поставки?')) {
+                DB.logistics = [];
+                saveDB();
+                updateLogisticsTable();
+                showToast('✅ Логистика очищена');
+            }
+        }
+
+        // === GANTT CHART FUNCTIONS ===
+        function addGanttTask() {
+            const newTask = {
+                id: Date.now(),
+                name: 'Новая задача',
+                start: new Date().toISOString().split('T')[0],
+                end: new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0],
+                progress: 0,
+                color: '#6366f1'
+            };
+            DB.ganttTasks.push(newTask);
+            saveDB();
+            updateGanttChart();
+            showToast('✅ Задача добавлена');
+        }
+
+        function updateGanttTask(id, field, value) {
+            const task = DB.ganttTasks.find(t => t.id === id);
+            if (task) {
+                task[field] = field === 'progress' ? Math.min(100, Math.max(0, parseInt(value) || 0)) : value;
+                saveDB();
+                updateGanttChart();
+            }
+        }
+
+        function deleteGanttTask(id) {
+            DB.ganttTasks = DB.ganttTasks.filter(t => t.id !== id);
+            saveDB();
+            updateGanttChart();
+            showToast('✅ Задача удалена');
+        }
+
+        function updateGanttChart() {
+            const tasksDiv = document.getElementById('ganttTasks');
+            const svg = document.getElementById('ganttSvg');
+            
+            tasksDiv.innerHTML = '';
+            svg.innerHTML = '';
+
+            if (DB.ganttTasks.length === 0) {
+                tasksDiv.innerHTML = '<div style="color: var(--text-gray); text-align: center; padding: 20px;">Нет задач</div>';
+                return;
+            }
+
+            // Найдем min и max даты
+            const dates = [];
+            DB.ganttTasks.forEach(t => {
+                dates.push(new Date(t.start));
+                dates.push(new Date(t.end));
+            });
+            const minDate = new Date(Math.min(...dates));
+            const maxDate = new Date(Math.max(...dates));
+            const totalDays = Math.ceil((maxDate - minDate) / (1000*60*60*24)) + 1;
+
+            // Масштаб: 1 день = 20px
+            const dayWidth = 20;
+            const taskHeight = 40;
+            const svgWidth = totalDays * dayWidth + 50;
+            const svgHeight = DB.ganttTasks.length * taskHeight + 50;
+
+            svg.setAttribute('width', svgWidth);
+            svg.setAttribute('height', svgHeight);
+
+            // Рисуем оси
+            const ns = "http://www.w3.org/2000/svg";
+            
+            // Горизонтальная ось (даты)
+            for (let i = 0; i <= totalDays; i++) {
+                const x = 50 + i * dayWidth;
+                const line = document.createElementNS(ns, 'line');
+                line.setAttribute('x1', x);
+                line.setAttribute('y1', 30);
+                line.setAttribute('x2', x);
+                line.setAttribute('y2', svgHeight);
+                line.setAttribute('stroke', '#334155');
+                line.setAttribute('stroke-width', '1');
+                svg.appendChild(line);
+
+                if (i % 7 === 0) {
+                    const date = new Date(minDate);
+                    date.setDate(date.getDate() + i);
+                    const text = document.createElementNS(ns, 'text');
+                    text.setAttribute('x', x);
+                    text.setAttribute('y', 20);
+                    text.setAttribute('font-size', '10');
+                    text.setAttribute('fill', '#cbd5e1');
+                    text.setAttribute('text-anchor', 'middle');
+                    text.textContent = date.toLocaleDateString('ru-RU', { month: 'short', day: 'numeric' });
+                    svg.appendChild(text);
+                }
+            }
+
+            // Рисуем задачи
+            DB.ganttTasks.forEach((task, idx) => {
+                const taskStart = new Date(task.start);
+                const taskEnd = new Date(task.end);
+                const startDays = Math.ceil((taskStart - minDate) / (1000*60*60*24));
+                const endDays = Math.ceil((taskEnd - minDate) / (1000*60*60*24));
+                const duration = Math.max(1, endDays - startDays);
+
+                const x = 50 + startDays * dayWidth;
+                const y = 30 + idx * taskHeight;
+                const width = duration * dayWidth;
+
+                // Полоса задачи
+                const rect = document.createElementNS(ns, 'rect');
+                rect.setAttribute('x', x);
+                rect.setAttribute('y', y);
+                rect.setAttribute('width', width);
+                rect.setAttribute('height', 25);
+                rect.setAttribute('fill', task.color);
+                rect.setAttribute('opacity', '0.7');
+                rect.setAttribute('rx', '4');
+                svg.appendChild(rect);
+
+                // Прогресс
+                const progressRect = document.createElementNS(ns, 'rect');
+                progressRect.setAttribute('x', x);
+                progressRect.setAttribute('y', y);
+                progressRect.setAttribute('width', (width * task.progress) / 100);
+                progressRect.setAttribute('height', 25);
+                progressRect.setAttribute('fill', '#10b981');
+                progressRect.setAttribute('rx', '4');
+                svg.appendChild(progressRect);
+
+                // Текст прогресса
+                const text = document.createElementNS(ns, 'text');
+                text.setAttribute('x', x + width/2);
+                text.setAttribute('y', y + 17);
+                text.setAttribute('font-size', '11');
+                text.setAttribute('fill', '#ffffff');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = task.progress + '%';
+                svg.appendChild(text);
+
+                // Задача в списке
+                const taskDiv = document.createElement('div');
+                taskDiv.style.cssText = 'padding: 8px; margin-bottom: 8px; background: rgba(99, 102, 241, 0.05); border-radius: 6px; border-left: 4px solid ' + task.color;
+                taskDiv.innerHTML = `
+                    <input type="text" value="${task.name}" onchange="updateGanttTask(${task.id}, 'name', this.value)" style="width: 100%; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 11px; margin-bottom: 6px;">
+                    <div style="display: flex; gap: 4px; margin-bottom: 6px;">
+                        <input type="date" value="${task.start}" onchange="updateGanttTask(${task.id}, 'start', this.value)" style="flex: 1; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 10px;">
+                        <input type="date" value="${task.end}" onchange="updateGanttTask(${task.id}, 'end', this.value)" style="flex: 1; padding: 4px; background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 4px; color: var(--text-light); font-size: 10px;">
+                    </div>
+                    <div style="display: flex; gap: 4px; align-items: center;">
+                        <input type="range" min="0" max="100" value="${task.progress}" onchange="updateGanttTask(${task.id}, 'progress', this.value)" style="flex: 1; height: 20px;">
+                        <span style="font-size: 11px; font-weight: 600; width: 30px;">${task.progress}%</span>
+                        <button class="btn btn-danger" style="padding: 4px 6px; font-size: 10px;" onclick="deleteGanttTask(${task.id})">❌</button>
+                    </div>
+                `;
+                tasksDiv.appendChild(taskDiv);
+            });
+        }
+
+        function clearGantt() {
+            if (confirm('Очистить все задачи?')) {
+                DB.ganttTasks = [];
+                saveDB();
+                updateGanttChart();
+                showToast('✅ Gantt очищена');
+            }
         }
     </script>
 </body>
