@@ -473,9 +473,9 @@
             </div>
             <div class="form-group">
                 <label>Пароль</label>
-                <input type="password" id="loginPassword" value="admin123" onkeypress="if(event.key==='Enter') return handleLogin(event); false;">
+                <input type="password" id="loginPassword" value="admin123">
             </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; cursor: pointer;" type="button" id="loginBtn">
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; cursor: pointer; font-size: 16px; padding: 12px 20px;" type="button" id="loginBtn" onclick="handleLogin()">
                 Вход
             </button>
         </div>
@@ -763,22 +763,29 @@
                 loadDB();
                 loadUser();
                 
+                // Привязываем обработчик к кнопке входа
+                const loginBtn = document.getElementById('loginBtn');
+                if (loginBtn) {
+                    loginBtn.addEventListener('click', handleLogin);
+                }
+                
+                // Для Enter в поле пароля
+                const passwordInput = document.getElementById('loginPassword');
+                if (passwordInput) {
+                    passwordInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleLogin();
+                        }
+                    });
+                }
+                
                 if (currentUser) {
                     console.log('✅ Найден пользователь, показываю главное приложение');
                     showMainApp();
                 } else {
                     console.log('❌ Пользователь не найден, показываю форму входа');
                     showLoginApp();
-                }
-                
-                // Привязываем обработчик к кнопке входа
-                const loginBtn = document.getElementById('loginBtn');
-                if (loginBtn) {
-                    loginBtn.addEventListener('click', handleLogin);
-                    // Для Enter в поле пароля
-                    document.getElementById('loginPassword').addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') handleLogin();
-                    });
                 }
             } catch (err) {
                 console.error('❌ Ошибка при загрузке:', err);
@@ -813,13 +820,13 @@
         }
 
         function handleLogin(e) {
-            console.log('🔐 handleLogin вызвана, e:', e);
+            if (e && e.preventDefault) e.preventDefault();
             
             try {
                 const email = document.getElementById('loginEmail').value.trim();
                 const password = document.getElementById('loginPassword').value;
 
-                console.log('🔐 Email:', email, 'Password:', password);
+                console.log('🔐 Попытка входа - Email:', email, 'Password:', password);
 
                 if (email === 'admin@example.com' && password === 'admin123') {
                     currentUser = { id: 1, name: 'Администратор', email };
@@ -829,13 +836,11 @@
                     showToast('✅ Добро пожаловать!');
                 } else {
                     console.log('❌ Неверные учетные данные');
-                    console.log('Email должен быть: admin@example.com, получен:', email);
-                    console.log('Password должен быть: admin123, получен:', password);
-                    showToast('❌ Email: admin@example.com | Пароль: admin123', 'error');
+                    showToast('❌ Email: admin@example.com\nПароль: admin123', 'error');
                 }
             } catch (err) {
                 console.error('❌ Ошибка входа:', err);
-                showToast('❌ Ошибка входа: ' + err.message, 'error');
+                showToast('❌ Ошибка: ' + err.message, 'error');
             }
         }
 
