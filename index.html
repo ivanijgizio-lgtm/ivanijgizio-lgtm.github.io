@@ -763,22 +763,28 @@
                 loadDB();
                 loadUser();
                 
-                // Привязываем обработчик к кнопке входа
-                const loginBtn = document.getElementById('loginBtn');
-                if (loginBtn) {
-                    loginBtn.addEventListener('click', handleLogin);
-                }
-                
-                // Для Enter в поле пароля
-                const passwordInput = document.getElementById('loginPassword');
-                if (passwordInput) {
-                    passwordInput.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleLogin();
-                        }
-                    });
-                }
+                // Привязываем обработчик к кнопке входа - ИСПРАВЛЕНО
+                setTimeout(() => {
+                    const loginBtn = document.getElementById('loginBtn');
+                    const passwordInput = document.getElementById('loginPassword');
+                    
+                    if (loginBtn) {
+                        console.log('✅ Кнопка найдена, привязываю обработчик');
+                        loginBtn.onclick = handleLogin;
+                        loginBtn.addEventListener('click', handleLogin);
+                    } else {
+                        console.error('❌ Кнопка входа не найдена!');
+                    }
+                    
+                    if (passwordInput) {
+                        passwordInput.addEventListener('keypress', (e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleLogin();
+                            }
+                        });
+                    }
+                }, 100);
                 
                 if (currentUser) {
                     console.log('✅ Найден пользователь, показываю главное приложение');
@@ -820,23 +826,37 @@
         }
 
         function handleLogin(e) {
-            if (e && e.preventDefault) e.preventDefault();
+            if (e) e.preventDefault();
+            if (e && e.stopPropagation) e.stopPropagation();
             
             try {
-                const email = document.getElementById('loginEmail').value.trim();
-                const password = document.getElementById('loginPassword').value;
+                const emailInput = document.getElementById('loginEmail');
+                const passwordInput = document.getElementById('loginPassword');
+                
+                if (!emailInput || !passwordInput) {
+                    console.error('❌ Поля ввода не найдены');
+                    showToast('❌ Ошибка: поля не найдены', 'error');
+                    return;
+                }
+                
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
 
-                console.log('🔐 Попытка входа - Email:', email, 'Password:', password);
+                console.log('🔐 Попытка входа - Email:', email, 'Password длина:', password.length);
+                console.log('🔐 Проверка: email === admin@example.com?', email === 'admin@example.com');
+                console.log('🔐 Проверка: password === admin123?', password === 'admin123');
 
                 if (email === 'admin@example.com' && password === 'admin123') {
                     currentUser = { id: 1, name: 'Администратор', email };
-                    console.log('✅ Вход успешен');
+                    console.log('✅ Вход успешен', currentUser);
                     saveUser();
                     showMainApp();
                     showToast('✅ Добро пожаловать!');
                 } else {
                     console.log('❌ Неверные учетные данные');
-                    showToast('❌ Email: admin@example.com\nПароль: admin123', 'error');
+                    console.log('Email получен:', email);
+                    console.log('Password получен:', password);
+                    showToast('❌ Email: admin@example.com | Пароль: admin123', 'error');
                 }
             } catch (err) {
                 console.error('❌ Ошибка входа:', err);
