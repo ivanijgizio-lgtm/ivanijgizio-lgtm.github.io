@@ -475,7 +475,7 @@
                 <label>Пароль</label>
                 <input type="password" id="loginPassword" value="admin123" onkeypress="if(event.key==='Enter') return handleLogin(event); false;">
             </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; cursor: pointer;" type="button" onclick="try { handleLogin(); } catch(e) { console.error(e); alert('Ошибка входа: ' + e.message); } return false;">
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; cursor: pointer;" type="button" id="loginBtn">
                 Вход
             </button>
         </div>
@@ -769,6 +769,16 @@
                 } else {
                     console.log('❌ Пользователь не найден, показываю форму входа');
                     showLoginApp();
+                }
+                
+                // Привязываем обработчик к кнопке входа
+                const loginBtn = document.getElementById('loginBtn');
+                if (loginBtn) {
+                    loginBtn.addEventListener('click', handleLogin);
+                    // Для Enter в поле пароля
+                    document.getElementById('loginPassword').addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') handleLogin();
+                    });
                 }
             } catch (err) {
                 console.error('❌ Ошибка при загрузке:', err);
