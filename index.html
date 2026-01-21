@@ -475,7 +475,7 @@
                 <label>Пароль</label>
                 <input type="password" id="loginPassword" value="admin123">
             </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; cursor: pointer;" onclick="handleLogin(); return false;">
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">
                 Вход
             </button>
         </div>
@@ -758,14 +758,10 @@
         let currentUser = null;
 
         window.addEventListener('load', () => {
-            try {
-                loadDB();
-                loadUser();
-                if (currentUser) showMainApp();
-                else showLoginApp();
-            } catch (e) {
-                console.error('Load error:', e);
-            }
+            loadDB();
+            loadUser();
+            if (currentUser) showMainApp();
+            else showLoginApp();
         });
 
         function loadUser() {
@@ -782,23 +778,16 @@
         }
 
         function handleLogin() {
-            try {
-                const email = document.getElementById('loginEmail').value.trim();
-                const password = document.getElementById('loginPassword').value;
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
 
-                console.log('Login attempt:', email, password);
-
-                if (email === 'admin@example.com' && password === 'admin123') {
-                    currentUser = { id: 1, name: 'Администратор', email };
-                    saveUser();
-                    showMainApp();
-                    showToast('✅ Добро пожаловать!');
-                } else {
-                    showToast('❌ Неверные данные', 'error');
-                }
-            } catch (e) {
-                console.error('Login error:', e);
-                showToast('❌ Ошибка входа: ' + e.message, 'error');
+            if (email === 'admin@example.com' && password === 'admin123') {
+                currentUser = { id: 1, name: 'Администратор', email };
+                saveUser();
+                showMainApp();
+                showToast('✅ Добро пожаловать!');
+            } else {
+                showToast('❌ Неверные данные', 'error');
             }
         }
 
@@ -811,33 +800,16 @@
         }
 
         function showLoginApp() {
-            try {
-                const loginApp = document.getElementById('loginApp');
-                const mainApp = document.getElementById('mainApp');
-                
-                if (loginApp) loginApp.classList.remove('hidden');
-                if (mainApp) mainApp.classList.remove('active');
-            } catch (e) {
-                console.error('Show login app error:', e);
-            }
+            document.getElementById('loginApp').classList.remove('hidden');
+            document.getElementById('mainApp').classList.remove('active');
         }
 
         function showMainApp() {
-            try {
-                const loginApp = document.getElementById('loginApp');
-                const mainApp = document.getElementById('mainApp');
-                
-                if (loginApp) loginApp.classList.add('hidden');
-                if (mainApp) mainApp.classList.add('active');
-                
-                if (currentUser) {
-                    const avatar = document.getElementById('userAvatar');
-                    const name = document.getElementById('userName');
-                    if (avatar) avatar.textContent = currentUser.name[0];
-                    if (name) name.textContent = currentUser.name;
-                }
-            } catch (e) {
-                console.error('Show main app error:', e);
+            document.getElementById('loginApp').classList.add('hidden');
+            document.getElementById('mainApp').classList.add('active');
+            if (currentUser) {
+                document.getElementById('userAvatar').textContent = currentUser.name[0];
+                document.getElementById('userName').textContent = currentUser.name;
             }
         }
 
@@ -923,21 +895,21 @@
                                 priceStr = priceStr.replace(/[^\d.]/g, '');
                                 const parsedPrice = parseFloat(priceStr);
 
-                                if (!isNaN(parsedPrice)) {
+                                if (!isNaN(parsedPrice) && parsedPrice > 0) {
                                     DB.prices[productId][company] = parsedPrice;
                                     allPricesForMedian.push(parsedPrice);
                                 }
                             }
                         }
 
-                        // Вычислим медиану для каждого продукта
+                        // Вычислим медиану для каждого продукта (исправлено для корректного расчета)
                         if (allPricesForMedian.length > 0) {
                             allPricesForMedian.sort((a, b) => a - b);
                             const mid = Math.floor(allPricesForMedian.length / 2);
                             const median = allPricesForMedian.length % 2 !== 0 
                                 ? allPricesForMedian[mid] 
                                 : (allPricesForMedian[mid - 1] + allPricesForMedian[mid]) / 2;
-                            DB.medians[productId] = median;
+                            DB.medians[productId] = parseFloat(median.toFixed(2));
                         }
                     }
 
@@ -991,14 +963,12 @@
                         if (!isNaN(parsedPrice) && parsedPrice > 0) {
                             DB.targetPrices[productId] = parsedPrice;
                         }
-                    }
-
-                    if (Object.keys(DB.targetPrices).length === 0) {
+                    }            if (Object.keys(DB.targetPrices).length === 0) {
                         showToast('⚠️ Целевые цены не найдены в файле', 'error');
                         event.target.value = '';
                         return;
                     }
-
+                    
                     saveDB();
                     updateDashboard();
                     showToast(`✅ Загружено ${Object.keys(DB.targetPrices).length} целевых цен!`);
@@ -1408,14 +1378,17 @@
             const prices = [];
             Object.keys(DB.prices).forEach(productId => {
                 if (DB.prices[productId][companyName]) {
-                    prices.push(DB.prices[productId][companyName]);
+                    const p = parseFloat(DB.prices[productId][companyName]);
+                    if (!isNaN(p) && p > 0) {
+                        prices.push(p);
+                    }
                 }
             });
             return {
                 count: prices.length,
-                avg: prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 0,
-                min: prices.length > 0 ? Math.min(...prices) : 0,
-                max: prices.length > 0 ? Math.max(...prices) : 0
+                avg: prices.length > 0 ? parseFloat((prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2)) : 0,
+                min: prices.length > 0 ? parseFloat(Math.min(...prices).toFixed(2)) : 0,
+                max: prices.length > 0 ? parseFloat(Math.max(...prices).toFixed(2)) : 0
             };
         }
 
@@ -1734,12 +1707,15 @@
 
             Object.keys(DB.prices).forEach(productId => {
                 Object.entries(DB.prices[productId]).forEach(([company, price]) => {
-                    allPrices.push(price);
-                    if (!companyStats[company]) {
-                        companyStats[company] = { prices: [], products: [] };
+                    const p = parseFloat(price);
+                    if (!isNaN(p) && p > 0) {
+                        allPrices.push(p);
+                        if (!companyStats[company]) {
+                            companyStats[company] = { prices: [], products: [] };
+                        }
+                        companyStats[company].prices.push(p);
+                        companyStats[company].products.push(productId);
                     }
-                    companyStats[company].prices.push(price);
-                    companyStats[company].products.push(productId);
                 });
             });
 
@@ -1749,8 +1725,8 @@
             let bestCompany = '';
             let lowestAvg = Infinity;
             Object.entries(companyStats).forEach(([company, stats]) => {
-                const avg = stats.prices.reduce((a, b) => a + b, 0) / stats.prices.length;
-                if (avg < lowestAvg) {
+                const avg = stats.prices.length > 0 ? stats.prices.reduce((a, b) => a + b, 0) / stats.prices.length : 0;
+                if (avg > 0 && avg < lowestAvg) {
                     lowestAvg = avg;
                     bestCompany = company;
                 }
@@ -1761,7 +1737,7 @@
             const avgPrice = allPrices.reduce((a, b) => a + b, 0) / allPrices.length;
             const variance = allPrices.map(p => Math.pow(p - avgPrice, 2)).reduce((a, b) => a + b, 0) / allPrices.length;
             const stdDev = Math.sqrt(variance);
-            const priceRange = ((allPrices[allPrices.length - 1] - allPrices[0]) / avgPrice * 100).toFixed(1);
+            const priceRange = avgPrice > 0 ? ((allPrices[allPrices.length - 1] - allPrices[0]) / avgPrice * 100).toFixed(1) : '0';
 
             insights += `
                 <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 8px; padding: 15px;">
@@ -1792,7 +1768,7 @@
                     <div style="font-weight: 600; color: #ec4899; margin-bottom: 8px;">🎯 Целевые цены</div>
                     <div style="font-size: 12px; color: var(--text-gray);">
                         <div>Загружено: <strong>${Object.keys(DB.targetPrices).length}</strong></div>
-                        <div style="margin-top: 5px;">Охвачено товаров: <strong>${((Object.keys(DB.targetPrices).length / DB.products.length) * 100).toFixed(1)}%</strong></div>
+                        <div style="margin-top: 5px;">Охвачено товаров: <strong>${DB.products.length > 0 ? ((Object.keys(DB.targetPrices).length / DB.products.length) * 100).toFixed(1) : 0}%</strong></div>
                     </div>
                 </div>
             `;
