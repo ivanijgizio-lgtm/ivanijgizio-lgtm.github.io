@@ -475,7 +475,7 @@
                 <label>Пароль</label>
                 <input type="password" id="loginPassword" value="admin123" onkeypress="if(event.key==='Enter') return handleLogin(event); false;">
             </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin(); return false;">
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; cursor: pointer;" type="button" onclick="try { handleLogin(); } catch(e) { console.error(e); alert('Ошибка входа: ' + e.message); } return false;">
                 Вход
             </button>
         </div>
@@ -803,16 +803,13 @@
         }
 
         function handleLogin(e) {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
+            console.log('🔐 handleLogin вызвана, e:', e);
             
             try {
                 const email = document.getElementById('loginEmail').value.trim();
                 const password = document.getElementById('loginPassword').value;
 
-                console.log('🔐 Попытка входа:', email);
+                console.log('🔐 Email:', email, 'Password:', password);
 
                 if (email === 'admin@example.com' && password === 'admin123') {
                     currentUser = { id: 1, name: 'Администратор', email };
@@ -822,13 +819,14 @@
                     showToast('✅ Добро пожаловать!');
                 } else {
                     console.log('❌ Неверные учетные данные');
+                    console.log('Email должен быть: admin@example.com, получен:', email);
+                    console.log('Password должен быть: admin123, получен:', password);
                     showToast('❌ Email: admin@example.com | Пароль: admin123', 'error');
                 }
             } catch (err) {
                 console.error('❌ Ошибка входа:', err);
                 showToast('❌ Ошибка входа: ' + err.message, 'error');
             }
-            return false;
         }
 
         function handleLogout() {
