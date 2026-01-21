@@ -475,7 +475,7 @@
                 <label>Пароль</label>
                 <input type="password" id="loginPassword" value="admin123">
             </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; cursor: pointer;" onclick="handleLogin(); return false;">
                 Вход
             </button>
         </div>
@@ -758,10 +758,14 @@
         let currentUser = null;
 
         window.addEventListener('load', () => {
-            loadDB();
-            loadUser();
-            if (currentUser) showMainApp();
-            else showLoginApp();
+            try {
+                loadDB();
+                loadUser();
+                if (currentUser) showMainApp();
+                else showLoginApp();
+            } catch (e) {
+                console.error('Load error:', e);
+            }
         });
 
         function loadUser() {
@@ -778,16 +782,23 @@
         }
 
         function handleLogin() {
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
+            try {
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value;
 
-            if (email === 'admin@example.com' && password === 'admin123') {
-                currentUser = { id: 1, name: 'Администратор', email };
-                saveUser();
-                showMainApp();
-                showToast('✅ Добро пожаловать!');
-            } else {
-                showToast('❌ Неверные данные', 'error');
+                console.log('Login attempt:', email, password);
+
+                if (email === 'admin@example.com' && password === 'admin123') {
+                    currentUser = { id: 1, name: 'Администратор', email };
+                    saveUser();
+                    showMainApp();
+                    showToast('✅ Добро пожаловать!');
+                } else {
+                    showToast('❌ Неверные данные', 'error');
+                }
+            } catch (e) {
+                console.error('Login error:', e);
+                showToast('❌ Ошибка входа: ' + e.message, 'error');
             }
         }
 
@@ -800,16 +811,33 @@
         }
 
         function showLoginApp() {
-            document.getElementById('loginApp').classList.remove('hidden');
-            document.getElementById('mainApp').classList.remove('active');
+            try {
+                const loginApp = document.getElementById('loginApp');
+                const mainApp = document.getElementById('mainApp');
+                
+                if (loginApp) loginApp.classList.remove('hidden');
+                if (mainApp) mainApp.classList.remove('active');
+            } catch (e) {
+                console.error('Show login app error:', e);
+            }
         }
 
         function showMainApp() {
-            document.getElementById('loginApp').classList.add('hidden');
-            document.getElementById('mainApp').classList.add('active');
-            if (currentUser) {
-                document.getElementById('userAvatar').textContent = currentUser.name[0];
-                document.getElementById('userName').textContent = currentUser.name;
+            try {
+                const loginApp = document.getElementById('loginApp');
+                const mainApp = document.getElementById('mainApp');
+                
+                if (loginApp) loginApp.classList.add('hidden');
+                if (mainApp) mainApp.classList.add('active');
+                
+                if (currentUser) {
+                    const avatar = document.getElementById('userAvatar');
+                    const name = document.getElementById('userName');
+                    if (avatar) avatar.textContent = currentUser.name[0];
+                    if (name) name.textContent = currentUser.name;
+                }
+            } catch (e) {
+                console.error('Show main app error:', e);
             }
         }
 
